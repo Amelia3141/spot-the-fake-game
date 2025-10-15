@@ -245,10 +245,58 @@
             }
         ];
 
-        function getRounds(difficulty) {
+        const spotFakeRounds = [
+            {
+                title: "Round 1: Warming Up",
+                facts: [
+                    { name: "Brain Freeze", desc: "The sharp headache from eating ice cream too fast happens when cold hits the roof of your mouth. Blood vessels rapidly constrict then dilate, triggering pain signals.", fake: false },
+                    { name: "Exploding Head Syndrome", desc: "People hear loud explosion sounds or crashes inside their head when falling asleep or waking up. It's completely harmless but can be very frightening.", fake: false },
+                    { name: "Sonic Perception Syndrome", desc: "A rare condition where people can hear electrical frequencies from power lines and WiFi routers, causing constant humming sensations. Affects roughly 2.3% of the population and worsens with age.", fake: true },
+                    { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle followed by sudden closure of the vocal cords. The longest recorded case lasted 68 years.", fake: false }
+                ],
+                explain: "Sonic Perception Syndrome is AI-generated nonsense. Red flags: suspiciously specific percentage (2.3%), made-up name combining real medical words, no actual mechanism explained."
+            },
+            {
+                title: "Round 2: Getting Tricky",
+                facts: [
+                    { name: "Thunderclap Headache", desc: "A sudden, severe headache that reaches maximum intensity within 60 seconds, often described as 'the worst headache of your life.' Can signal bleeding in the brain.", fake: false },
+                    { name: "Mirror Touch Synesthesia", desc: "Some people physically feel sensations they see others experiencing. If they watch someone being touched on the arm, they feel it on their own arm.", fake: false },
+                    { name: "Chromatic Appetite Disorder", desc: "A condition where the brain processes food colors incorrectly, making people unable to eat foods of certain colors. Affects approximately 1 in 8,000 people and is treated with color-filtered glasses.", fake: true },
+                    { name: "Foreign Accent Syndrome", desc: "After a stroke or head injury, people can suddenly speak with a completely different accent they never had before, like waking up British when you've always been American.", fake: false }
+                ],
+                explain: "Chromatic Appetite Disorder is fake. Red flags: made-up name using real medical words, oddly specific statistic (1 in 8,000), too-convenient solution."
+            },
+            {
+                title: "Round 3: Expert Level",
+                facts: [
+                    { name: "Cotard Delusion (Walking Corpse Syndrome)", desc: "People believe they are dead, don't exist, or have lost their blood and internal organs. They may refuse to eat because they think they don't need food anymore.", fake: false },
+                    { name: "Numerical Dysmorphia", desc: "A neurological condition where patients consistently perceive numbers as being exactly 3 units higher than they actually are. First documented in 1987 following a cluster of cases in Norway, with approximately 600 confirmed cases worldwide.", fake: true },
+                    { name: "Alice in Wonderland Syndrome", desc: "Objects appear much larger or smaller than they really are, and body parts feel like they're changing size. Often affects children and can be triggered by migraines or infections.", fake: false },
+                    { name: "Capgras Delusion", desc: "People become convinced that someone close to them has been replaced by an identical impostor. They recognize the person's face but feel no emotional connection, creating the certainty that it's an imposter.", fake: false }
+                ],
+                explain: "Numerical Dysmorphia is AI hallucination. Red flags: too-specific consistent error (always exactly 3 units), suspiciously precise numbers, implausibly neat pattern."
+            },
+            {
+                title: "Round 4: Can You Outsmart AI?",
+                facts: [
+                    { name: "Takotsubo Cardiomyopathy (Broken Heart Syndrome)", desc: "Extreme emotional stress can literally reshape your heart into a balloon-like shape, mimicking a heart attack. Named after Japanese octopus traps because that's what the heart looks like on scans.", fake: false },
+                    { name: "Hemineglect", desc: "After certain brain injuries, people completely ignore one half of their world. They might only eat food from the right side of their plate, only shave half their face, or only draw half a clock.", fake: false },
+                    { name: "Prosopagnosia (Face Blindness)", desc: "People cannot recognize faces, even of close family members. Some can't even recognize their own face in a mirror. They have to identify people by voice, clothing, or hairstyle instead.", fake: false },
+                    { name: "Temporal Sequence Reversal Disorder", desc: "A condition where patients experience short-term memories in reverse chronological order for 15-30 second windows. Caused by disrupted hippocampal timing mechanisms and affects balance and coordination severely.", fake: true }
+                ],
+                explain: "Temporal Sequence Reversal Disorder is fake. Red flags: suspiciously precise time window, mixing unrelated symptoms, overly technical but meaningless explanation."
+            }
+        ];
+
+        function getRounds(difficulty, mode) {
+            if (mode === 'spotfake') return spotFakeRounds;
             if (difficulty === 'easy') return roundsEasy;
             if (difficulty === 'hard') return roundsHard;
             return roundsMedium;
+        }
+
+        function getNumOptions(mode) {
+            return mode === 'spotfake' ? 4 : 2;
         }
 
         function setDifficulty(level) {
@@ -281,16 +329,24 @@
         function selectFact(idx) {
             if (state.revealed) return;
             state.selected = idx;
-            const roundsToUse = getRounds(state.difficulty);
-            const pair = roundsToUse[state.round].pairs[0];
-            const isCorrect = (idx === 0) === pair.correctIsReal;
-            if (isCorrect) state.score++;
+            
+            if (state.mode === 'spotfake') {
+                const round = spotFakeRounds[state.round];
+                const isCorrect = round.facts[idx].fake;
+                if (isCorrect) state.score++;
+            } else {
+                const roundsToUse = getRounds(state.difficulty, state.mode);
+                const pair = roundsToUse[state.round].pairs[0];
+                const isCorrect = (idx === 0) === pair.correctIsReal;
+                if (isCorrect) state.score++;
+            }
+            
             state.revealed = true;
             render();
         }
 
         function nextRound() {
-            const roundsToUse = getRounds(state.difficulty);
+            const roundsToUse = getRounds(state.difficulty, state.mode);
             if (state.round < roundsToUse.length - 1) {
                 state.round++;
                 state.selected = null;
@@ -312,6 +368,7 @@
             const entry = {
                 name: name,
                 score: state.score,
+                mode: state.mode,
                 difficulty: state.difficulty,
                 timestamp: timestamp
             };
@@ -338,8 +395,12 @@
 
         document.addEventListener('keydown', (e) => {
             const key = e.key.toUpperCase();
+            const numOptions = getNumOptions(state.mode);
+            
             if (key === 'A') selectFact(0);
             else if (key === 'B') selectFact(1);
+            else if (key === 'C' && numOptions >= 3) selectFact(2);
+            else if (key === 'D' && numOptions >= 4) selectFact(3);
             else if (key === 'ENTER') {
                 if (state.revealed && !state.complete) nextRound();
                 else if (state.complete) backToMenu();
@@ -361,8 +422,11 @@
                     <div class="card">
                         <div class="menu-section">
                             <h2>Select Game Mode</h2>
-                            <button onclick="startGame('callmybluff')" style="margin-bottom: 10px;">Call My Bluff Mode</button>
-                            <p style="font-size: 12px; color: #666;">One real, one fake definition. Spot which is correct.</p>
+                            <button onclick="startGame('callmybluff')" style="margin-bottom: 10px;">Call My Bluff</button>
+                            <p style="font-size: 12px; color: #666;">One real, one fake definition. Press A or B to choose.</p>
+                            
+                            <button onclick="startGame('spotfake')" style="margin-bottom: 10px; margin-top: 15px;">Spot The Fake</button>
+                            <p style="font-size: 12px; color: #666;">Find the AI hallucination among 4 options. Press A, B, C, or D to choose.</p>
                         </div>
 
                         <div style="border-top: 2px solid #eee; padding-top: 20px; margin-top: 20px;">
@@ -434,86 +498,160 @@
                 return;
             }
 
-            const roundsToUse = getRounds(state.difficulty);
-            const round = roundsToUse[state.round];
-            const pair = round.pairs[0];
+            const roundsToUse = getRounds(state.difficulty, state.mode);
             
-            let factsHtml = `
-                <div style="margin-bottom: 20px;">
-                    <div style="background: #f0f7e8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                        <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4caf50;">${pair.condition}</div>
-                        <div style="font-size: 14px; color: #666;">Which definition is correct?</div>
-                    </div>
-                </div>
-            `;
+            if (state.mode === 'spotfake') {
+                // SPOT FAKE MODE - 4 OPTIONS
+                const round = roundsToUse[state.round];
+                let factsHtml = '';
+                
+                round.facts.forEach((fact, idx) => {
+                    let classes = 'fact';
+                    if (state.revealed) {
+                        if (fact.fake && state.selected === idx) classes += ' correct';
+                        else if (!fact.fake && state.selected === idx) classes += ' wrong';
+                        else if (fact.fake) classes += ' wrong';
+                        classes += ' disabled';
+                    } else {
+                        if (state.selected === idx) classes += ' selected';
+                    }
+                    
+                    let badge = '';
+                    if (state.revealed && fact.fake) {
+                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
+                    } else if (state.revealed && !fact.fake && state.selected === idx) {
+                        badge = '<span class="fact-badge badge-real">✓ REAL</span>';
+                    }
+                    
+                    const letter = String.fromCharCode(65 + idx);
+                    factsHtml += `
+                        <div class="${classes}" onclick="selectFact(${idx})">
+                            <div class="fact-name"><span style="display: inline-block; min-width: 30px; font-weight: bold; color: #ff9800;">${letter}.</span> ${fact.name}</div>
+                            <div class="fact-desc">${fact.desc}</div>
+                            ${badge}
+                        </div>
+                    `;
+                });
 
-            [pair.real, pair.fake].forEach((definition, idx) => {
-                const isCorrect = (idx === 0) === pair.correctIsReal;
-                let classes = 'fact';
-                
+                let explanation = '';
                 if (state.revealed) {
-                    if (isCorrect && state.selected === idx) classes += ' correct';
-                    else if (!isCorrect && state.selected === idx) classes += ' wrong';
-                    else if (isCorrect) classes += ' wrong';
-                    classes += ' disabled';
-                } else {
-                    if (state.selected === idx) classes += ' selected';
+                    explanation = `
+                        <div class="explanation show">
+                            <div class="explanation-title">Why was it fake?</div>
+                            <div class="explanation-text">${round.explain}</div>
+                        </div>
+                    `;
                 }
+
+                gameEl.innerHTML = `
+                    <div class="header">
+                        <div>
+                            <h1>Spot The Fake</h1>
+                            <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">Score</div>
+                            <div class="score-value">${state.score}/4</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="round-info">
+                            <div class="round-title">${round.title}</div>
+                            <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                        </div>
+                        <div class="instructions">3 of these are REAL medical conditions. 1 is completely made up by AI. Which one is fake?</div>
+                        <div class="instructions" style="font-size: 12px; color: #999;">Press A, B, C, or D on your keyboard to select</div>
+                        <div class="facts">
+                            ${factsHtml}
+                        </div>
+                        ${explanation}
+                        ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+                    </div>
+                    <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+                    <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                `;
+            } else {
+                // CALL MY BLUFF MODE - 2 OPTIONS
+                const round = roundsToUse[state.round];
+                const pair = round.pairs[0];
                 
-                let badge = '';
-                if (state.revealed && !isCorrect) {
-                    badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
-                } else if (state.revealed && isCorrect && state.selected === idx) {
-                    badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
-                }
-                
-                const letter = String.fromCharCode(65 + idx);
-                factsHtml += `
-                    <div class="${classes}" onclick="selectFact(${idx})">
-                        <div class="fact-name">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
-                        <div class="fact-desc">${definition}</div>
-                        ${badge}
+                let factsHtml = `
+                    <div style="margin-bottom: 20px;">
+                        <div style="background: #f0f7e8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4caf50;">${pair.condition}</div>
+                            <div style="font-size: 14px; color: #666;">Which definition is correct?</div>
+                        </div>
                     </div>
                 `;
-            });
 
-            let explanation = '';
-            if (state.revealed) {
-                explanation = `
-                    <div class="explanation show">
-                        <div class="explanation-title">Why?</div>
-                        <div class="explanation-text">${round.explain}</div>
+                [pair.real, pair.fake].forEach((definition, idx) => {
+                    const isCorrect = (idx === 0) === pair.correctIsReal;
+                    let classes = 'fact';
+                    
+                    if (state.revealed) {
+                        if (isCorrect && state.selected === idx) classes += ' correct';
+                        else if (!isCorrect && state.selected === idx) classes += ' wrong';
+                        else if (isCorrect) classes += ' wrong';
+                        classes += ' disabled';
+                    } else {
+                        if (state.selected === idx) classes += ' selected';
+                    }
+                    
+                    let badge = '';
+                    if (state.revealed && !isCorrect) {
+                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
+                    } else if (state.revealed && isCorrect && state.selected === idx) {
+                        badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
+                    }
+                    
+                    const letter = String.fromCharCode(65 + idx);
+                    factsHtml += `
+                        <div class="${classes}" onclick="selectFact(${idx})">
+                            <div class="fact-name">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
+                            <div class="fact-desc">${definition}</div>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                let explanation = '';
+                if (state.revealed) {
+                    explanation = `
+                        <div class="explanation show">
+                            <div class="explanation-title">Why?</div>
+                            <div class="explanation-text">${round.explain}</div>
+                        </div>
+                    `;
+                }
+
+                gameEl.innerHTML = `
+                    <div class="header">
+                        <div>
+                            <h1>Call My Bluff</h1>
+                            <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">Score</div>
+                            <div class="score-value">${state.score}/4</div>
+                        </div>
                     </div>
+                    <div class="card">
+                        <div class="round-info">
+                            <div class="round-title">${round.title}</div>
+                            <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                        </div>
+                        <div class="instructions">Pick the correct definition.</div>
+                        <div class="instructions" style="font-size: 12px; color: #999;">Press A or B on your keyboard to select</div>
+                        <div class="facts">
+                            ${factsHtml}
+                        </div>
+                        ${explanation}
+                        ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+                    </div>
+                    <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+                    <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
                 `;
             }
-
-            gameEl.innerHTML = `
-                <div class="header">
-                    <div>
-                        <h1>Spot The Fake</h1>
-                        <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
-                    </div>
-                    <div class="score">
-                        <div class="score-label">Score</div>
-                        <div class="score-value">${state.score}/4</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="round-info">
-                        <div class="round-title">${round.title}</div>
-                        <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
-                    </div>
-                    <div class="instructions">Pick the correct definition.</div>
-                    <div class="instructions" style="font-size: 12px; color: #999;">Press A or B on your keyboard to select</div>
-                    <div class="facts">
-                        ${factsHtml}
-                    </div>
-                    ${explanation}
-                    ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
-                </div>
-                <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
-                <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
-            `;
         }
 
         loadLeaderboard();
