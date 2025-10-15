@@ -50,6 +50,8 @@
         .difficulty-btn:hover { transform: none; }
         .menu-section { margin-bottom: 30px; }
         .difficulty-desc { font-size: 12px; color: #666; margin-top: 10px; }
+        .error-message { color: #f44336; font-size: 12px; margin-top: 5px; }
+        input { font-family: inherit; }
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
             .score { margin-top: 15px; }
@@ -79,6 +81,64 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // NAME VALIDATION
+        const blockedWords = [
+            'f4g', 'fagg', 'n1gg', 'nigg', 'sh1t', 'shitt', 
+            'kys', 'kill', 'die', 'slut', 'whore', 'cunt'
+        ];
+
+        const whitelistedNames = [
+            'assana', 'assane', 'shaniqua', 'gaylord', 'dick', 'dickson', 
+            'fanny', 'fannie', 'shitley', 'damn', 'dammit', 'ass'
+        ];
+
+        function isNameValid(name) {
+            const lower = name.toLowerCase().trim();
+            
+            if (lower.length < 2 || lower.length > 30) {
+                return { valid: false, reason: 'Name must be 2-30 characters' };
+            }
+            
+            for (let word of blockedWords) {
+                if (lower.includes(word)) {
+                    return { valid: false, reason: 'Name contains restricted content' };
+                }
+            }
+            
+            const profanityPatterns = [
+                { regex: /shit/i, safe: false },
+                { regex: /fuck/i, safe: false },
+                { regex: /damn/i, safe: false },
+                { regex: /ass(?!ana|ane)/i, safe: false },
+                { regex: /dick(?!inson|son)/i, safe: false },
+                { regex: /dick$/i, safe: true },
+                { regex: /fanny$/i, safe: true },
+                { regex: /^hell/i, safe: false },
+                { regex: /bitch/i, safe: false }
+            ];
+            
+            for (let pattern of profanityPatterns) {
+                if (pattern.regex.test(lower)) {
+                    const isWhitelisted = whitelistedNames.some(wl => 
+                        lower === wl.toLowerCase() || lower.includes(wl.toLowerCase())
+                    );
+                    if (!isWhitelisted && !pattern.safe) {
+                        return { valid: false, reason: 'Name contains restricted content' };
+                    }
+                }
+            }
+            
+            if (/(.)\1{4,}/.test(lower)) {
+                return { valid: false, reason: 'Name contains too many repeated characters' };
+            }
+            
+            if (!/[a-z]/i.test(lower)) {
+                return { valid: false, reason: 'Name must contain at least one letter' };
+            }
+            
+            return { valid: true };
+        }
+
         let state = {
             gameStarted: false,
             mode: null,
@@ -89,7 +149,8 @@
             revealed: false,
             complete: false,
             playerName: null,
-            leaderboard: []
+            leaderboard: [],
+            nameError: ''
         };
 
         const roundsEasy = [
@@ -103,7 +164,7 @@
                         correctIsReal: true
                     }
                 ],
-                explain: "Color blindness doesn't mean seeing in black and white. Most color blind people see colors, just differently. The fake version is too extreme."
+                explain: "Color blindness doesn't mean seeing in black and white. Most color blind people see colors, just differently."
             },
             {
                 title: "Round 2: Simple Conditions",
@@ -115,7 +176,7 @@
                         correctIsReal: true
                     }
                 ],
-                explain: "Insomnia is about sleep difficulty, not permanent wakefulness. People with insomnia still get tired—they just struggle to sleep."
+                explain: "Insomnia is about sleep difficulty, not permanent wakefulness. People with insomnia still get tired."
             },
             {
                 title: "Round 3: Body Parts",
@@ -139,7 +200,7 @@
                         correctIsReal: true
                     }
                 ],
-                explain: "Vertigo is the spinning sensation, not fear of heights. Fear of heights is acrophobia. These are totally different things."
+                explain: "Vertigo is the spinning sensation, not fear of heights. These are totally different things."
             }
         ];
 
@@ -245,7 +306,50 @@
             }
         ];
 
-        const spotFakeRounds = [
+        const spotFakeRoundsEasy = [
+            {
+                title: "Round 1: Body Basics",
+                facts: [
+                    { name: "Sneezing", desc: "Your body's automatic response to irritants in your nose. Expels air at high speed to clear the airway.", fake: false },
+                    { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle. Your body's way of clearing the airway.", fake: false },
+                    { name: "WiFi Hearing Syndrome", desc: "A condition where people can hear WiFi signals as a high-pitched buzzing sound in their ears. Affects 15% of the population.", fake: true },
+                    { name: "Yawning", desc: "A reflexive action where you inhale deeply. Often happens when tired or bored.", fake: false }
+                ],
+                explain: "WiFi Hearing Syndrome is made up. WiFi is radio waves—humans can't hear radio waves. The fake uses a made-up percentage to sound real."
+            },
+            {
+                title: "Round 2: Clear Fakes",
+                facts: [
+                    { name: "Blinking", desc: "Automatic closing and opening of eyelids to keep eyes moist and clean.", fake: false },
+                    { name: "Goosebumps", desc: "Tiny muscles at the base of hairs contract, usually from cold or emotion. Leftover from when humans had more body hair.", fake: false },
+                    { name: "Color-Sound Synesthesia", desc: "Your tongue changes color based on what sounds you hear. Loud noises turn it blue, soft sounds turn it pink.", fake: true },
+                    { name: "Sweating", desc: "Your body releases water through skin to cool down when you're hot or nervous.", fake: false }
+                ],
+                explain: "Color-Sound Synesthesia is fake—tongues don't change color based on sounds. Real synesthesia is when senses mix (like seeing colors when hearing music)."
+            },
+            {
+                title: "Round 3: What's Real?",
+                facts: [
+                    { name: "Coughing", desc: "Your lungs expel air forcefully to clear the airway of irritants or mucus.", fake: false },
+                    { name: "Hunger", desc: "Your stomach signals your brain when it's empty and needs food. You feel it as a growling sensation.", fake: false },
+                    { name: "Reverse Digestion Syndrome", desc: "A rare condition where food travels backward through your digestive system, slowly rising back up your throat over several hours.", fake: true },
+                    { name: "Tiredness", desc: "Your brain and body need rest. Happens after activity or long wakefulness.", fake: false }
+                ],
+                explain: "Reverse Digestion Syndrome is completely made up. Your digestive system doesn't work backward—gravity and muscles only push food downward."
+            },
+            {
+                title: "Round 4: Spot It",
+                facts: [
+                    { name: "Crying", desc: "Emotional response where tears flow from your eyes. Can happen from sadness, joy, or when cutting onions.", fake: false },
+                    { name: "Dizziness", desc: "A spinning sensation or feeling off-balance, usually from inner ear problems or quick position changes.", fake: false },
+                    { name: "Memory Inversion Disorder", desc: "A condition where you remember events in perfect detail but in completely random order, making life confusing but your memory perfect.", fake: true },
+                    { name: "Sleepiness", desc: "Your body's signal that it needs rest. Usually happens at night or after physical activity.", fake: false }
+                ],
+                explain: "Memory Inversion Disorder doesn't exist. If memories were random, you wouldn't recognize events or people—it would be amnesia, not just 'random order.'"
+            }
+        ];
+
+        const spotFakeRoundsMedium = [
             {
                 title: "Round 1: Warming Up",
                 facts: [
@@ -288,8 +392,55 @@
             }
         ];
 
+        const spotFakeRoundsHard = [
+            {
+                title: "Round 1: Deceptive Names",
+                facts: [
+                    { name: "Jumping Frenchmen of Maine", desc: "A real neurological condition documented in 19th century Maine where people had exaggerated startle responses and reflexively obeyed shouted commands. Similar cases found across cultures.", fake: false },
+                    { name: "Stendhal Syndrome", desc: "Real psychological condition where visitors to art galleries with overwhelming beauty experience dizziness, heart palpitations, and emotional overload. Named after author Stendhal who described it in Florence.", fake: false },
+                    { name: "Digital Phantom Limb Syndrome", desc: "A modern condition where people feel vibrations from their smartphones even when it's off, caused by hyper-sensitivity from constant phone use. Affects approximately 89% of smartphone users daily.", fake: true },
+                    { name: "Pica", desc: "A real eating disorder where people crave and eat non-food items like dirt, clay, or ice. Often linked to nutritional deficiencies or psychological stress.", fake: false }
+                ],
+                explain: "Digital Phantom Limb Syndrome is made up. The 89% statistic is a dead giveaway—real conditions don't affect nearly everyone uniformly."
+            },
+            {
+                title: "Round 2: Medical Jargon",
+                facts: [
+                    { name: "Meissner's Corpuscles", desc: "Real nerve endings in your skin that detect light touch and texture. Found densely in fingertips, lips, and sensitive areas.", fake: false },
+                    { name: "Proprioception", desc: "Your body's ability to sense where it is in space. Real sense that lets you know where your limbs are without looking.", fake: false },
+                    { name: "Electromagnetic Synesthesia", desc: "A claimed condition where people can perceive electromagnetic fields as colors or sounds. Documented in 0.3% of the population with 87 confirmed cases worldwide. Caused by mutations in the FOXP2 gene.", fake: true },
+                    { name: "Referred Pain", desc: "Real phenomenon where pain in one body part is felt in another. Classic example: heart attacks often cause left arm pain.", fake: false }
+                ],
+                explain: "Electromagnetic Synesthesia is fake. The oddly specific statistic (0.3% = 87 cases), made-up gene connection, and unsupported FOXP2 link are red flags."
+            },
+            {
+                title: "Round 3: Plausible Fakes",
+                facts: [
+                    { name: "Phantom Vibration Syndrome", desc: "Real condition where people feel their phone vibrating when it hasn't. Caused by pattern recognition in the brain expecting constant notifications.", fake: false },
+                    { name: "Troxler's Fading", desc: "Real visual phenomenon where unchanging stimuli gradually disappear from perception. Your eyes naturally tune out static visual information.", fake: false },
+                    { name: "Nocturnal Temporal Lobe Activation", desc: "A sleep condition where the temporal lobe activates at night causing realistic false memories of sleep paralysis encounters with shadowy figures. Triggered by REM sleep disruptions and affects 34% of nightmare sufferers.", fake: true },
+                    { name: "Acoustic Startle Reflex", desc: "Real involuntary response where sudden loud noises cause you to flinch or jump. Protective mechanism that readies your body.", fake: false }
+                ],
+                explain: "Nocturnal Temporal Lobe Activation is fabricated. It sounds medical but the 34% statistic and vague mechanisms are typical AI hallucination patterns."
+            },
+            {
+                title: "Round 4: Expert Challenge",
+                facts: [
+                    { name: "Charles Bonnet Syndrome", desc: "Real condition where visually impaired people see complex visual hallucinations. Not a sign of mental illness—caused by vision loss.", fake: false },
+                    { name: "Balint's Syndrome", desc: "Real neurological disorder affecting simultaneous perception. Patients struggle to see multiple objects at once despite normal vision in each eye separately.", fake: false },
+                    { name: "Synaptic Resonance Disorder", desc: "A theoretical condition where synapses oscillate at non-standard frequencies causing temporal perception anomalies. Proposed in 2019 with 12 case studies from Sweden showing subjects perceive time 40% slower.", fake: true },
+                    { name: "Akinetopsia", desc: "Real rare condition where motion perception is damaged but static vision remains normal. Motion appears as a series of still images instead of smooth movement.", fake: false }
+                ],
+                explain: "Synaptic Resonance Disorder is fake. Red flags: suspiciously recent (2019), tiny study (12 cases), specific measurement (40% slower), and vague theoretical basis."
+            }
+        ];
+
         function getRounds(difficulty, mode) {
-            if (mode === 'spotfake') return spotFakeRounds;
+            if (mode === 'spotfake') {
+                if (difficulty === 'easy') return spotFakeRoundsEasy;
+                if (difficulty === 'hard') return spotFakeRoundsHard;
+                return spotFakeRoundsMedium;
+            }
             if (difficulty === 'easy') return roundsEasy;
             if (difficulty === 'hard') return roundsHard;
             return roundsMedium;
@@ -323,6 +474,7 @@
             state.selected = null;
             state.revealed = false;
             state.mode = null;
+            state.nameError = '';
             render();
         }
 
@@ -331,7 +483,8 @@
             state.selected = idx;
             
             if (state.mode === 'spotfake') {
-                const round = spotFakeRounds[state.round];
+                const roundsToUse = getRounds(state.difficulty, state.mode);
+                const round = roundsToUse[state.round];
                 const isCorrect = round.facts[idx].fake;
                 if (isCorrect) state.score++;
             } else {
@@ -358,11 +511,18 @@
         }
 
         function submitScore() {
-            const name = document.getElementById('playerNameInput').value.trim();
-            if (!name) {
-                alert('Please enter your name');
+            const nameInput = document.getElementById('playerNameInput');
+            const name = nameInput.value.trim();
+            
+            const validation = isNameValid(name);
+            
+            if (!validation.valid) {
+                state.nameError = validation.reason;
+                render();
                 return;
             }
+
+            state.nameError = '';
 
             const timestamp = new Date().toISOString();
             const entry = {
@@ -376,6 +536,10 @@
             db.ref('scores').push(entry).then(() => {
                 state.playerName = name;
                 loadLeaderboard();
+            }).catch(err => {
+                console.error('Error submitting score:', err);
+                state.nameError = 'Error saving score. Try again.';
+                render();
             });
         }
 
@@ -394,23 +558,32 @@
         }
 
         document.addEventListener('keydown', (e) => {
+    // If typing in an input field, only handle Enter for name submission
+            if (document.activeElement.tagName === 'INPUT') {
+                if (e.key === 'Enter') {
+                    submitScore();
+                }
+                return;
+            }
+    
+    // Game key controls only work during gameplay
+            if (!state.gameStarted || state.complete) return;
+    
             const key = e.key.toUpperCase();
             const numOptions = getNumOptions(state.mode);
-            
+    
             if (key === 'A') selectFact(0);
             else if (key === 'B') selectFact(1);
             else if (key === 'C' && numOptions >= 3) selectFact(2);
             else if (key === 'D' && numOptions >= 4) selectFact(3);
             else if (key === 'ENTER') {
                 if (state.revealed && !state.complete) nextRound();
-                else if (state.complete) backToMenu();
             }
         });
-
+        
         function render() {
             const gameEl = document.getElementById('game');
 
-            // MENU SCREEN
             if (!state.gameStarted) {
                 gameEl.innerHTML = `
                     <div class="header">
@@ -437,9 +610,9 @@
                                 <button onclick="setDifficulty('hard')" class="difficulty-btn ${state.difficulty === 'hard' ? 'active' : 'inactive'}">Hard</button>
                             </div>
                             <p class="difficulty-desc">
-                                ${state.difficulty === 'easy' ? 'Clear definitions, common conditions. Great for kids and beginners.' : 
-                                  state.difficulty === 'medium' ? 'Tricky names and medical terminology. For intermediate players.' : 
-                                  'Expert-level misleading names. For medical enthusiasts.'}
+                                ${state.difficulty === 'easy' ? 'Clear definitions, obvious fakes. Great for kids and beginners.' : 
+                                  state.difficulty === 'medium' ? 'Tricky wording, plausible fakes. For intermediate players.' : 
+                                  'Expert-level, deceptively realistic. For medical enthusiasts.'}
                             </p>
                         </div>
                     </div>
@@ -460,6 +633,7 @@
                         </div>
                         <div style="margin: 20px 0;">
                             <input type="text" id="playerNameInput" placeholder="Enter your name" style="padding: 10px; width: 100%; border: 2px solid #4caf50; border-radius: 4px; font-size: 16px;">
+                            ${state.nameError ? `<div class="error-message">${state.nameError}</div>` : ''}
                         </div>
                         <button onclick="submitScore()" style="margin-bottom: 10px;">Submit Score</button>
                         <button onclick="backToMenu()" style="background: #999; margin-bottom: 10px;">Back to Menu</button>
@@ -501,7 +675,6 @@
             const roundsToUse = getRounds(state.difficulty, state.mode);
             
             if (state.mode === 'spotfake') {
-                // SPOT FAKE MODE - 4 OPTIONS
                 const round = roundsToUse[state.round];
                 let factsHtml = '';
                 
@@ -571,7 +744,6 @@
                     <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
                 `;
             } else {
-                // CALL MY BLUFF MODE - 2 OPTIONS
                 const round = roundsToUse[state.round];
                 const pair = round.pairs[0];
                 
