@@ -153,287 +153,293 @@
             nameError: ''
         };
 
-        const roundsEasy = [
+        // CALL MY BLUFF - EASY MODE
+const roundsEasy = [
+    {
+        title: "Round 1: Clear Definitions",
+        pairs: [
             {
-                title: "Round 1: Clear Definitions",
-                pairs: [
-                    {
-                        condition: "Color Blindness",
-                        real: "An inability to see certain colors, usually reds and greens. People with color blindness see the world in different shades but live normal lives.",
-                        fake: "A condition where people see all colors as shades of gray and can only see in black and white like old movies.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Color blindness doesn't mean seeing in black and white. Most color blind people see colors, just differently."
-            },
-            {
-                title: "Round 2: Simple Conditions",
-                pairs: [
-                    {
-                        condition: "Insomnia",
-                        real: "Difficulty falling asleep or staying asleep, even when you have the chance. Very common and affects many people.",
-                        fake: "A disease where your brain forgets how to sleep and you never feel tired, causing you to stay awake forever.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Insomnia is about sleep difficulty, not permanent wakefulness. People with insomnia still get tired."
-            },
-            {
-                title: "Round 3: Body Parts",
-                pairs: [
-                    {
-                        condition: "Migraine",
-                        real: "A severe headache on one side of the head, often with nausea or sensitivity to light. Migraines last for hours or days.",
-                        fake: "A rare disease where your brain actually shrinks and moves around inside your skull, causing extreme pain.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Migraines are intense headaches, not brain shrinkage. The fake version sounds scary but isn't how migraines actually work."
-            },
-            {
-                title: "Round 4: Common Words",
-                pairs: [
-                    {
-                        condition: "Vertigo",
-                        real: "The feeling that you or the room around you is spinning. Often caused by inner ear problems. Not the same as just feeling dizzy.",
-                        fake: "Fear of heights that makes you unable to look down or climb stairs ever again.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Vertigo is the spinning sensation, not fear of heights. These are totally different things."
+                condition: "Color Blindness",
+                real: "An inability to see certain colors, usually reds and greens. People perceive the world in different shades but live completely normal lives.",
+                fake: "A condition where all colors appear as shades of gray and vision is identical to old black and white movies.",
+                correctIsReal: true
             }
-        ];
+        ],
+        explain: "Color blindness doesn't mean seeing in black and white. Most people with this condition see colors, just differently than others."
+    },
+    {
+        title: "Round 2: Sleep Issues",
+        pairs: [
+            {
+                condition: "Insomnia",
+                real: "Difficulty falling asleep or staying asleep despite having the opportunity. Very common and affects millions of people.",
+                fake: "The brain's inability to enter sleep mode, resulting in permanent wakefulness with no fatigue ever being felt.",
+                correctIsReal: true
+            }
+        ],
+        explain: "Insomnia involves struggling to sleep, not losing the ability to feel tired. People with insomnia still experience tiredness—they just can't sleep."
+    },
+    {
+        title: "Round 3: Head and Pain",
+        pairs: [
+            {
+                condition: "Migraine",
+                real: "A severe headache typically on one side of the head, often accompanied by nausea or light sensitivity. Episodes last hours or days.",
+                fake: "A neurological condition where the brain physically shrinks and shifts position inside the skull, causing excruciating pain.",
+                correctIsReal: true
+            }
+        ],
+        explain: "Migraines are intense headaches caused by blood vessel and nerve activity. Brain shrinkage would cause severe damage—migraines don't work that way."
+    },
+    {
+        title: "Round 4: Balance and Dizziness",
+        pairs: [
+            {
+                condition: "Vertigo",
+                real: "A sensation of spinning or the room spinning around you. Often caused by inner ear problems or sudden position changes.",
+                fake: "An extreme fear response to heights that prevents looking downward and makes climbing impossible.",
+                correctIsReal: true
+            }
+        ],
+        explain: "Vertigo is the spinning sensation itself. Fear of heights is called acrophobia—completely different conditions with different causes."
+    }
+];
 
-        const roundsMedium = [
+// CALL MY BLUFF - MEDIUM MODE
+const roundsMedium = [
+    {
+        title: "Round 1: Name Tricks",
+        pairs: [
             {
-                title: "Round 1: Name Tricks",
-                pairs: [
-                    {
-                        condition: "Cooley's Anemia",
-                        real: "A genetic blood disorder where the body can't make enough healthy red blood cells. Named after Dr. Thomas Cooley who first described it in 1925. Common in Mediterranean populations.",
-                        fake: "A disorder caused by prolonged exposure to cold temperatures, where red blood cells freeze and break down. Named after Dr. James Cooley's research in Arctic expeditions.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Cooley's Anemia is named after the doctor, not temperature. The fake version misinterprets the name as 'cool' = cold."
-            },
-            {
-                title: "Round 2: Misleading Names",
-                pairs: [
-                    {
-                        condition: "Down Syndrome",
-                        real: "A genetic condition caused by an extra chromosome 21. Named after Dr. John Langdon Down who first identified it in 1866. Not related to emotional state.",
-                        fake: "A mood disorder where people experience constant emotional depression and downward spirals requiring permanent isolation.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Down Syndrome is named after Dr. Down, not emotion. The fake version exploits the word 'down' to suggest depression."
-            },
-            {
-                title: "Round 3: Medical Terms",
-                pairs: [
-                    {
-                        condition: "Long Q-T Syndrome",
-                        real: "A heart rhythm disorder where electrical signals take longer to reset between beats. The 'Q-T' refers to segments on an EKG graph. Can cause fainting and sudden cardiac death.",
-                        fake: "A syndrome where quantum tunneling in neural synapses causes delayed thought processes and extreme slowness. 'Q-T' stands for Quantum Tunneling.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Long Q-T Syndrome is about electrical timing on heart monitors, not quantum physics. The fake mixes real terms with made-up science."
-            },
-            {
-                title: "Round 4: Doctor Names",
-                pairs: [
-                    {
-                        condition: "Diamond-Blackfan Anemia",
-                        real: "A rare bone marrow disorder where the body doesn't produce enough red blood cells. Named after doctors Louis Diamond and Kenneth Blackfan who described it in 1938.",
-                        fake: "A precious metal poisoning disorder where diamond dust and blackfan mineral deposits accumulate in bone marrow, seen in jewelers and miners.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Diamond-Blackfan Anemia is named after two doctors. The fake version tricks you by treating 'diamond' and 'blackfan' as if they were the cause."
+                condition: "Cooley's Anemia",
+                real: "A genetic blood disorder where the body cannot produce enough healthy red blood cells. Named after Dr. Thomas Cooley who first described it in 1925. Common in Mediterranean populations.",
+                fake: "A disorder caused by prolonged exposure to cold temperatures, where red blood cells freeze and break down. Named after Dr. James Cooley's Arctic research expeditions.",
+                correctIsReal: true
             }
-        ];
+        ],
+        explain: "Cooley's Anemia is named after the doctor, not the temperature. The fake version tricks you by interpreting 'Cooley' as 'cool' = cold."
+    },
+    {
+        title: "Round 2: Misleading Names",
+        pairs: [
+            {
+                condition: "Down Syndrome",
+                real: "A genetic condition caused by an extra chromosome 21. Named after Dr. John Langdon Down who first identified it in 1866. Unrelated to emotional state.",
+                fake: "A mood disorder where people experience constant emotional depression and downward spirals requiring permanent isolation.",
+                correctIsReal: true
+            }
+        ],
+        explain: "Down Syndrome is named after Dr. Down, not emotion. The fake exploits the word 'down' to suggest it's a depression disorder."
+    },
+    {
+        title: "Round 3: Medical Terms",
+        pairs: [
+            {
+                condition: "Long Q-T Syndrome",
+                real: "A heart rhythm disorder where electrical signals take longer to reset between heartbeats. The 'Q-T' refers to segments visible on an EKG graph. Can cause fainting and sudden cardiac death.",
+                fake: "A syndrome where quantum tunneling in neural synapses causes delayed thought processes and extreme slowness. 'Q-T' stands for Quantum Tunneling.",
+                correctIsReal: true
+            }
+        ],
+        explain: "Long Q-T Syndrome is about electrical timing on heart monitors, not quantum physics. The fake mixes real medical terms with made-up quantum biology."
+    },
+    {
+        title: "Round 4: Doctor Names",
+        pairs: [
+            {
+                condition: "Diamond-Blackfan Anemia",
+                real: "A rare bone marrow disorder where the body cannot produce enough red blood cells. Named after doctors Louis Diamond and Kenneth Blackfan who described it in 1938.",
+                fake: "A precious metal poisoning disorder where diamond dust and blackfan mineral deposits accumulate in bone marrow, seen in jewelers and miners.",
+                correctIsReal: true
+            }
+        ],
+        explain: "Diamond-Blackfan Anemia is named after two doctors. The fake tricks you by treating 'diamond' and 'blackfan' as if they were the toxic cause."
+    }
+];
 
-        const roundsHard = [
+// CALL MY BLUFF - HARD MODE
+const roundsHard = [
+    {
+        title: "Round 1: Expert Misconceptions",
+        pairs: [
             {
-                title: "Round 1: Expert Misconceptions",
-                pairs: [
-                    {
-                        condition: "Marfan Syndrome",
-                        real: "A genetic disorder affecting connective tissue, caused by mutations in the fibrillin-1 gene. Affects the skeleton, lungs, eyes, and heart. Named after Antoine Marfan who described it in 1896.",
-                        fake: "A condition where the body's cells multiply uncontrollably in a spider-web pattern, causing extremely rapid growth and early death. The name comes from the Mars rovers which discovered the condition in lunar samples.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "Marfan Syndrome is a connective tissue disorder from genetic mutations. The fake version completely invents a mechanism and absurdly claims it was discovered on the moon."
-            },
-            {
-                title: "Round 2: Similar-Sounding Conditions",
-                pairs: [
-                    {
-                        condition: "Ehlers-Danlos Syndrome",
-                        real: "A group of genetic disorders affecting collagen production, causing unusually flexible joints, stretchy skin, and fragile connective tissue. Named after two dermatologists who identified it.",
-                        fake: "A syndrome where the nervous system mistakes electrical signals and sends them backward through the spine, causing inverted sensations where touching cold feels hot and vice versa.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "EDS affects collagen structure, not nerve signal direction. The fake describes a fictional neurological inversion that doesn't exist."
-            },
-            {
-                title: "Round 3: Real Conditions with Tricky Names",
-                pairs: [
-                    {
-                        condition: "SUNCT Syndrome",
-                        real: "Short Unilateral Neuralgiform headache attacks with Conjunctival injection and Tearing. Rare condition causing sudden, severe headaches on one side with eye symptoms. Abbreviated from the medical acronym.",
-                        fake: "Sustained Unilateral Neural Compression Tissue syndrome where nerves on one side of the body are permanently pinched, causing complete paralysis of that side within months.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "SUNCT is a real headache disorder with a complicated name. The fake version creates a made-up acronym describing permanent paralysis which doesn't match the actual condition."
-            },
-            {
-                title: "Round 4: Deceptively Complex",
-                pairs: [
-                    {
-                        condition: "Hereditary Angioedema",
-                        real: "A rare genetic disorder affecting a blood protein (C1 esterase inhibitor), causing unpredictable swelling in the skin and internal organs. Can be life-threatening during throat swelling.",
-                        fake: "A condition where the body develops severe allergic reactions to inherited family traits, causing swelling that gets worse with each generation until suffocation occurs.",
-                        correctIsReal: true
-                    }
-                ],
-                explain: "HAE is a protein deficiency disorder. The fake suggests allergies to 'family traits' and progressive worsening per generation—nonsensical pseudoscience."
+                condition: "Marfan Syndrome",
+                real: "A genetic disorder affecting connective tissue, caused by mutations in the fibrillin-1 gene. Affects skeleton, lungs, eyes, and heart. Named after Antoine Marfan who described it in 1896.",
+                fake: "A condition where body cells multiply uncontrollably in spider-web patterns, causing extremely rapid growth and early death. Discovered by Mars rovers analyzing lunar samples.",
+                correctIsReal: true
             }
-        ];
+        ],
+        explain: "Marfan Syndrome is a connective tissue disorder from genetic mutations. The fake invents an implausible mechanism and absurdly claims moon discovery."
+    },
+    {
+        title: "Round 2: Similar-Sounding Conditions",
+        pairs: [
+            {
+                condition: "Ehlers-Danlos Syndrome",
+                real: "A group of genetic disorders affecting collagen production. Causes unusually flexible joints, stretchy skin, and fragile connective tissue. Named after two dermatologists who identified it.",
+                fake: "A syndrome where the nervous system mistakes electrical signals and sends them backward through the spine, causing inverted sensations where cold feels hot.",
+                correctIsReal: true
+            }
+        ],
+        explain: "EDS affects collagen structure. The fake describes fictional neurological inversion that doesn't exist in any known condition."
+    },
+    {
+        title: "Round 3: Real Conditions with Tricky Names",
+        pairs: [
+            {
+                condition: "SUNCT Syndrome",
+                real: "Short Unilateral Neuralgiform headache attacks with Conjunctival injection and Tearing. Causes sudden, severe headaches on one side with eye symptoms. Abbreviated from the medical acronym.",
+                fake: "Sustained Unilateral Neural Compression Tissue syndrome where nerves on one side are permanently pinched, causing complete paralysis within months.",
+                correctIsReal: true
+            }
+        ],
+        explain: "SUNCT is a real headache disorder. The fake creates a made-up acronym describing permanent paralysis—a completely different pathology."
+    },
+    {
+        title: "Round 4: Deceptively Complex",
+        pairs: [
+            {
+                condition: "Hereditary Angioedema",
+                real: "A rare genetic disorder affecting a blood protein (C1 esterase inhibitor). Causes unpredictable swelling in skin and internal organs. Can be life-threatening during throat swelling.",
+                fake: "A condition where the body develops severe allergic reactions to inherited family traits, causing swelling that worsens with each generation until suffocation.",
+                correctIsReal: true
+            }
+        ],
+        explain: "HAE is a protein deficiency disorder. The fake suggests allergies to 'family traits' and progressive generational worsening—nonsensical pseudoscience."
+    }
+];
 
-        const spotFakeRoundsEasy = [
-            {
-                title: "Round 1: Body Basics",
-                facts: [
-                    { name: "Sneezing", desc: "Your body's automatic response to irritants in your nose. Expels air at high speed to clear the airway.", fake: false },
-                    { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle. Your body's way of clearing the airway.", fake: false },
-                    { name: "WiFi Hearing Syndrome", desc: "A condition where people can hear WiFi signals as a high-pitched buzzing sound in their ears. Affects 15% of the population.", fake: true },
-                    { name: "Yawning", desc: "A reflexive action where you inhale deeply. Often happens when tired or bored.", fake: false }
-                ],
-                explain: "WiFi Hearing Syndrome is made up. WiFi is radio waves—humans can't hear radio waves. The fake uses a made-up percentage to sound real."
-            },
-            {
-                title: "Round 2: Clear Fakes",
-                facts: [
-                    { name: "Blinking", desc: "Automatic closing and opening of eyelids to keep eyes moist and clean.", fake: false },
-                    { name: "Goosebumps", desc: "Tiny muscles at the base of hairs contract, usually from cold or emotion. Leftover from when humans had more body hair.", fake: false },
-                    { name: "Color-Sound Synesthesia", desc: "Your tongue changes color based on what sounds you hear. Loud noises turn it blue, soft sounds turn it pink.", fake: true },
-                    { name: "Sweating", desc: "Your body releases water through skin to cool down when you're hot or nervous.", fake: false }
-                ],
-                explain: "Color-Sound Synesthesia is fake—tongues don't change color based on sounds. Real synesthesia is when senses mix (like seeing colors when hearing music)."
-            },
-            {
-                title: "Round 3: What's Real?",
-                facts: [
-                    { name: "Coughing", desc: "Your lungs expel air forcefully to clear the airway of irritants or mucus.", fake: false },
-                    { name: "Hunger", desc: "Your stomach signals your brain when it's empty and needs food. You feel it as a growling sensation.", fake: false },
-                    { name: "Reverse Digestion Syndrome", desc: "A rare condition where food travels backward through your digestive system, slowly rising back up your throat over several hours.", fake: true },
-                    { name: "Tiredness", desc: "Your brain and body need rest. Happens after activity or long wakefulness.", fake: false }
-                ],
-                explain: "Reverse Digestion Syndrome is completely made up. Your digestive system doesn't work backward—gravity and muscles only push food downward."
-            },
-            {
-                title: "Round 4: Spot It",
-                facts: [
-                    { name: "Crying", desc: "Emotional response where tears flow from your eyes. Can happen from sadness, joy, or when cutting onions.", fake: false },
-                    { name: "Dizziness", desc: "A spinning sensation or feeling off-balance, usually from inner ear problems or quick position changes.", fake: false },
-                    { name: "Memory Inversion Disorder", desc: "A condition where you remember events in perfect detail but in completely random order, making life confusing but your memory perfect.", fake: true },
-                    { name: "Sleepiness", desc: "Your body's signal that it needs rest. Usually happens at night or after physical activity.", fake: false }
-                ],
-                explain: "Memory Inversion Disorder doesn't exist. If memories were random, you wouldn't recognize events or people—it would be amnesia, not just 'random order.'"
-            }
-        ];
+// SPOT THE FAKE - EASY MODE
+const spotFakeRoundsEasy = [
+    {
+        title: "Round 1: Body Basics",
+        facts: [
+            { name: "Sneezing", desc: "An automatic response to irritants in the nose. Expels air at high speed to clear the airway.", fake: false },
+            { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle. The body's method of clearing the airway.", fake: false },
+            { name: "WiFi Hearing Syndrome", desc: "A condition where people hear WiFi signals as a high-pitched buzzing sound in their ears. Affects 15% of the population.", fake: true },
+            { name: "Yawning", desc: "A reflexive action involving deep inhalation. Often occurs when tired or bored.", fake: false }
+        ],
+        explain: "WiFi Hearing Syndrome is made up. WiFi uses radio waves—humans cannot hear radio waves. The fake uses a made-up percentage to sound credible."
+    },
+    {
+        title: "Round 2: Eyes and Sight",
+        facts: [
+            { name: "Blinking", desc: "Automatic closing and opening of eyelids. Keeps eyes moist and clean.", fake: false },
+            { name: "Goosebumps", desc: "Tiny muscles at hair roots contract, usually from cold or emotion. Leftover from when humans had more body hair.", fake: false },
+            { name: "Color-Sound Synesthesia", desc: "The tongue changes color based on sounds heard. Loud noises turn it blue, soft sounds turn it pink.", fake: true },
+            { name: "Sweating", desc: "The body releases water through skin to cool down when hot or nervous.", fake: false }
+        ],
+        explain: "Color-Sound Synesthesia is fake—tongues don't change color based on sounds. Real synesthesia involves senses mixing (like seeing colors when hearing music)."
+    },
+    {
+        title: "Round 3: Digestive System",
+        facts: [
+            { name: "Coughing", desc: "The lungs expel air forcefully to clear the airway of irritants or mucus.", fake: false },
+            { name: "Hunger", desc: "The stomach signals the brain when empty and needing food. Felt as a growling sensation.", fake: false },
+            { name: "Reverse Digestion Syndrome", desc: "Food travels backward through the digestive system, slowly rising back up the throat over several hours.", fake: true },
+            { name: "Tiredness", desc: "The brain and body's signal that they need rest. Happens after activity or long wakefulness.", fake: false }
+        ],
+        explain: "Reverse Digestion Syndrome is completely made up. The digestive system doesn't work backward—gravity and muscles only push food downward."
+    },
+    {
+        title: "Round 4: Emotions and Sleep",
+        facts: [
+            { name: "Crying", desc: "An emotional response where tears flow from the eyes. Can occur from sadness, joy, or irritants like onions.", fake: false },
+            { name: "Dizziness", desc: "A sensation of spinning or feeling off-balance. Usually from inner ear problems or quick position changes.", fake: false },
+            { name: "Memory Inversion Disorder", desc: "Memories are retained in perfect detail but in completely random order, making life confusing despite perfect memory recall.", fake: true },
+            { name: "Sleepiness", desc: "The body's signal that it needs rest. Typically happens at night or after physical activity.", fake: false }
+        ],
+        explain: "Memory Inversion Disorder doesn't exist. If memories were random, you wouldn't recognize events or people—that's amnesia, not 'random order.'"
+    }
+];
 
-        const spotFakeRoundsMedium = [
-            {
-                title: "Round 1: Warming Up",
-                facts: [
-                    { name: "Brain Freeze", desc: "The sharp headache from eating ice cream too fast happens when cold hits the roof of your mouth. Blood vessels rapidly constrict then dilate, triggering pain signals.", fake: false },
-                    { name: "Exploding Head Syndrome", desc: "People hear loud explosion sounds or crashes inside their head when falling asleep or waking up. It's completely harmless but can be very frightening.", fake: false },
-                    { name: "Sonic Perception Syndrome", desc: "A rare condition where people can hear electrical frequencies from power lines and WiFi routers, causing constant humming sensations. Affects roughly 2.3% of the population and worsens with age.", fake: true },
-                    { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle followed by sudden closure of the vocal cords. The longest recorded case lasted 68 years.", fake: false }
-                ],
-                explain: "Sonic Perception Syndrome is AI-generated nonsense. Red flags: suspiciously specific percentage (2.3%), made-up name combining real medical words, no actual mechanism explained."
-            },
-            {
-                title: "Round 2: Getting Tricky",
-                facts: [
-                    { name: "Thunderclap Headache", desc: "A sudden, severe headache that reaches maximum intensity within 60 seconds, often described as 'the worst headache of your life.' Can signal bleeding in the brain.", fake: false },
-                    { name: "Mirror Touch Synesthesia", desc: "Some people physically feel sensations they see others experiencing. If they watch someone being touched on the arm, they feel it on their own arm.", fake: false },
-                    { name: "Chromatic Appetite Disorder", desc: "A condition where the brain processes food colors incorrectly, making people unable to eat foods of certain colors. Affects approximately 1 in 8,000 people and is treated with color-filtered glasses.", fake: true },
-                    { name: "Foreign Accent Syndrome", desc: "After a stroke or head injury, people can suddenly speak with a completely different accent they never had before, like waking up British when you've always been American.", fake: false }
-                ],
-                explain: "Chromatic Appetite Disorder is fake. Red flags: made-up name using real medical words, oddly specific statistic (1 in 8,000), too-convenient solution."
-            },
-            {
-                title: "Round 3: Expert Level",
-                facts: [
-                    { name: "Cotard Delusion (Walking Corpse Syndrome)", desc: "People believe they are dead, don't exist, or have lost their blood and internal organs. They may refuse to eat because they think they don't need food anymore.", fake: false },
-                    { name: "Numerical Dysmorphia", desc: "A neurological condition where patients consistently perceive numbers as being exactly 3 units higher than they actually are. First documented in 1987 following a cluster of cases in Norway, with approximately 600 confirmed cases worldwide.", fake: true },
-                    { name: "Alice in Wonderland Syndrome", desc: "Objects appear much larger or smaller than they really are, and body parts feel like they're changing size. Often affects children and can be triggered by migraines or infections.", fake: false },
-                    { name: "Capgras Delusion", desc: "People become convinced that someone close to them has been replaced by an identical impostor. They recognize the person's face but feel no emotional connection, creating the certainty that it's an imposter.", fake: false }
-                ],
-                explain: "Numerical Dysmorphia is AI hallucination. Red flags: too-specific consistent error (always exactly 3 units), suspiciously precise numbers, implausibly neat pattern."
-            },
-            {
-                title: "Round 4: Can You Outsmart AI?",
-                facts: [
-                    { name: "Takotsubo Cardiomyopathy (Broken Heart Syndrome)", desc: "Extreme emotional stress can literally reshape your heart into a balloon-like shape, mimicking a heart attack. Named after Japanese octopus traps because that's what the heart looks like on scans.", fake: false },
-                    { name: "Hemineglect", desc: "After certain brain injuries, people completely ignore one half of their world. They might only eat food from the right side of their plate, only shave half their face, or only draw half a clock.", fake: false },
-                    { name: "Prosopagnosia (Face Blindness)", desc: "People cannot recognize faces, even of close family members. Some can't even recognize their own face in a mirror. They have to identify people by voice, clothing, or hairstyle instead.", fake: false },
-                    { name: "Temporal Sequence Reversal Disorder", desc: "A condition where patients experience short-term memories in reverse chronological order for 15-30 second windows. Caused by disrupted hippocampal timing mechanisms and affects balance and coordination severely.", fake: true }
-                ],
-                explain: "Temporal Sequence Reversal Disorder is fake. Red flags: suspiciously precise time window, mixing unrelated symptoms, overly technical but meaningless explanation."
-            }
-        ];
+// SPOT THE FAKE - MEDIUM MODE
+const spotFakeRoundsMedium = [
+    {
+        title: "Round 1: Warming Up",
+        facts: [
+            { name: "Brain Freeze", desc: "A sharp headache from eating ice cream too fast occurs when cold hits the roof of the mouth. Blood vessels rapidly constrict then dilate, triggering pain signals.", fake: false },
+            { name: "Exploding Head Syndrome", desc: "Loud explosion sounds or crashes occur inside the head when falling asleep or waking up. Completely harmless but very frightening.", fake: false },
+            { name: "Sonic Perception Syndrome", desc: "People hear electrical frequencies from power lines and WiFi routers, causing constant humming sensations. Affects roughly 2.3% of the population and worsens with age.", fake: true },
+            { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle followed by sudden closure of the vocal cords. The longest recorded case lasted 68 years.", fake: false }
+        ],
+        explain: "Sonic Perception Syndrome is AI-generated. Red flags: suspiciously specific percentage (2.3%), made-up name combining real medical words, no mechanism explained."
+    },
+    {
+        title: "Round 2: Getting Tricky",
+        facts: [
+            { name: "Thunderclap Headache", desc: "A sudden, severe headache reaching maximum intensity within 60 seconds. Often described as 'the worst headache of your life.' Can signal bleeding in the brain.", fake: false },
+            { name: "Mirror Touch Synesthesia", desc: "Some people physically feel sensations they observe others experiencing. Watching someone being touched on the arm triggers identical arm sensations.", fake: false },
+            { name: "Chromatic Appetite Disorder", desc: "The brain processes food colors incorrectly, making people unable to eat foods of certain colors. Approximately 1 in 8,000 people affected and treated with color-filtered glasses.", fake: true },
+            { name: "Foreign Accent Syndrome", desc: "After a stroke or head injury, people suddenly speak with a completely different accent they never had before, like becoming British when always American.", fake: false }
+        ],
+        explain: "Chromatic Appetite Disorder is fake. Red flags: made-up name using real medical words, oddly specific statistic (1 in 8,000), too-convenient solution."
+    },
+    {
+        title: "Round 3: Expert Level",
+        facts: [
+            { name: "Cotard Delusion", desc: "People believe they are dead, don't exist, or have lost blood and internal organs. May refuse to eat because they think food isn't needed.", fake: false },
+            { name: "Numerical Dysmorphia", desc: "Patients consistently perceive numbers as being exactly 3 units higher than they actually are. First documented in 1987 in Norway. Approximately 600 confirmed cases worldwide.", fake: true },
+            { name: "Alice in Wonderland Syndrome", desc: "Objects appear much larger or smaller than they actually are. Body parts feel like they're changing size. Often affects children and triggered by migraines or infections.", fake: false },
+            { name: "Capgras Delusion", desc: "People become convinced that someone close to them has been replaced by an identical impostor. They recognize the face but feel no emotional connection.", fake: false }
+        ],
+        explain: "Numerical Dysmorphia is AI hallucination. Red flags: too-specific error (always exactly 3 units), suspiciously precise numbers, implausibly neat pattern."
+    },
+    {
+        title: "Round 4: Can You Outsmart AI?",
+        facts: [
+            { name: "Takotsubo Cardiomyopathy", desc: "Extreme emotional stress can literally reshape the heart into a balloon-like shape, mimicking a heart attack. Named after Japanese octopus traps because that's what the heart looks like on scans.", fake: false },
+            { name: "Hemineglect", desc: "After certain brain injuries, people completely ignore one half of their world. They may only eat food from the right side of their plate or only shave half their face.", fake: false },
+            { name: "Prosopagnosia", desc: "People cannot recognize faces, even of close family members or their own face in a mirror. They must identify people by voice, clothing, or hairstyle instead.", fake: false },
+            { name: "Temporal Sequence Reversal Disorder", desc: "Patients experience short-term memories in reverse chronological order for 15-30 second windows. Caused by disrupted hippocampal timing and affects balance and coordination severely.", fake: true }
+        ],
+        explain: "Temporal Sequence Reversal Disorder is fake. Red flags: suspiciously precise time window, mixing unrelated symptoms, overly technical but meaningless explanation."
+    }
+];
 
-        const spotFakeRoundsHard = [
-            {
-                title: "Round 1: Deceptive Names",
-                facts: [
-                    { name: "Jumping Frenchmen of Maine", desc: "A real neurological condition documented in 19th century Maine where people had exaggerated startle responses and reflexively obeyed shouted commands. Similar cases found across cultures.", fake: false },
-                    { name: "Stendhal Syndrome", desc: "Real psychological condition where visitors to art galleries with overwhelming beauty experience dizziness, heart palpitations, and emotional overload. Named after author Stendhal who described it in Florence.", fake: false },
-                    { name: "Digital Phantom Limb Syndrome", desc: "A modern condition where people feel vibrations from their smartphones even when it's off, caused by hyper-sensitivity from constant phone use. Affects approximately 89% of smartphone users daily.", fake: true },
-                    { name: "Pica", desc: "A real eating disorder where people crave and eat non-food items like dirt, clay, or ice. Often linked to nutritional deficiencies or psychological stress.", fake: false }
-                ],
-                explain: "Digital Phantom Limb Syndrome is made up. The 89% statistic is a dead giveaway—real conditions don't affect nearly everyone uniformly."
-            },
-            {
-                title: "Round 2: Medical Jargon",
-                facts: [
-                    { name: "Meissner's Corpuscles", desc: "Real nerve endings in your skin that detect light touch and texture. Found densely in fingertips, lips, and sensitive areas.", fake: false },
-                    { name: "Proprioception", desc: "Your body's ability to sense where it is in space. Real sense that lets you know where your limbs are without looking.", fake: false },
-                    { name: "Electromagnetic Synesthesia", desc: "A claimed condition where people can perceive electromagnetic fields as colors or sounds. Documented in 0.3% of the population with 87 confirmed cases worldwide. Caused by mutations in the FOXP2 gene.", fake: true },
-                    { name: "Referred Pain", desc: "Real phenomenon where pain in one body part is felt in another. Classic example: heart attacks often cause left arm pain.", fake: false }
-                ],
-                explain: "Electromagnetic Synesthesia is fake. The oddly specific statistic (0.3% = 87 cases), made-up gene connection, and unsupported FOXP2 link are red flags."
-            },
-            {
-                title: "Round 3: Plausible Fakes",
-                facts: [
-                    { name: "Phantom Vibration Syndrome", desc: "Real condition where people feel their phone vibrating when it hasn't. Caused by pattern recognition in the brain expecting constant notifications.", fake: false },
-                    { name: "Troxler's Fading", desc: "Real visual phenomenon where unchanging stimuli gradually disappear from perception. Your eyes naturally tune out static visual information.", fake: false },
-                    { name: "Nocturnal Temporal Lobe Activation", desc: "A sleep condition where the temporal lobe activates at night causing realistic false memories of sleep paralysis encounters with shadowy figures. Triggered by REM sleep disruptions and affects 34% of nightmare sufferers.", fake: true },
-                    { name: "Acoustic Startle Reflex", desc: "Real involuntary response where sudden loud noises cause you to flinch or jump. Protective mechanism that readies your body.", fake: false }
-                ],
-                explain: "Nocturnal Temporal Lobe Activation is fabricated. It sounds medical but the 34% statistic and vague mechanisms are typical AI hallucination patterns."
-            },
-            {
-                title: "Round 4: Expert Challenge",
-                facts: [
-                    { name: "Charles Bonnet Syndrome", desc: "Real condition where visually impaired people see complex visual hallucinations. Not a sign of mental illness—caused by vision loss.", fake: false },
-                    { name: "Balint's Syndrome", desc: "Real neurological disorder affecting simultaneous perception. Patients struggle to see multiple objects at once despite normal vision in each eye separately.", fake: false },
-                    { name: "Synaptic Resonance Disorder", desc: "A theoretical condition where synapses oscillate at non-standard frequencies causing temporal perception anomalies. Proposed in 2019 with 12 case studies from Sweden showing subjects perceive time 40% slower.", fake: true },
-                    { name: "Akinetopsia", desc: "Real rare condition where motion perception is damaged but static vision remains normal. Motion appears as a series of still images instead of smooth movement.", fake: false }
-                ],
-                explain: "Synaptic Resonance Disorder is fake. Red flags: suspiciously recent (2019), tiny study (12 cases), specific measurement (40% slower), and vague theoretical basis."
-            }
-        ];
+// SPOT THE FAKE - HARD MODE
+const spotFakeRoundsHard = [
+    {
+        title: "Round 1: Deceptive Names",
+        facts: [
+            { name: "Jumping Frenchmen of Maine", desc: "A neurological phenomenon documented in 19th century Maine where people had exaggerated startle responses and reflexively obeyed shouted commands. Similar cases found across cultures.", fake: false },
+            { name: "Stendhal Syndrome", desc: "Visitors to art galleries experience dizziness, heart palpitations, and emotional overload in response to overwhelming beauty. Named after author Stendhal who described it in Florence.", fake: false },
+            { name: "Digital Phantom Limb Syndrome", desc: "People feel vibrations from smartphones even when they're off, caused by hyper-sensitivity from constant phone use. Affects approximately 89% of smartphone users daily.", fake: true },
+            { name: "Pica", desc: "An eating disorder where people crave and consume non-food items like dirt, clay, or ice. Often linked to nutritional deficiencies or psychological stress.", fake: false }
+        ],
+        explain: "Digital Phantom Limb Syndrome is made up. The 89% statistic is a dead giveaway—real conditions don't affect nearly the entire population uniformly."
+    },
+    {
+        title: "Round 2: Medical Jargon",
+        facts: [
+            { name: "Meissner's Corpuscles", desc: "Nerve endings in skin that detect light touch and texture. Found densely in fingertips, lips, and sensitive areas.", fake: false },
+            { name: "Proprioception", desc: "The body's ability to sense where it is in space. Lets you know where your limbs are without looking.", fake: false },
+            { name: "Electromagnetic Synesthesia", desc: "People perceive electromagnetic fields as colors or sounds. Documented in 0.3% of the population with 87 confirmed cases worldwide. Caused by mutations in the FOXP2 gene.", fake: true },
+            { name: "Referred Pain", desc: "Pain in one body part is felt in another. Classic example: heart attacks often cause left arm pain.", fake: false }
+        ],
+        explain: "Electromagnetic Synesthesia is fake. The oddly specific statistic (0.3% = 87 cases), made-up gene connection, and unsupported FOXP2 link are red flags."
+    },
+    {
+        title: "Round 3: Plausible Fakes",
+        facts: [
+            { name: "Phantom Vibration Syndrome", desc: "People feel their phone vibrating when it hasn't. Caused by pattern recognition in the brain expecting constant notifications.", fake: false },
+            { name: "Troxler's Fading", desc: "Unchanging stimuli gradually disappear from perception. The eyes naturally tune out static visual information.", fake: false },
+            { name: "Nocturnal Temporal Lobe Activation", desc: "During sleep, the temporal lobe activates at night causing realistic false memories of sleep paralysis encounters with shadowy figures. Triggered by REM sleep disruptions. Affects 34% of nightmare sufferers.", fake: true },
+            { name: "Acoustic Startle Reflex", desc: "Sudden loud noises cause an involuntary flinch or jump. A protective mechanism that readies your body.", fake: false }
+        ],
+        explain: "Nocturnal Temporal Lobe Activation is fabricated. The 34% statistic, vague mechanisms, and specificity to shadow figures are typical AI hallucination patterns."
+    },
+    {
+        title: "Round 4: Expert Challenge",
+        facts: [
+            { name: "Charles Bonnet Syndrome", desc: "Visually impaired people see complex visual hallucinations. Not a sign of mental illness—caused by vision loss.", fake: false },
+            { name: "Balint's Syndrome", desc: "A neurological disorder affecting simultaneous perception. Patients struggle to see multiple objects at once despite normal individual vision in each eye.", fake: false },
+            { name: "Synaptic Resonance Disorder", desc: "Synapses oscillate at non-standard frequencies causing temporal perception anomalies. Proposed in 2019 with 12 case studies from Sweden showing subjects perceive time 40% slower.", fake: true },
+            { name: "Akinetopsia", desc: "Motion perception is damaged while static vision remains normal. Motion appears as a series of still images instead of smooth movement.", fake: false }
+        ],
+        explain: "Synaptic Resonance Disorder is fake. Red flags: suspiciously recent (2019), tiny study (12 cases), specific measurement (40% slower), vague theoretical basis."
+    }
+];
 
         function getRounds(difficulty, mode) {
             if (mode === 'spotfake') {
