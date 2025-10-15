@@ -157,292 +157,267 @@
 // CALL MY BLUFF - EASY MODE (fakes are obviously wrong, but same formatting as real)
 // CALL MY BLUFF - EASY MODE (for bright 6-7 year olds at 75%)
         // CALL MY BLUFF - EASY MODE (for bright 6-7 year olds at 75%)
-const roundsEasy = [
-    {
-        title: "Round 1: Your Nose",
-        pairs: [
-            {
-                condition: "Sneezing",
-                real: "When something tickles your nose like dust or pollen, your body sneezes to push it out. It happens really fast and makes a loud sound.",
-                fake: "Your nose stores sneeze energy in special sneeze batteries. When they get full, they explode out of your nose one time per day.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real one is what actually happens. Noses don't have sneeze batteries—that's silly."
-    },
-    {
-        title: "Round 2: Sleeping",
-        pairs: [
-            {
-                condition: "Sleepiness",
-                real: "When you get tired, your brain sends a signal that it needs rest. Your eyes get heavy and you want to lay down.",
-                fake: "Your body fills up with special sleepy juice throughout the day, and when the tank gets too full, you must fall asleep immediately.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real one is correct. There's no sleepy juice tank in your body—tiredness is just your brain saying it needs rest."
-    },
-    {
-        title: "Round 3: Your Tummy",
-        pairs: [
-            {
-                condition: "Hunger",
-                real: "When your stomach is empty, it sends signals to your brain saying 'I need food.' You feel this as a rumbling or empty feeling in your belly.",
-                fake: "Your stomach shrinks smaller and smaller when empty, and if it shrinks too much, it disappears completely until you eat.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real one is what happens. Your stomach doesn't shrink away or disappear—it just makes noises to tell your brain you need food."
-    },
-    {
-        title: "Round 4: Your Mouth",
-        pairs: [
-            {
-                condition: "Yawning",
-                real: "When you're tired or bored, your body takes a really big breath by opening your mouth really wide. This helps your brain get more oxygen.",
-                fake: "Your mouth opens automatically when you see someone else yawn because there's a special yawn virus that spreads through the air.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real one is correct. Yawning is just your body getting more oxygen. There's no yawn virus—yawns spread by copycat, not by germs."
+        // Add this shuffle function at the top of your script section (before game state)
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-];
+    return shuffled;
+}
 
-// SPOT THE FAKE - EASY MODE (for bright 6-7 year olds at 75%)
-const spotFakeRoundsEasy = [
-    {
-        title: "Round 1: Body Stuff",
-        facts: [
-            { name: "Blinking", desc: "Your eyelids close and open really fast to keep your eyes wet and clean. You blink without thinking about it.", fake: false },
-            { name: "Hiccups", desc: "Your breathing muscle called the diaphragm gets annoyed and jumps up and down really fast. This makes a funny 'hic' sound.", fake: false },
-            { name: "Eye Color Changing", desc: "Every time you look at the color blue, your eyes automatically change to be blue too. The longer you look, the bluer they get.", fake: true },
-            { name: "Coughing", desc: "Your lungs push air out really fast to clear out yucky stuff in your throat. It's your body's way of cleaning itself.", fake: false }
-        ],
-        explain: "Eye Color Changing is fake. Red flag: Your eye color doesn't change by looking at things. Your eyes stay the same color your whole life."
-    },
-    {
-        title: "Round 2: When Your Body Acts Weird",
-        facts: [
-            { name: "Crying", desc: "Your eyes make tears when you're sad, happy, or when onions make them sting. Tears help clean your eyes.", fake: false },
-            { name: "Goosebumps", desc: "When you're cold or scared, tiny muscles under your skin make your arm hair stand up. It's leftover from when our ancestors had lots of fur.", fake: false },
-            { name: "Taste Swapping", desc: "If you touch your tongue to cold metal, all your taste buds swap places and you can only taste one flavor for a week.", fake: true },
-            { name: "Sweating", desc: "When you're hot or nervous, water comes out through tiny holes in your skin to cool your body down.", fake: false }
-        ],
-        explain: "Taste Swapping is fake. Red flag: Your taste buds don't move around or swap. Touching cold metal doesn't change how you taste at all."
-    },
-    {
-        title: "Round 3: Your Stomach and Digestion",
-        facts: [
-            { name: "Burping", desc: "When you eat or drink, air goes into your stomach. Your stomach pushes this air back up as a burp.", fake: false },
-            { name: "Hunger Sounds", desc: "When your stomach is empty, the muscles make growling noises to tell your brain you need food.", fake: false },
-            { name: "Food Rewinding", desc: "If you eat too fast, your stomach can rewind and send food back up through your mouth in the reverse direction.", fake: true },
-            { name: "Stomach Gurgling", desc: "Your stomach makes funny gurgling and rumbling sounds as it mixes food with liquid and pushes it along.", fake: false }
-        ],
-        explain: "Food Rewinding is fake. Red flag: Your stomach doesn't rewind food. Food only goes one way through your body—downward."
-    },
-    {
-        title: "Round 4: Your Head and Brain",
-        facts: [
-            { name: "Headaches", desc: "Sometimes your head hurts when you're sick, dehydrated, or stressed. It's pain from muscles and blood vessels in your head.", fake: false },
-            { name: "Dizziness", desc: "When you spin around or stand up too fast, the room seems to spin. Your balance system in your inner ear gets confused.", fake: false },
-            { name: "Brain Spinning", desc: "If you think about too many things at once, your brain literally spins inside your head like a tornado.", fake: true },
-            { name: "Brain Fog", desc: "When you're tired or sick, it feels hard to think clearly. Your brain just isn't working at full speed.", fake: false }
-        ],
-        explain: "Brain Spinning is fake. Red flag: Your brain doesn't spin like a tornado. When thinking is hard, it's just your brain being tired, not actually spinning."
-    }
-];
+// UPDATED GAME STATE - add shuffleState to track randomization
+let state = {
+    gameStarted: false,
+    mode: null,
+    difficulty: 'medium',
+    round: 0,
+    score: 0,
+    selected: null,
+    revealed: false,
+    complete: false,
+    playerName: null,
+    leaderboard: [],
+    nameError: '',
+    shuffledIndices: []  // NEW: track which position is real/fake
+};
 
-// CALL MY BLUFF - MEDIUM MODE (for bright 13-16 year olds at 55-75%)
-const roundsMedium = [
-    {
-        title: "Round 1: Tricky Names",
-        pairs: [
-            {
-                condition: "Celiac Disease",
-                real: "A digestive condition where eating gluten (a protein in wheat and barley) damages the small intestine. The immune system attacks the intestine lining, causing malabsorption of nutrients. Diagnosed with blood tests and intestinal biopsy.",
-                fake: "A condition where the intestines become allergic to gluten molecules from eating bread. The intestines swell up and create a protective shield that blocks all nutrients from entering the body permanently.",
-                correctIsReal: true
+// UPDATED selectFact function to handle randomized positions
+function selectFact(idx) {
+    if (state.revealed) return;
+    state.selected = idx;
+    
+    if (state.mode === 'spotfake') {
+        const roundsToUse = getRounds(state.difficulty, state.mode);
+        const round = roundsToUse[state.round];
+        const selectedFact = round.facts[idx];
+        const isCorrect = selectedFact.fake;
+        if (isCorrect) state.score++;
+    } else {
+        const roundsToUse = getRounds(state.difficulty, state.mode);
+        const pair = roundsToUse[state.round].pairs[0];
+        
+        // For randomized pairs, check if selected index 0 matches where real is positioned
+        const realIsAtZero = pair.correctIsReal === true;
+        let isCorrect;
+        
+        if (state.shuffledIndices.length === 0) {
+            // Fallback if shuffle wasn't done (shouldn't happen)
+            isCorrect = (idx === 0) === pair.correctIsReal;
+        } else {
+            // idx 0 = position A, idx 1 = position B
+            // Check if the selected position has the real definition
+            if (idx === 0 && state.shuffledIndices[0] === 'real') {
+                isCorrect = pair.correctIsReal;
+            } else if (idx === 1 && state.shuffledIndices[1] === 'real') {
+                isCorrect = pair.correctIsReal;
+            } else {
+                isCorrect = false;
             }
-        ],
-        explain: "The real version describes immune damage to intestine tissue. The fake invents 'allergic intestines' and a 'permanent shield' that doesn't exist in medical reality."
-    },
-    {
-        title: "Round 2: Body Systems",
-        pairs: [
-            {
-                condition: "Type 1 Diabetes",
-                real: "An autoimmune condition where the pancreas stops producing insulin because the immune system attacks insulin-producing cells. Without insulin, blood glucose levels become dangerously high. Managed with insulin injections and diet.",
-                fake: "A condition where the body produces too much sugar juice that fills up the bloodstream. The excess sugar crystallizes into sugar rocks that float through veins and cause pain.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real version is medically accurate: immune destruction of beta cells, insulin deficiency, glucose regulation. The fake invents 'sugar juice' and 'crystallized sugar rocks' which don't happen."
-    },
-    {
-        title: "Round 3: The Brain",
-        pairs: [
-            {
-                condition: "Dyslexia",
-                real: "A learning disability where the brain processes written letters in scrambled order. Dyslexic readers see 'b' and 'd' as similar or words backwards. Not related to vision problems or intelligence.",
-                fake: "A condition where the eyes send words to the brain backwards, so dyslexic people see everything in mirror writing. Caused by eyes that point the wrong direction.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real version describes accurate neurological processing issues. The fake invents 'mirror writing vision' and 'eyes pointing wrong direction,' which aren't how dyslexia works."
-    },
-    {
-        title: "Round 4: Your Heart and Blood",
-        pairs: [
-            {
-                condition: "Anemia",
-                real: "A condition where the body doesn't have enough red blood cells or hemoglobin to carry oxygen. Causes fatigue, weakness, and shortness of breath. Multiple causes: iron deficiency, vitamin B12 deficiency, or blood loss.",
-                fake: "A condition where blood becomes too thin and watery, causing it to leak through blood vessel walls into surrounding tissues. Results in the body running out of blood pressure.",
-                correctIsReal: true
-            }
-        ],
-        explain: "The real version describes oxygen-carrying capacity accurately. The fake invents blood becoming 'watery' and 'leaking' with no mechanism, misunderstanding how anemia actually works."
+        }
+        
+        if (isCorrect) state.score++;
     }
-];
+    
+    state.revealed = true;
+    render();
+}
 
-// SPOT THE FAKE - MEDIUM MODE (for bright 13-16 year olds at 55-75%)
-const spotFakeRoundsMedium = [
-    {
-        title: "Round 1: Sensory Issues",
-        facts: [
-            { name: "Phantom Limb Sensation", desc: "People who lose an arm or leg often still feel pain or itching in the missing limb. The brain still has a map of the body part that creates these sensations.", fake: false },
-            { name: "Tinnitus", desc: "A constant ringing, buzzing, or humming sound in the ears that only the person can hear. Often caused by hearing damage or inner ear problems. No external sound source exists.", fake: false },
-            { name: "Color Taste Syndrome", desc: "Some people taste different flavors depending on what color food is. Blue foods taste salty, orange foods taste sweet. Documented in 3.7% of the population with MRI confirmation.", fake: true },
-            { name: "Vertigo", desc: "A spinning sensation where the room feels like it's rotating around you. Caused by inner ear dysfunction disrupting balance signals to the brain.", fake: false }
-        ],
-        explain: "Color Taste Syndrome is AI-generated. Red flags: suspiciously specific percentage (3.7%), invented mechanism (color determining taste), false 'MRI confirmation' claim without evidence."
-    },
-    {
-        title: "Round 2: Sleep and Consciousness",
-        facts: [
-            { name: "Sleep Paralysis", desc: "A temporary inability to move when falling asleep or waking up. Your brain wakes before your muscles do. Often accompanied by hallucinations and sense of pressure on chest.", fake: false },
-            { name: "Narcolepsy", desc: "A neurological condition causing sudden and uncontrollable sleep attacks throughout the day, even during important activities. Related to a deficiency in hypocretin neurotransmitter in the brain.", fake: false },
-            { name: "Reverse Sleep Syndrome", desc: "A condition where your sleep-wake cycle reverses completely, so you're tired during the day and alert at night. Affects approximately 4.2% of shift workers. Cured by reversing all mirrors in your room.", fake: true },
-            { name: "Insomnia", desc: "Chronic difficulty falling asleep or staying asleep despite having opportunity for sleep. Causes daytime fatigue and impaired function. Multiple causes: stress, caffeine, anxiety disorders.", fake: false }
-        ],
-        explain: "Reverse Sleep Syndrome is fake. Red flags: suspiciously precise statistic (4.2%), absurd 'cure' (reversing mirrors has no physiological effect), conflates shift work adjustment with a disease."
-    },
-    {
-        title: "Round 3: Neurological Conditions",
-        facts: [
-            { name: "Synesthesia", desc: "A neurological condition where stimulation of one sense triggers automatic response in another sense. Example: seeing numbers in colors, or tasting words. Runs in families.", fake: false },
-            { name: "Prosopagnosia (Face Blindness)", desc: "Inability to recognize faces despite normal vision and intelligence. Patients can't recognize family members or their own reflection. Must identify people by voice or clothing.", fake: false },
-            { name: "Temporal Echo Syndrome", desc: "A rare neurological condition where sensory experiences repeat in time loops of 2-3 seconds. Visual and auditory information echoes backwards and forwards repeatedly. Discovered in 2018 with 47 documented cases.", fake: true },
-            { name: "Apraxia", desc: "A neurological disorder affecting the ability to execute learned, purposeful movements despite having normal muscle strength. Person knows what they want to do but can't make their body do it.", fake: false }
-        ],
-        explain: "Temporal Echo Syndrome is fabricated. Red flags: suspiciously recent discovery (2018), tiny sample (47 cases), impossible mechanism (time-based sensory echoing), no peer-reviewed publications."
-    },
-    {
-        title: "Round 4: Immune and Allergy Conditions",
-        facts: [
-            { name: "Histamine Intolerance", desc: "Difficulty breaking down histamine from foods, causing flushing, headaches, and digestive issues. Results from deficiency in the enzyme DAO that breaks down histamine.", fake: false },
-            { name: "Mast Cell Activation Syndrome", desc: "Mast cells throughout the body release histamine unpredictably, causing widespread symptoms including flushing, swelling, and severe allergic reactions. Triggered by stress, heat, or certain foods.", fake: false },
-            { name: "Electromagnetic Sensitivity", desc: "A condition where electromagnetic fields cause severe symptoms including headaches, burning skin, and neurological effects. Affects 1.3-3% of the population. Symptoms occur even in studies with sham electromagnetic exposure.", fake: true },
-            { name: "Oral Allergy Syndrome", desc: "People with pollen allergies experience itching or swelling of lips and mouth when eating certain raw foods. Raw apples cross-react with birch pollen allergies.", fake: false }
-        ],
-        explain: "Electromagnetic Sensitivity is fake. Red flags: suspiciously precise percentage (1.3-3%), symptoms occur in sham conditions (indicating placebo, not real cause), no biological mechanism explaining radiofrequency harm."
+// UPDATED nextRound function to trigger shuffle for next round
+function nextRound() {
+    const roundsToUse = getRounds(state.difficulty, state.mode);
+    if (state.round < roundsToUse.length - 1) {
+        state.round++;
+        state.selected = null;
+        state.revealed = false;
+        state.shuffledIndices = [];  // Reset for new round
+    } else {
+        state.complete = true;
     }
-];
+    render();
+}
 
-// CALL MY BLUFF - HARD MODE (for university+ students at 75%+)
-const roundsHard = [
-    {
-        title: "Round 1: Genetic Conditions",
-        pairs: [
-            {
-                condition: "Marfan Syndrome",
-                real: "An autosomal dominant connective tissue disorder caused by FBN1 gene mutations encoding fibrillin-1. Affects skeletal, ocular, and cardiovascular systems through impaired TGF-beta signaling. Characteristic features: arachnodactyly, lens ectopia, aortic root dilation.",
-                fake: "A malignancy-associated paraneoplastic syndrome involving uncontrolled cellular proliferation in three-dimensional lattice networks. Causes rapid somatic growth acceleration. First identified through spectroscopic analysis of Martian geological samples.",
-                correctIsReal: true
-            }
-        ],
-        explain: "Real: FBN1 mutations, TGF-beta signaling, specific phenotypic features. Fake: invents malignant lattice networks and impossibly claims Martian discovery."
-    },
-    {
-        title: "Round 2: Inherited Connective Tissue Disorders",
-        pairs: [
-            {
-                condition: "Ehlers-Danlos Syndrome (Classical Type)",
-                real: "Autosomal dominant collagen disorder from COL5A1/COL5A2 mutations affecting type V collagen architecture. Results in skin hyperextensibility, joint hypermobility, and tissue fragility. Classified into 13 subtypes with varying inheritance patterns and clinical severity.",
-                fake: "A neurosensory pathway inversion syndrome where ascending and descending spinal tracts reverse during embryonic neural tube development. Causes proprioceptive directional reversal and thermal sensation inversion through crossed synaptic architecture.",
-                correctIsReal: true
-            }
-        ],
-        explain: "Real: COL5A mutations, type V collagen defects, 13 classified subtypes. Fake: invents fictional spinal pathway reversal mechanism without neurobiological basis."
-    },
-    {
-        title: "Round 3: Trigeminal Autonomic Cephalalgias",
-        pairs: [
-            {
-                condition: "SUNCT Syndrome",
-                real: "Short-lasting Unilateral Neuralgiform headache with Conjunctival injection and Tearing. Trigeminal autonomic cephalgia with high-frequency attacks (15-30/day) lasting 15-120 seconds. Responds specifically to indomethacin. Associated with hypothalamic dysfunction.",
-                fake: "Sustained Unilateral Neural Compression Tissue syndrome from permanent ipsilateral nerve root encapsulation by fibrotic scaffolding. Results in progressive motor neuron apoptosis with complete paralysis developing within 8-16 months of symptom onset.",
-                correctIsReal: true
-            }
-        ],
-        explain: "Real: accurate attack frequency, conjunctival findings, indomethacin response, hypothalamic involvement. Fake: invents fibrotic encapsulation causing progressive motor neuron death."
-    },
-    {
-        title: "Round 4: Rare Genetic Disorders",
-        pairs: [
-            {
-                condition: "Hereditary Angioedema (Type 1)",
-                real: "Autosomal dominant disorder from C1 esterase inhibitor (C1-INH) loss-of-function mutations causing uncontrolled bradykinin production. Results in episodic angioedema of skin and mucous membranes. Laryngeal edema creates life-threatening airway compromise. Two inheritance patterns: C1-INH deficiency or acquired variants.",
-                fake: "A genetic condition causing progressive immune sensitization to inherited HLA proteins from family lineage. Results in intergenerational IgE-mediated allergic reactivity escalating each generation, culminating in fatal systemic anaphylaxis within 2-4 generational cycles.",
-                correctIsReal: true
-            }
-        ],
-        explain: "Real: C1-INH mutations, bradykinin pathway, specific inheritance patterns, laryngeal edema risk. Fake: invents HLA allergy mechanism and impossible generational progression theory."
-    }
-];
+// UPDATED render function - for Call My Bluff, randomize and shuffle on display
+function render() {
+    const gameEl = document.getElementById('game');
 
-// SPOT THE FAKE - HARD MODE (for university+ students at 75%+)
-const spotFakeRoundsHard = [
-    {
-        title: "Round 1: Rare Movement Disorders",
-        facts: [
-            { name: "Jumping Frenchmen of Maine", desc: "Hyperstartle syndrome documented in 19th century French-Canadian lumberjacks. Exaggerated acoustic startle with automatic compliance to commands. Similar presentations: Imu (Japan), Latah (Malaysia). Possibly genetic predisposition with cultural factors.", fake: false },
-            { name: "Stendhal Syndrome", desc: "Psychosomatic response to overwhelming aesthetic experience involving autonomic activation: tachycardia, palpitations, dizziness. Documented in art tourism. Named after author who described it viewing Florentine paintings.", fake: false },
-            { name: "Kinetic Resonance Disorder", desc: "A neuromuscular condition where movement patterns at specific velocities (0.7-1.2 m/s) trigger involuntary oscillations in antagonist muscle groups. Documented in 0.8% of the population. Causes rhythmic tremor proportional to movement speed.", fake: true },
-            { name: "Pica", desc: "Persistent consumption of non-nutritive substances (dirt, clay, starch, ice). Associated with iron deficiency, malabsorption, pregnancy. May indicate nutritional or psychiatric etiology.", fake: false }
-        ],
-        explain: "Kinetic Resonance Disorder is fake. Red flags: suspiciously specific velocity range (0.7-1.2 m/s), arbitrary percentage (0.8%), false mechanism (movement speed doesn't cause antagonist oscillations)."
-    },
-    {
-        title: "Round 2: Specialized Sensory Systems",
-        facts: [
-            { name: "Meissner's Corpuscles", desc: "Specialized mechanoreceptive endings in dermal papillae of glabrous skin. Detect light touch (0.3-3 Hz vibration frequency). Densely concentrated in fingertips, lips, palms for discriminative touch.", fake: false },
-            { name: "Proprioception", desc: "Somatosensory system detecting body segment position via muscle spindles (length) and Golgi tendon organs (tension). Provides unconscious kinesthetic awareness independent of visual input.", fake: false },
-            { name: "Vibrational Frequency Photoreception", desc: "A proposed sensory modality where cochlear hair cells detect sub-auditory vibrations and transduce them to visual cortex via novel retinohypothalamic pathways. Documented in 0.4% of population with genetic mutations in opsin genes.", fake: true },
-            { name: "Referred Pain", desc: "Visceral pain perceived in somatic territories sharing spinal nerve root innervation. Example: cardiac ischemia produces left shoulder/arm pain via C3-T1 viscerosomatic convergence on dorsal horn neurons.", fake: false }
-        ],
-        explain: "Vibrational Frequency Photoreception is fabricated. Red flags: invented pathway (retinohypothalamic route for vibration-to-vision), false opsin gene involvement, suspiciously specific statistic (0.4%)."
-    },
-    {
-        title: "Round 3: Neuropsychiatric Phenomena",
-        facts: [
-            { name: "Charles Bonnet Syndrome", desc: "Complex visual hallucinations in visually impaired individuals with intact cognition. Release phenomenon from visual deafferentation. Occurs in 10-15% of blind populations. Non-pathological despite vividness.", fake: false },
-            { name: "Balint's Syndrome", desc: "Simultanagnosia from bilateral parietal-occipital lesions producing inability to perceive multiple objects simultaneously. Static monocular vision remains normal; fragmented visual scanning compensates.", fake: false },
-            { name: "Temporal Oscillation Dysmetria", desc: "A cerebellar timing dysfunction where duration estimation oscillates ±25% around veridical time intervals between 1-5 seconds. Proposed mechanism: Purkinje cell frequency modulation error. Published 2018 with 23 cases from Scandinavian research centers.", fake: true },
-            { name: "Akinetopsia", desc: "Motion blindness from bilateral middle temporal (MT/V5) area lesions. Static visual acuity intact while motion perception fragments into successive static frames. Results from loss of direction-selective neuron populations.", fake: false }
-        ],
-        explain: "Temporal Oscillation Dysmetria is fabricated. Red flags: suspiciously recent (2018), tiny sample (23 cases), arbitrary oscillation percentage (±25%), invented Purkinje cell mechanism without supporting neurophysiology."
-    },
-    {
-        title: "Round 4: Molecular Neurology",
-        facts: [
-            { name: "Autoimmune Encephalitis (NMDA Receptor)", desc: "Antibody-mediated neuroinflammation targeting NMDA glutamate receptors causing prominent psychiatric symptoms, seizures, movement disorders, and autonomic instability. Paraneoplastic or primary autoimmune etiology.", fake: false },
-            { name: "Prion Disease (Creutzfeldt-Jakob)", desc: "Neurodegenerative disorder from misfolded prion protein (PrP-scrapie) self-propagating through CNS. Produces rapidly progressive dementia, myoclonus, ataxia, and death within 1-2 years. Sporadic, familial, or acquired transmission.", fake: false },
-            { name: "Synaptosomal Feedback Inversion", desc: "A hypothetical pathophysiology where postsynaptic receptors abnormally regulate presynaptic neurotransmitter release in reverse direction. Proposed to cause treatment-resistant depression. Documented in 1.8% of depression cases with functional connectivity inversions on fMRI.", fake: true },
-            { name: "Lewy Body Dementia", desc: "Cognitive decline with fluctuating consciousness and Parkinsonism from alpha-synuclein aggregates. REM sleep behavior disorder often precedes cognitive decline. Second most common dementia type after Alzheimer's.", fake: false }
-        ],
-        explain: "Synaptosomal Feedback Inversion is fake. Red flags: invented mechanism (postsynaptic regulation of presynaptic release doesn't reverse), suspiciously precise statistic (1.8%), false fMRI mechanism (connectivity inversions don't exist)."
+    if (!state.gameStarted) {
+        // ... menu rendering code stays the same
     }
-];
+
+    // ... other renders stay the same until the Call My Bluff game render
+
+    const roundsToUse = getRounds(state.difficulty, state.mode);
+    
+    if (state.mode === 'spotfake') {
+        // SPOT THE FAKE - shuffle facts array each time (already randomized in content)
+        const round = roundsToUse[state.round];
+        const shuffledFacts = shuffleArray(round.facts);
+        
+        let factsHtml = '';
+        shuffledFacts.forEach((fact, idx) => {
+            let classes = 'fact';
+            if (state.revealed) {
+                if (fact.fake && state.selected === idx) classes += ' correct';
+                else if (!fact.fake && state.selected === idx) classes += ' wrong';
+                else if (fact.fake) classes += ' wrong';
+                classes += ' disabled';
+            } else {
+                if (state.selected === idx) classes += ' selected';
+            }
+            
+            let badge = '';
+            if (state.revealed && fact.fake) {
+                badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
+            } else if (state.revealed && !fact.fake && state.selected === idx) {
+                badge = '<span class="fact-badge badge-real">✓ REAL</span>';
+            }
+            
+            const letter = String.fromCharCode(65 + idx);
+            factsHtml += `
+                <div class="${classes}" onclick="selectFact(${idx})">
+                    <div class="fact-name"><span style="display: inline-block; min-width: 30px; font-weight: bold; color: #ff9800;">${letter}.</span> ${fact.name}</div>
+                    <div class="fact-desc">${fact.desc}</div>
+                    ${badge}
+                </div>
+            `;
+        });
+
+        let explanation = '';
+        if (state.revealed) {
+            explanation = `
+                <div class="explanation show">
+                    <div class="explanation-title">Why was it fake?</div>
+                    <div class="explanation-text">${round.explain}</div>
+                </div>
+            `;
+        }
+
+        gameEl.innerHTML = `
+            <div class="header">
+                <div>
+                    <h1>Spot The Fake</h1>
+                    <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                </div>
+                <div class="score">
+                    <div class="score-label">Score</div>
+                    <div class="score-value">${state.score}/4</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="round-info">
+                    <div class="round-title">${round.title}</div>
+                    <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                </div>
+                <div class="instructions">3 of these are REAL medical conditions. 1 is completely made up by AI. Which one is fake?</div>
+                <div class="instructions" style="font-size: 12px; color: #999;">Press A, B, C, or D on your keyboard to select</div>
+                <div class="facts">
+                    ${factsHtml}
+                </div>
+                ${explanation}
+                ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+            </div>
+            <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+            <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+        `;
+    } else {
+        // CALL MY BLUFF - randomize A/B positions each time
+        const round = roundsToUse[state.round];
+        const pair = round.pairs[0];
+        
+        // Shuffle the pair positions on first reveal of this round
+        if (state.shuffledIndices.length === 0) {
+            const indices = [0, 1];
+            state.shuffledIndices = shuffleArray(indices).map(i => i === 0 ? 'real' : 'fake');
+        }
+        
+        // Get definitions in shuffled order
+        const definitions = [pair.real, pair.fake];
+        const shuffledDefs = [
+            state.shuffledIndices[0] === 'real' ? pair.real : pair.fake,
+            state.shuffledIndices[1] === 'real' ? pair.real : pair.fake
+        ];
+        
+        let factsHtml = `
+            <div style="margin-bottom: 20px;">
+                <div style="background: #f0f7e8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4caf50;">${pair.condition}</div>
+                    <div style="font-size: 14px; color: #666;">Which definition is correct?</div>
+                </div>
+            </div>
+        `;
+
+        [shuffledDefs[0], shuffledDefs[1]].forEach((definition, idx) => {
+            const isCorrectAtThisPosition = (idx === 0 && state.shuffledIndices[0] === 'real') || 
+                                            (idx === 1 && state.shuffledIndices[1] === 'real');
+            let classes = 'fact';
+            
+            if (state.revealed) {
+                if (isCorrectAtThisPosition && state.selected === idx) classes += ' correct';
+                else if (!isCorrectAtThisPosition && state.selected === idx) classes += ' wrong';
+                else if (isCorrectAtThisPosition) classes += ' wrong';
+                classes += ' disabled';
+            } else {
+                if (state.selected === idx) classes += ' selected';
+            }
+            
+            let badge = '';
+            if (state.revealed && !isCorrectAtThisPosition) {
+                badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
+            } else if (state.revealed && isCorrectAtThisPosition && state.selected === idx) {
+                badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
+            }
+            
+            const letter = String.fromCharCode(65 + idx);
+            factsHtml += `
+                <div class="${classes}" onclick="selectFact(${idx})">
+                    <div class="fact-name">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
+                    <div class="fact-desc">${definition}</div>
+                    ${badge}
+                </div>
+            `;
+        });
+
+        let explanation = '';
+        if (state.revealed) {
+            explanation = `
+                <div class="explanation show">
+                    <div class="explanation-title">Why?</div>
+                    <div class="explanation-text">${round.explain}</div>
+                </div>
+            `;
+        }
+
+        gameEl.innerHTML = `
+            <div class="header">
+                <div>
+                    <h1>Call My Bluff</h1>
+                    <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                </div>
+                <div class="score">
+                    <div class="score-label">Score</div>
+                    <div class="score-value">${state.score}/4</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="round-info">
+                    <div class="round-title">${round.title}</div>
+                    <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                </div>
+                <div class="instructions">Pick the correct definition.</div>
+                <div class="instructions" style="font-size: 12px; color: #999;">Press A or B on your keyboard to select</div>
+                <div class="facts">
+                    ${factsHtml}
+                </div>
+                ${explanation}
+                ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+            </div>
+            <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+            <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+        `;
+    }
+}
 
         function getRounds(difficulty, mode) {
             if (mode === 'spotfake') {
