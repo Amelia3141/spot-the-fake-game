@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spot The AI Fake</title>
+    <title>Spot The Fake</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%); color: #333; padding: 20px; min-height: 100vh; }
         .container { max-width: 800px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { font-size: 32px; margin-bottom: 5px; }
+        h2 { font-size: 24px; margin-bottom: 15px; }
         .subtitle { color: #666; font-size: 14px; }
         .score { text-align: right; }
         .score-label { font-size: 12px; color: #999; }
@@ -26,7 +27,7 @@
         .fact.correct { background: #e8f5e9; border-color: #4caf50; }
         .fact.wrong { background: #ffebee; border-color: #f44336; }
         .fact.disabled { cursor: not-allowed; }
-        .fact-name { font-weight: bold; font-size: 16px; margin-bottom: 8px; }
+        .fact-name { font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #ff9800; }
         .fact-desc { font-size: 14px; color: #555; line-height: 1.5; }
         .fact-badge { display: inline-block; margin-top: 10px; padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
         .badge-fake { background: #f44336; }
@@ -42,10 +43,18 @@
         .final-score { font-size: 64px; font-weight: bold; color: #4caf50; margin: 20px 0; }
         .message { font-size: 18px; margin-bottom: 20px; }
         .lesson { background: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 15px; margin-top: 20px; font-size: 13px; }
+        .difficulty-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .difficulty-btn { padding: 12px; font-size: 14px; }
+        .difficulty-btn.active { background: #4caf50; }
+        .difficulty-btn.inactive { background: #ddd; color: #333; }
+        .difficulty-btn:hover { transform: none; }
+        .menu-section { margin-bottom: 30px; }
+        .difficulty-desc { font-size: 12px; color: #666; margin-top: 10px; }
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
             .score { margin-top: 15px; }
             h1 { font-size: 24px; }
+            .difficulty-grid { grid-template-columns: 1fr; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -56,267 +65,459 @@
         <div id="game"></div>
     </div>
 
-   <script>
-    // Firebase config - replace with YOUR values from Firebase console
-    const firebaseConfig = {
-        apiKey: "AIzaSyCUdAqlDwN_1lRlbBHaA37RPscAtuxIXTA",
-        authDomain: "spot-fake-game.firebaseapp.com",
-        databaseURL: "https://spot-fake-game-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "spot-fake-game",
-        storageBucket: "spot-fake-game.firebasestorage.app",
-        messagingSenderId: "141455787893",
-        appId: "1:141455787893:web:e94feb2716c98336f1753c"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let state = {
-        round: 0,
-        score: 0,
-        selected: null,
-        revealed: false,
-        complete: false,
-        playerName: null,
-        leaderboard: []
-    };
-
-    const rounds = [
-        {
-            title: "Round 1: Warming Up",
-            facts: [
-                { name: "Brain Freeze", desc: "The sharp headache from eating ice cream too fast happens when cold hits the roof of your mouth. Blood vessels rapidly constrict then dilate, triggering pain signals.", fake: false },
-                { name: "Exploding Head Syndrome", desc: "People hear loud explosion sounds or crashes inside their head when falling asleep or waking up. It's completely harmless but can be very frightening.", fake: false },
-                { name: "Sonic Perception Syndrome", desc: "A rare condition where people can hear electrical frequencies from power lines and WiFi routers, causing constant humming sensations. Affects roughly 2.3% of the population and worsens with age.", fake: true },
-                { name: "Hiccups", desc: "Involuntary spasms of the diaphragm muscle followed by sudden closure of the vocal cords. The longest recorded case lasted 68 years.", fake: false }
-            ],
-            explain: "Sonic Perception Syndrome is AI-generated nonsense. Red flags: suspiciously specific percentage (2.3%), made-up name combining real medical words, no actual mechanism explained."
-        },
-        {
-            title: "Round 2: Getting Tricky",
-            facts: [
-                { name: "Thunderclap Headache", desc: "A sudden, severe headache that reaches maximum intensity within 60 seconds, often described as 'the worst headache of your life.' Can signal bleeding in the brain.", fake: false },
-                { name: "Mirror Touch Synesthesia", desc: "Some people physically feel sensations they see others experiencing. If they watch someone being touched on the arm, they feel it on their own arm.", fake: false },
-                { name: "Chromatic Appetite Disorder", desc: "A condition where the brain processes food colors incorrectly, making people unable to eat foods of certain colors. Affects approximately 1 in 8,000 people and is treated with color-filtered glasses.", fake: true },
-                { name: "Foreign Accent Syndrome", desc: "After a stroke or head injury, people can suddenly speak with a completely different accent they never had before, like waking up British when you've always been American.", fake: false }
-            ],
-            explain: "Chromatic Appetite Disorder is fake. Red flags: made-up name using real medical words, oddly specific statistic (1 in 8,000), too-convenient solution."
-        },
-        {
-            title: "Round 3: Expert Level",
-            facts: [
-                { name: "Cotard Delusion (Walking Corpse Syndrome)", desc: "People believe they are dead, don't exist, or have lost their blood and internal organs. They may refuse to eat because they think they don't need food anymore.", fake: false },
-                { name: "Numerical Dysmorphia", desc: "A neurological condition where patients consistently perceive numbers as being exactly 3 units higher than they actually are. First documented in 1987 following a cluster of cases in Norway, with approximately 600 confirmed cases worldwide.", fake: true },
-                { name: "Alice in Wonderland Syndrome", desc: "Objects appear much larger or smaller than they really are, and body parts feel like they're changing size. Often affects children and can be triggered by migraines or infections.", fake: false },
-                { name: "Capgras Delusion", desc: "People become convinced that someone close to them has been replaced by an identical impostor. They recognize the person's face but feel no emotional connection, creating the certainty that it's an imposter.", fake: false }
-            ],
-            explain: "Numerical Dysmorphia is AI hallucination. Red flags: too-specific consistent error (always exactly 3 units), suspiciously precise numbers, implausibly neat pattern."
-        },
-        {
-            title: "Round 4: Can You Outsmart AI?",
-            facts: [
-                { name: "Takotsubo Cardiomyopathy (Broken Heart Syndrome)", desc: "Extreme emotional stress can literally reshape your heart into a balloon-like shape, mimicking a heart attack. Named after Japanese octopus traps because that's what the heart looks like on scans.", fake: false },
-                { name: "Hemineglect", desc: "After certain brain injuries, people completely ignore one half of their world. They might only eat food from the right side of their plate, only shave half their face, or only draw half a clock.", fake: false },
-                { name: "Prosopagnosia (Face Blindness)", desc: "People cannot recognize faces, even of close family members. Some can't even recognize their own face in a mirror. They have to identify people by voice, clothing, or hairstyle instead.", fake: false },
-                { name: "Temporal Sequence Reversal Disorder", desc: "A condition where patients experience short-term memories in reverse chronological order for 15-30 second windows. Caused by disrupted hippocampal timing mechanisms and affects balance and coordination severely.", fake: true }
-            ],
-            explain: "Temporal Sequence Reversal Disorder is fake. Red flags: suspiciously precise time window, mixing unrelated symptoms, overly technical but meaningless explanation."
-        }
-    ];
-
-    function selectFact(idx) {
-        if (state.revealed) return;
-        state.selected = idx;
-        const isCorrect = rounds[state.round].facts[idx].fake;
-        if (isCorrect) state.score++;
-        state.revealed = true;
-        render();
-    }
-
-    function nextRound() {
-        if (state.round < rounds.length - 1) {
-            state.round++;
-            state.selected = null;
-            state.revealed = false;
-        } else {
-            state.complete = true;
-        }
-        render();
-    }
-
-    function submitScore() {
-        const name = document.getElementById('playerNameInput').value.trim();
-        if (!name) {
-            alert('Please enter your name');
-            return;
-        }
-
-        const timestamp = new Date().toISOString();
-        const entry = {
-            name: name,
-            score: state.score,
-            timestamp: timestamp
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCUdAqlDwN_1lRlbBHaA37RPscAtuxIXTA",
+            authDomain: "spot-fake-game.firebaseapp.com",
+            databaseURL: "https://spot-fake-game-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "spot-fake-game",
+            storageBucket: "spot-fake-game.firebasestorage.app",
+            messagingSenderId: "141455787893",
+            appId: "1:141455787893:web:e94feb2716c98336f1753c"
         };
 
-        db.ref('scores').push(entry).then(() => {
-            state.playerName = name;
-            loadLeaderboard();
-        });
-    }
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    function loadLeaderboard() {
-        db.ref('scores').orderByChild('score').limitToLast(100).once('value', (snapshot) => {
-            const data = snapshot.val();
-            state.leaderboard = [];
-            if (data) {
-                Object.values(data).forEach(entry => {
-                    state.leaderboard.push(entry);
-                });
+        let state = {
+            gameStarted: false,
+            mode: null,
+            difficulty: 'medium',
+            round: 0,
+            score: 0,
+            selected: null,
+            revealed: false,
+            complete: false,
+            playerName: null,
+            leaderboard: []
+        };
+
+        const roundsEasy = [
+            {
+                title: "Round 1: Clear Definitions",
+                pairs: [
+                    {
+                        condition: "Color Blindness",
+                        real: "An inability to see certain colors, usually reds and greens. People with color blindness see the world in different shades but live normal lives.",
+                        fake: "A condition where people see all colors as shades of gray and can only see in black and white like old movies.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Color blindness doesn't mean seeing in black and white. Most color blind people see colors, just differently. The fake version is too extreme."
+            },
+            {
+                title: "Round 2: Simple Conditions",
+                pairs: [
+                    {
+                        condition: "Insomnia",
+                        real: "Difficulty falling asleep or staying asleep, even when you have the chance. Very common and affects many people.",
+                        fake: "A disease where your brain forgets how to sleep and you never feel tired, causing you to stay awake forever.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Insomnia is about sleep difficulty, not permanent wakefulness. People with insomnia still get tired—they just struggle to sleep."
+            },
+            {
+                title: "Round 3: Body Parts",
+                pairs: [
+                    {
+                        condition: "Migraine",
+                        real: "A severe headache on one side of the head, often with nausea or sensitivity to light. Migraines last for hours or days.",
+                        fake: "A rare disease where your brain actually shrinks and moves around inside your skull, causing extreme pain.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Migraines are intense headaches, not brain shrinkage. The fake version sounds scary but isn't how migraines actually work."
+            },
+            {
+                title: "Round 4: Common Words",
+                pairs: [
+                    {
+                        condition: "Vertigo",
+                        real: "The feeling that you or the room around you is spinning. Often caused by inner ear problems. Not the same as just feeling dizzy.",
+                        fake: "Fear of heights that makes you unable to look down or climb stairs ever again.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Vertigo is the spinning sensation, not fear of heights. Fear of heights is acrophobia. These are totally different things."
             }
-            state.leaderboard.sort((a, b) => b.score - a.score);
-            render();
-        });
-    }
+        ];
 
-    function restart() {
-        state = { round: 0, score: 0, selected: null, revealed: false, complete: false, playerName: null, leaderboard: [] };
-        render();
-    }
+        const roundsMedium = [
+            {
+                title: "Round 1: Name Tricks",
+                pairs: [
+                    {
+                        condition: "Cooley's Anemia",
+                        real: "A genetic blood disorder where the body can't make enough healthy red blood cells. Named after Dr. Thomas Cooley who first described it in 1925. Common in Mediterranean populations.",
+                        fake: "A disorder caused by prolonged exposure to cold temperatures, where red blood cells freeze and break down. Named after Dr. James Cooley's research in Arctic expeditions.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Cooley's Anemia is named after the doctor, not temperature. The fake version misinterprets the name as 'cool' = cold."
+            },
+            {
+                title: "Round 2: Misleading Names",
+                pairs: [
+                    {
+                        condition: "Down Syndrome",
+                        real: "A genetic condition caused by an extra chromosome 21. Named after Dr. John Langdon Down who first identified it in 1866. Not related to emotional state.",
+                        fake: "A mood disorder where people experience constant emotional depression and downward spirals requiring permanent isolation.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Down Syndrome is named after Dr. Down, not emotion. The fake version exploits the word 'down' to suggest depression."
+            },
+            {
+                title: "Round 3: Medical Terms",
+                pairs: [
+                    {
+                        condition: "Long Q-T Syndrome",
+                        real: "A heart rhythm disorder where electrical signals take longer to reset between beats. The 'Q-T' refers to segments on an EKG graph. Can cause fainting and sudden cardiac death.",
+                        fake: "A syndrome where quantum tunneling in neural synapses causes delayed thought processes and extreme slowness. 'Q-T' stands for Quantum Tunneling.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Long Q-T Syndrome is about electrical timing on heart monitors, not quantum physics. The fake mixes real terms with made-up science."
+            },
+            {
+                title: "Round 4: Doctor Names",
+                pairs: [
+                    {
+                        condition: "Diamond-Blackfan Anemia",
+                        real: "A rare bone marrow disorder where the body doesn't produce enough red blood cells. Named after doctors Louis Diamond and Kenneth Blackfan who described it in 1938.",
+                        fake: "A precious metal poisoning disorder where diamond dust and blackfan mineral deposits accumulate in bone marrow, seen in jewelers and miners.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Diamond-Blackfan Anemia is named after two doctors. The fake version tricks you by treating 'diamond' and 'blackfan' as if they were the cause."
+            }
+        ];
 
-    document.addEventListener('keydown', (e) => {
-        const key = e.key.toUpperCase();
-        if (key === 'A') selectFact(0);
-        else if (key === 'B') selectFact(1);
-        else if (key === 'C') selectFact(2);
-        else if (key === 'D') selectFact(3);
-        else if (key === 'ENTER') {
-            if (state.revealed && !state.complete) nextRound();
-            else if (state.complete) restart();
+        const roundsHard = [
+            {
+                title: "Round 1: Expert Misconceptions",
+                pairs: [
+                    {
+                        condition: "Marfan Syndrome",
+                        real: "A genetic disorder affecting connective tissue, caused by mutations in the fibrillin-1 gene. Affects the skeleton, lungs, eyes, and heart. Named after Antoine Marfan who described it in 1896.",
+                        fake: "A condition where the body's cells multiply uncontrollably in a spider-web pattern, causing extremely rapid growth and early death. The name comes from the Mars rovers which discovered the condition in lunar samples.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "Marfan Syndrome is a connective tissue disorder from genetic mutations. The fake version completely invents a mechanism and absurdly claims it was discovered on the moon."
+            },
+            {
+                title: "Round 2: Similar-Sounding Conditions",
+                pairs: [
+                    {
+                        condition: "Ehlers-Danlos Syndrome",
+                        real: "A group of genetic disorders affecting collagen production, causing unusually flexible joints, stretchy skin, and fragile connective tissue. Named after two dermatologists who identified it.",
+                        fake: "A syndrome where the nervous system mistakes electrical signals and sends them backward through the spine, causing inverted sensations where touching cold feels hot and vice versa.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "EDS affects collagen structure, not nerve signal direction. The fake describes a fictional neurological inversion that doesn't exist."
+            },
+            {
+                title: "Round 3: Real Conditions with Tricky Names",
+                pairs: [
+                    {
+                        condition: "SUNCT Syndrome",
+                        real: "Short Unilateral Neuralgiform headache attacks with Conjunctival injection and Tearing. Rare condition causing sudden, severe headaches on one side with eye symptoms. Abbreviated from the medical acronym.",
+                        fake: "Sustained Unilateral Neural Compression Tissue syndrome where nerves on one side of the body are permanently pinched, causing complete paralysis of that side within months.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "SUNCT is a real headache disorder with a complicated name. The fake version creates a made-up acronym describing permanent paralysis which doesn't match the actual condition."
+            },
+            {
+                title: "Round 4: Deceptively Complex",
+                pairs: [
+                    {
+                        condition: "Hereditary Angioedema",
+                        real: "A rare genetic disorder affecting a blood protein (C1 esterase inhibitor), causing unpredictable swelling in the skin and internal organs. Can be life-threatening during throat swelling.",
+                        fake: "A condition where the body develops severe allergic reactions to inherited family traits, causing swelling that gets worse with each generation until suffocation occurs.",
+                        correctIsReal: true
+                    }
+                ],
+                explain: "HAE is a protein deficiency disorder. The fake suggests allergies to 'family traits' and progressive worsening per generation—nonsensical pseudoscience."
+            }
+        ];
+
+        function getRounds(difficulty) {
+            if (difficulty === 'easy') return roundsEasy;
+            if (difficulty === 'hard') return roundsHard;
+            return roundsMedium;
         }
-    });
 
-    function render() {
-        const gameEl = document.getElementById('game');
+        function setDifficulty(level) {
+            state.difficulty = level;
+            render();
+        }
 
-        if (state.complete && !state.playerName) {
-            gameEl.innerHTML = `
-                <div class="card game-over">
-                    <h1>Game Complete!</h1>
-                    <div class="final-score">${state.score} / 4</div>
-                    <div class="message">
-                        ${state.score === 4 ? "Perfect Score! You can spot AI hallucinations like a pro." : 
-                          state.score === 3 ? "Excellent Work! You're good at spotting fake medical info." :
-                          state.score === 2 ? "Not Bad! AI-generated content can be tricky." :
-                          "Keep Learning! AI hallucinations are hard to spot."}
+        function startGame(mode) {
+            state.gameStarted = true;
+            state.mode = mode;
+            state.round = 0;
+            state.score = 0;
+            state.selected = null;
+            state.revealed = false;
+            render();
+        }
+
+        function backToMenu() {
+            state.gameStarted = false;
+            state.complete = false;
+            state.playerName = null;
+            state.round = 0;
+            state.score = 0;
+            state.selected = null;
+            state.revealed = false;
+            state.mode = null;
+            render();
+        }
+
+        function selectFact(idx) {
+            if (state.revealed) return;
+            state.selected = idx;
+            const roundsToUse = getRounds(state.difficulty);
+            const pair = roundsToUse[state.round].pairs[0];
+            const isCorrect = (idx === 0) === pair.correctIsReal;
+            if (isCorrect) state.score++;
+            state.revealed = true;
+            render();
+        }
+
+        function nextRound() {
+            const roundsToUse = getRounds(state.difficulty);
+            if (state.round < roundsToUse.length - 1) {
+                state.round++;
+                state.selected = null;
+                state.revealed = false;
+            } else {
+                state.complete = true;
+            }
+            render();
+        }
+
+        function submitScore() {
+            const name = document.getElementById('playerNameInput').value.trim();
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+
+            const timestamp = new Date().toISOString();
+            const entry = {
+                name: name,
+                score: state.score,
+                difficulty: state.difficulty,
+                timestamp: timestamp
+            };
+
+            db.ref('scores').push(entry).then(() => {
+                state.playerName = name;
+                loadLeaderboard();
+            });
+        }
+
+        function loadLeaderboard() {
+            db.ref('scores').orderByChild('score').limitToLast(100).once('value', (snapshot) => {
+                const data = snapshot.val();
+                state.leaderboard = [];
+                if (data) {
+                    Object.values(data).forEach(entry => {
+                        state.leaderboard.push(entry);
+                    });
+                }
+                state.leaderboard.sort((a, b) => b.score - a.score);
+                render();
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toUpperCase();
+            if (key === 'A') selectFact(0);
+            else if (key === 'B') selectFact(1);
+            else if (key === 'ENTER') {
+                if (state.revealed && !state.complete) nextRound();
+                else if (state.complete) backToMenu();
+            }
+        });
+
+        function render() {
+            const gameEl = document.getElementById('game');
+
+            // MENU SCREEN
+            if (!state.gameStarted) {
+                gameEl.innerHTML = `
+                    <div class="header">
+                        <div>
+                            <h1>Spot The Fake</h1>
+                            <p class="subtitle">Can you tell real from misleading?</p>
+                        </div>
                     </div>
-                    <div style="margin: 20px 0;">
-                        <input type="text" id="playerNameInput" placeholder="Enter your name" style="padding: 10px; width: 100%; border: 2px solid #4caf50; border-radius: 4px; font-size: 16px;">
+                    <div class="card">
+                        <div class="menu-section">
+                            <h2>Select Game Mode</h2>
+                            <button onclick="startGame('callmybluff')" style="margin-bottom: 10px;">Call My Bluff Mode</button>
+                            <p style="font-size: 12px; color: #666;">One real, one fake definition. Spot which is correct.</p>
+                        </div>
+
+                        <div style="border-top: 2px solid #eee; padding-top: 20px; margin-top: 20px;">
+                            <h2>Select Difficulty</h2>
+                            <div class="difficulty-grid">
+                                <button onclick="setDifficulty('easy')" class="difficulty-btn ${state.difficulty === 'easy' ? 'active' : 'inactive'}">Easy</button>
+                                <button onclick="setDifficulty('medium')" class="difficulty-btn ${state.difficulty === 'medium' ? 'active' : 'inactive'}">Medium</button>
+                                <button onclick="setDifficulty('hard')" class="difficulty-btn ${state.difficulty === 'hard' ? 'active' : 'inactive'}">Hard</button>
+                            </div>
+                            <p class="difficulty-desc">
+                                ${state.difficulty === 'easy' ? 'Clear definitions, common conditions. Great for kids and beginners.' : 
+                                  state.difficulty === 'medium' ? 'Tricky names and medical terminology. For intermediate players.' : 
+                                  'Expert-level misleading names. For medical enthusiasts.'}
+                            </p>
+                        </div>
                     </div>
-                    <button onclick="submitScore()" style="margin-bottom: 10px;">Submit Score</button>
-                    <div class="lesson">AI can generate convincing medical information that sounds authoritative but is completely false. Always verify with real sources.</div>
+                `;
+                return;
+            }
+
+            if (state.complete && !state.playerName) {
+                gameEl.innerHTML = `
+                    <div class="card game-over">
+                        <h1>Game Complete!</h1>
+                        <div class="final-score">${state.score} / 4</div>
+                        <div class="message">
+                            ${state.score === 4 ? "Perfect! You're a definition detective." : 
+                              state.score === 3 ? "Excellent! You caught most of the tricks." :
+                              state.score === 2 ? "Good effort! Misleading names are tough." :
+                              "Keep practicing! These tricks are sneaky."}
+                        </div>
+                        <div style="margin: 20px 0;">
+                            <input type="text" id="playerNameInput" placeholder="Enter your name" style="padding: 10px; width: 100%; border: 2px solid #4caf50; border-radius: 4px; font-size: 16px;">
+                        </div>
+                        <button onclick="submitScore()" style="margin-bottom: 10px;">Submit Score</button>
+                        <button onclick="backToMenu()" style="background: #999; margin-bottom: 10px;">Back to Menu</button>
+                        <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (state.complete && state.playerName) {
+                const rank = state.leaderboard.findIndex(e => e.name === state.playerName && e.score === state.score) + 1;
+                let leaderboardHtml = '';
+                state.leaderboard.slice(0, 10).forEach((entry, idx) => {
+                    const isPlayer = entry.name === state.playerName && entry.score === state.score;
+                    leaderboardHtml += `
+                        <div style="display: flex; justify-content: space-between; padding: 10px; background: ${isPlayer ? '#fff9c4' : 'white'}; border-bottom: 1px solid #eee;">
+                            <span>${idx + 1}. ${entry.name}</span>
+                            <span style="font-weight: bold;">${entry.score}/4</span>
+                        </div>
+                    `;
+                });
+
+                gameEl.innerHTML = `
+                    <div class="card game-over">
+                        <h1>Game Complete!</h1>
+                        <div class="final-score">${state.score} / 4</div>
+                        <div class="message" style="font-size: 20px; color: #ff9800;">You ranked #${rank} on the leaderboard!</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">Top 10 Scores</div>
+                            ${leaderboardHtml}
+                        </div>
+                        <button onclick="backToMenu()" style="margin-bottom: 10px;">Play Again</button>
+                        <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const roundsToUse = getRounds(state.difficulty);
+            const round = roundsToUse[state.round];
+            const pair = round.pairs[0];
+            
+            let factsHtml = `
+                <div style="margin-bottom: 20px;">
+                    <div style="background: #f0f7e8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                        <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4caf50;">${pair.condition}</div>
+                        <div style="font-size: 14px; color: #666;">Which definition is correct?</div>
+                    </div>
                 </div>
             `;
-            return;
-        }
 
-        if (state.complete && state.playerName) {
-            const rank = state.leaderboard.findIndex(e => e.name === state.playerName && e.score === state.score) + 1;
-            let leaderboardHtml = '';
-            state.leaderboard.slice(0, 10).forEach((entry, idx) => {
-                const isPlayer = entry.name === state.playerName && entry.score === state.score;
-                leaderboardHtml += `
-                    <div style="display: flex; justify-content: space-between; padding: 10px; background: ${isPlayer ? '#fff9c4' : 'white'}; border-bottom: 1px solid #eee;">
-                        <span>${idx + 1}. ${entry.name}</span>
-                        <span style="font-weight: bold;">${entry.score}/4</span>
+            [pair.real, pair.fake].forEach((definition, idx) => {
+                const isCorrect = (idx === 0) === pair.correctIsReal;
+                let classes = 'fact';
+                
+                if (state.revealed) {
+                    if (isCorrect && state.selected === idx) classes += ' correct';
+                    else if (!isCorrect && state.selected === idx) classes += ' wrong';
+                    else if (isCorrect) classes += ' wrong';
+                    classes += ' disabled';
+                } else {
+                    if (state.selected === idx) classes += ' selected';
+                }
+                
+                let badge = '';
+                if (state.revealed && !isCorrect) {
+                    badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
+                } else if (state.revealed && isCorrect && state.selected === idx) {
+                    badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
+                }
+                
+                const letter = String.fromCharCode(65 + idx);
+                factsHtml += `
+                    <div class="${classes}" onclick="selectFact(${idx})">
+                        <div class="fact-name">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
+                        <div class="fact-desc">${definition}</div>
+                        ${badge}
                     </div>
                 `;
             });
 
-            gameEl.innerHTML = `
-                <div class="card game-over">
-                    <h1>Game Complete!</h1>
-                    <div class="final-score">${state.score} / 4</div>
-                    <div class="message" style="font-size: 20px; color: #ff9800;">You ranked #${rank} on the leaderboard!</div>
-                    <div style="background: #f5f5f5; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                        <div style="font-weight: bold; margin-bottom: 10px;">Top 10 Scores</div>
-                        ${leaderboardHtml}
-                    </div>
-                    <button onclick="restart()">Play Again</button>
-                    <div class="lesson">AI can generate convincing medical information that sounds authoritative but is completely false. Always verify with real sources.</div>
-                </div>
-            `;
-            return;
-        }
-
-        const round = rounds[state.round];
-        let factsHtml = '';
-        
-        round.facts.forEach((fact, idx) => {
-            let classes = 'fact';
+            let explanation = '';
             if (state.revealed) {
-                if (fact.fake && state.selected === idx) classes += ' correct';
-                else if (!fact.fake && state.selected === idx) classes += ' wrong';
-                else if (fact.fake) classes += ' wrong';
-                classes += ' disabled';
-            } else {
-                if (state.selected === idx) classes += ' selected';
+                explanation = `
+                    <div class="explanation show">
+                        <div class="explanation-title">Why?</div>
+                        <div class="explanation-text">${round.explain}</div>
+                    </div>
+                `;
             }
-            
-            let badge = '';
-            if (state.revealed && fact.fake) {
-                badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
-            } else if (state.revealed && !fact.fake && state.selected === idx) {
-                badge = '<span class="fact-badge badge-real">✓ REAL</span>';
-            }
-            
-            const letter = String.fromCharCode(65 + idx);
-            factsHtml += `
-                <div class="${classes}" onclick="selectFact(${idx})">
-                    <div class="fact-name"><span style="display: inline-block; min-width: 30px; font-weight: bold; color: #ff9800;">${letter}.</span> ${fact.name}</div>
-                    <div class="fact-desc">${fact.desc}</div>
-                    ${badge}
-                </div>
-            `;
-        });
 
-        let explanation = '';
-        if (state.revealed) {
-            explanation = `
-                <div class="explanation show">
-                    <div class="explanation-title">Why was it fake?</div>
-                    <div class="explanation-text">${round.explain}</div>
+            gameEl.innerHTML = `
+                <div class="header">
+                    <div>
+                        <h1>Spot The Fake</h1>
+                        <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                    </div>
+                    <div class="score">
+                        <div class="score-label">Score</div>
+                        <div class="score-value">${state.score}/4</div>
+                    </div>
                 </div>
+                <div class="card">
+                    <div class="round-info">
+                        <div class="round-title">${round.title}</div>
+                        <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                    </div>
+                    <div class="instructions">Pick the correct definition.</div>
+                    <div class="instructions" style="font-size: 12px; color: #999;">Press A or B on your keyboard to select</div>
+                    <div class="facts">
+                        ${factsHtml}
+                    </div>
+                    ${explanation}
+                    ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+                </div>
+                <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+                <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
             `;
         }
 
-        gameEl.innerHTML = `
-            <div class="header">
-                <div>
-                    <h1>Spot The AI Fake</h1>
-                    <p class="subtitle">Can you tell when AI is making stuff up?</p>
-                </div>
-                <div class="score">
-                    <div class="score-label">Score</div>
-                    <div class="score-value">${state.score}/4</div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="round-info">
-                    <div class="round-title">${round.title}</div>
-                    <span class="round-number">Round ${state.round + 1}/4</span>
-                </div>
-                <div class="instructions">3 of these are REAL medical conditions. 1 is completely made up by AI. Which one is fake?</div>
-                <div class="instructions" style="font-size: 12px; color: #999;">Press A, B, C, or D on your keyboard to select</div>
-                <div class="facts">
-                    ${factsHtml}
-                </div>
-                ${explanation}
-                ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
-            </div>
-            <div class="lesson">AI can generate convincing medical information that sounds authoritative but is completely false. Always verify with real sources.</div>
-        `;
-    }
-
-    loadLeaderboard();
-    render();
-</script>
+        loadLeaderboard();
+        render();
+    </script>
+</body>
+</html>
