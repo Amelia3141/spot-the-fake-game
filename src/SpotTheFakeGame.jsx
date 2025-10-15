@@ -1,0 +1,323 @@
+import React, { useState } from 'react';
+import { Trophy, Brain, AlertCircle } from 'lucide-react';
+
+const SpotTheFakeGame = () => {
+  const [currentRound, setCurrentRound] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [gameComplete, setGameComplete] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([
+    { name: "Dr. Sarah", score: 4 },
+    { name: "Alex K", score: 3 },
+    { name: "Jamie", score: 3 },
+    { name: "Chris M", score: 2 }
+  ]);
+
+  const rounds = [
+    {
+      title: "Round 1: Warming Up",
+      facts: [
+        {
+          name: "Brain Freeze",
+          description: "The sharp headache from eating ice cream too fast happens when cold hits the roof of your mouth. Blood vessels rapidly constrict then dilate, triggering pain signals.",
+          fake: false
+        },
+        {
+          name: "Exploding Head Syndrome",
+          description: "People hear loud explosion sounds or crashes inside their head when falling asleep or waking up. It's completely harmless but can be very frightening.",
+          fake: false
+        },
+        {
+          name: "Sonic Perception Syndrome",
+          description: "A rare condition where people can hear electrical frequencies from power lines and WiFi routers, causing constant humming sensations. Affects roughly 2.3% of the population and worsens with age.",
+          fake: true
+        },
+        {
+          name: "Hiccups",
+          description: "Involuntary spasms of the diaphragm muscle followed by sudden closure of the vocal cords. The longest recorded case lasted 68 years.",
+          fake: false
+        }
+      ],
+      explanation: "**Sonic Perception Syndrome** is AI-generated nonsense. Red flags: suspiciously specific percentage (2.3%), made-up name combining real medical words, and no actual mechanism explained. Real conditions like tinnitus exist, but not this invented 'WiFi hearing' disorder."
+    },
+    {
+      title: "Round 2: Getting Tricky",
+      facts: [
+        {
+          name: "Thunderclap Headache",
+          description: "A sudden, severe headache that reaches maximum intensity within 60 seconds, often described as 'the worst headache of your life.' Can signal bleeding in the brain.",
+          fake: false
+        },
+        {
+          name: "Mirror Touch Synesthesia",
+          description: "Some people physically feel sensations they see others experiencing. If they watch someone being touched on the arm, they feel it on their own arm.",
+          fake: false
+        },
+        {
+          name: "Chromatic Appetite Disorder",
+          description: "A condition where the brain processes food colors incorrectly, making people unable to eat foods of certain colors. Affects approximately 1 in 8,000 people and is treated with color-filtered glasses.",
+          fake: true
+        },
+        {
+          name: "Foreign Accent Syndrome",
+          description: "After a stroke or head injury, people can suddenly speak with a completely different accent they never had before, like waking up British when you've always been American.",
+          fake: false
+        }
+      ],
+      explanation: "**Chromatic Appetite Disorder** is fake. Red flags: made-up name using real medical words, oddly specific statistic (1 in 8,000), and a too-convenient solution (special glasses fix it). Real rare conditions don't typically have such neat, simple treatments."
+    },
+    {
+      title: "Round 3: Expert Level",
+      facts: [
+        {
+          name: "Cotard Delusion (Walking Corpse Syndrome)",
+          description: "People believe they are dead, don't exist, or have lost their blood and internal organs. They may refuse to eat because they think they don't need food anymore.",
+          fake: false
+        },
+        {
+          name: "Numerical Dysmorphia",
+          description: "A neurological condition where patients consistently perceive numbers as being exactly 3 units higher than they actually are. First documented in 1987 following a cluster of cases in Norway, with approximately 600 confirmed cases worldwide.",
+          fake: true
+        },
+        {
+          name: "Alice in Wonderland Syndrome",
+          description: "Objects appear much larger or smaller than they really are, and body parts feel like they're changing size. Often affects children and can be triggered by migraines or infections.",
+          fake: false
+        },
+        {
+          name: "Capgras Delusion",
+          description: "People become convinced that someone close to them has been replaced by an identical impostor. They recognize the person's face but feel no emotional connection, creating the eerie certainty that it's an imposter.",
+          fake: false
+        }
+      ],
+      explanation: "**Numerical Dysmorphia** is AI hallucination. Red flags: too-specific consistent error (always exactly 3 units), suspiciously precise numbers (600 cases, discovered 1987), and an implausibly neat pattern. Real perceptual disorders are far messier and more variable."
+    },
+    {
+      title: "Round 4: Can You Outsmart AI?",
+      facts: [
+        {
+          name: "Takotsubo Cardiomyopathy (Broken Heart Syndrome)",
+          description: "Extreme emotional stress can literally reshape your heart into a balloon-like shape, mimicking a heart attack. Named after Japanese octopus traps because that's what the heart looks like on scans.",
+          fake: false
+        },
+        {
+          name: "Hemineglect",
+          description: "After certain brain injuries, people completely ignore one half of their world. They might only eat food from the right side of their plate, only shave half their face, or only draw half a clock.",
+          fake: false
+        },
+        {
+          name: "Prosopagnosia (Face Blindness)",
+          description: "People cannot recognize faces, even of close family members. Some can't even recognize their own face in a mirror. They have to identify people by voice, clothing, or hairstyle instead.",
+          fake: false
+        },
+        {
+          name: "Temporal Sequence Reversal Disorder",
+          description: "A condition where patients experience short-term memories in reverse chronological order for 15-30 second windows. Caused by disrupted hippocampal timing mechanisms and affects balance and coordination severely.",
+          fake: true
+        }
+      ],
+      explanation: "**Temporal Sequence Reversal Disorder** is fake. Red flags: suspiciously precise time window (15-30 seconds), mixing unrelated symptoms (memory AND balance), overly technical explanation that sounds impressive but is meaningless. AI loves creating plausible-sounding medical jargon."
+    }
+  ];
+
+  const handleAnswer = (index) => {
+    if (showExplanation) return;
+    
+    setSelectedAnswer(index);
+    const isCorrect = rounds[currentRound].facts[index].fake;
+    if (isCorrect) {
+      setScore(score + 1);
+    }
+    setShowExplanation(true);
+  };
+
+  const nextRound = () => {
+    if (currentRound < rounds.length - 1) {
+      setCurrentRound(currentRound + 1);
+      setSelectedAnswer(null);
+      setShowExplanation(false);
+    } else {
+      setGameComplete(true);
+    }
+  };
+
+  const restartGame = () => {
+    setCurrentRound(0);
+    setScore(0);
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    setGameComplete(false);
+  };
+
+  if (gameComplete) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50 to-white p-8 text-gray-900">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 border-2 border-emerald-500 shadow-xl text-center">
+            <Trophy className="w-20 h-20 mx-auto mb-4 text-orange-400" />
+            <h1 className="text-4xl font-bold mb-4">Game Complete!</h1>
+            <p className="text-6xl font-bold mb-6">{score} / 4</p>
+            
+            <div className="mb-8">
+              {score === 4 && (
+                <div className="text-xl">
+                  <p className="font-bold text-emerald-600 mb-2">Perfect Score! 🎉</p>
+                  <p>You can spot AI hallucinations like a pro. Remember: AI can sound confident even when it's completely wrong.</p>
+                </div>
+              )}
+              {score === 3 && (
+                <div className="text-xl">
+                  <p className="font-bold text-emerald-600 mb-2">Excellent Work! 👏</p>
+                  <p>You're good at spotting fake medical info. Always look for suspiciously specific numbers and too-neat explanations.</p>
+                </div>
+              )}
+              {score === 2 && (
+                <div className="text-xl">
+                  <p className="font-bold text-orange-500 mb-2">Not Bad! 👍</p>
+                  <p>AI-generated content can be tricky. Watch for made-up medical terms and overly precise statistics.</p>
+                </div>
+              )}
+              {score <= 1 && (
+                <div className="text-xl">
+                  <p className="font-bold text-orange-500 mb-2">Keep Learning! 💪</p>
+                  <p>AI hallucinations are hard to spot! The key lesson: never trust medical AI without verifying with real sources.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-emerald-50 rounded-xl p-6 mb-6 border border-emerald-200">
+              <h2 className="text-2xl font-bold mb-4 flex items-center justify-center gap-2">
+                <Trophy className="w-6 h-6 text-emerald-600" /> Leaderboard
+              </h2>
+              <div className="space-y-2">
+                {[...leaderboard, { name: "You", score }]
+                  .sort((a, b) => b.score - a.score)
+                  .slice(0, 5)
+                  .map((entry, i) => (
+                    <div key={i} className={`flex justify-between items-center p-3 rounded-lg ${entry.name === "You" ? "bg-emerald-500 text-white font-bold" : "bg-white border border-emerald-200"}`}>
+                      <span className="flex items-center gap-3">
+                        <span className="text-2xl">{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}</span>
+                        {entry.name}
+                      </span>
+                      <span className="text-xl">{entry.score}/4</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            <button
+              onClick={restartGame}
+              className="bg-gradient-to-r from-orange-500 to-emerald-500 px-8 py-4 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-emerald-600 transition-all"
+            >
+              Play Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const round = rounds[currentRound];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50 to-white p-4 md:p-8 text-gray-900">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold flex items-center gap-3">
+              <Brain className="w-8 h-8 md:w-10 md:h-10 text-emerald-600" />
+              Spot The AI Fake
+            </h1>
+            <p className="text-gray-600 mt-2">Can you tell when AI is making stuff up?</p>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-gray-600">Score</div>
+            <div className="text-3xl md:text-4xl font-bold">{score}/4</div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 md:p-8 border-2 border-emerald-500 shadow-xl mb-6">
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-xl md:text-2xl font-bold">{round.title}</h2>
+              <span className="text-sm bg-emerald-500 text-white px-3 py-1 rounded-full">Round {currentRound + 1}/4</span>
+            </div>
+            <p className="text-gray-700">3 of these are REAL medical conditions. 1 is completely made up by AI. Which one is fake?</p>
+          </div>
+
+          <div className="grid gap-4 mb-6">
+            {round.facts.map((fact, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswer(index)}
+                disabled={showExplanation}
+                className={`text-left p-4 md:p-6 rounded-xl transition-all border-2 ${
+                  showExplanation
+                    ? fact.fake
+                      ? selectedAnswer === index
+                        ? "bg-emerald-100 border-emerald-500"
+                        : "bg-red-100 border-red-500"
+                      : selectedAnswer === index
+                      ? "bg-red-100 border-red-500"
+                      : "bg-white border-gray-200"
+                    : selectedAnswer === index
+                    ? "bg-emerald-50 border-emerald-500"
+                    : "bg-white border-gray-300 hover:border-emerald-400"
+                }`}
+              >
+                <h3 className="font-bold text-lg md:text-xl mb-2">{fact.name}</h3>
+                <p className="text-sm md:text-base text-gray-700">{fact.description}</p>
+                {showExplanation && fact.fake && (
+                  <div className="mt-3 pt-3 border-t border-gray-300">
+                    <span className="inline-block bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      ✗ AI-GENERATED FAKE
+                    </span>
+                  </div>
+                )}
+                {showExplanation && !fact.fake && selectedAnswer === index && (
+                  <div className="mt-3 pt-3 border-t border-gray-300">
+                    <span className="inline-block bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      This one is actually REAL
+                    </span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {showExplanation && (
+            <div className="bg-emerald-50 rounded-xl p-4 md:p-6 mb-4 border border-emerald-200">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-6 h-6 text-orange-500 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-lg mb-2">Why was it fake?</h3>
+                  <p className="text-gray-800">{round.explanation}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showExplanation && (
+            <button
+              onClick={nextRound}
+              className="w-full bg-gradient-to-r from-orange-500 to-emerald-500 px-6 py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-emerald-600 transition-all"
+            >
+              {currentRound < rounds.length - 1 ? "Next Round →" : "See Results"}
+            </button>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border-2 border-emerald-300 shadow-md">
+          <h3 className="font-bold mb-2 text-sm">⚠️ The Real Lesson</h3>
+          <p className="text-xs md:text-sm text-gray-700">
+            AI can generate convincing medical information that sounds authoritative but is completely false. 
+            Always verify medical information with qualified healthcare professionals and trusted sources.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SpotTheFakeGame;
