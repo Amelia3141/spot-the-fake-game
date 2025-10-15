@@ -132,14 +132,16 @@
     }
 
     document.addEventListener('keydown', (e) => {
-        const key = e.key.toUpperCase();
-        if (key === 'A') selectFact(0);
-        else if (key === 'B') selectFact(1);
-        else if (key === 'C') selectFact(2);
-        else if (key === 'D') selectFact(3);
-        else if (key === 'Enter' && state.revealed && !state.complete) nextRound();
-        else if (key === 'Enter' && state.complete) restart();
-    });
+    const key = e.key.toUpperCase();
+    if (key === 'A') selectFact(0);
+    else if (key === 'B') selectFact(1);
+    else if (key === 'C') selectFact(2);
+    else if (key === 'D') selectFact(3);
+    else if (key === 'ENTER') {
+        if (state.revealed) nextRound();
+        else if (state.complete) restart();
+    }
+});
 
     function render() {
         const gameEl = document.getElementById('game');
@@ -225,8 +227,8 @@
                     ${factsHtml}
                 </div>
                 ${explanation}
-                ${state.revealed ? `<button onclick="nextRound()">Press Enter or click to continue</button>` : ''}
-            </div>
+                ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+                </div>
             <div class="lesson">AI can generate convincing medical information that sounds authoritative but is completely false. Always verify with real sources.</div>
         `;
     }
