@@ -3,75 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spot The Fake - Medical Detective</title>
+    <title>Spot The Fake</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%); color: #333; padding: 20px; min-height: 100vh; }
         .container { max-width: 800px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         h1 { font-size: 32px; margin-bottom: 5px; }
         h2 { font-size: 24px; margin-bottom: 15px; }
         .subtitle { color: #666; font-size: 14px; }
         .score { text-align: right; }
         .score-label { font-size: 12px; color: #999; }
         .score-value { font-size: 36px; font-weight: bold; }
-        .card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card { background: white; border: 2px solid #4caf50; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .round-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .round-title { font-size: 20px; font-weight: bold; }
-        .round-number { background: #6C63FF; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .round-number { background: #4caf50; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
         .instructions { color: #666; margin-bottom: 20px; font-size: 14px; }
         .facts { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .fact { padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: left; background: white; }
-        .fact:hover:not(.disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .fact.selected { border-width: 3px; transform: scale(1.02); }
+        .fact:hover:not(.disabled) { border-color: #4caf50; }
+        .fact.selected { background: #e8f5e9; border-color: #4caf50; }
         .fact.correct { background: #e8f5e9; border-color: #4caf50; }
         .fact.wrong { background: #ffebee; border-color: #f44336; }
-        .fact.disabled { cursor: not-allowed; opacity: 0.7; }
-        .fact-name { font-weight: bold; font-size: 16px; margin-bottom: 8px; }
+        .fact.disabled { cursor: not-allowed; }
+        .fact-name { font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #ff9800; }
         .fact-desc { font-size: 14px; color: #555; line-height: 1.5; }
         .fact-badge { display: inline-block; margin-top: 10px; padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
         .badge-fake { background: #f44336; }
         .badge-real { background: #4caf50; }
-        .explanation { background: #f0f0f0; border-left: 4px solid #6C63FF; border-radius: 4px; padding: 15px; margin-bottom: 20px; display: none; }
+        .explanation { background: #f0f7e8; border: 1px solid #4caf50; border-radius: 8px; padding: 15px; margin-bottom: 20px; display: none; }
         .explanation.show { display: block; }
         .explanation-title { font-weight: bold; margin-bottom: 8px; }
         .explanation-text { font-size: 14px; line-height: 1.6; color: #333; }
-        button { background: linear-gradient(135deg, #6C63FF 0%, #667eea 100%); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
+        button { background: linear-gradient(135deg, #ff9800 0%, #4caf50 100%); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
         button:hover { transform: translateY(-2px); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .game-over { text-align: center; }
-        .final-score { font-size: 64px; font-weight: bold; color: #6C63FF; margin: 20px 0; }
+        .final-score { font-size: 64px; font-weight: bold; color: #4caf50; margin: 20px 0; }
         .message { font-size: 18px; margin-bottom: 20px; }
         .lesson { background: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 15px; margin-top: 20px; font-size: 13px; }
         .difficulty-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .difficulty-btn { padding: 12px; font-size: 14px; border: none; border-radius: 8px; cursor: pointer; background: #ddd; transition: all 0.3s; }
-        .difficulty-btn.active { background: #4caf50; color: white; }
-        .difficulty-btn:hover { transform: translateY(-2px); }
+        .difficulty-btn { padding: 12px; font-size: 14px; }
+        .difficulty-btn.active { background: #4caf50; }
+        .difficulty-btn.inactive { background: #ddd; color: #333; }
+        .difficulty-btn:hover { transform: none; }
         .menu-section { margin-bottom: 30px; }
+        .difficulty-desc { font-size: 12px; color: #666; margin-top: 10px; }
         .error-message { color: #f44336; font-size: 12px; margin-top: 5px; }
         input { font-family: inherit; }
-        .progress-bar { background: #e0e0e0; border-radius: 10px; height: 8px; margin: 15px 0; overflow: hidden; }
-        .progress-fill { background: linear-gradient(90deg, #0066FF, #6C63FF); height: 100%; transition: width 0.3s ease; }
-        .progress-text { text-align: center; font-size: 12px; color: #999; }
-        .streak-badge { background: linear-gradient(135deg, #FFE66D, #FFA502); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: bold; color: #333; }
-        .timer-badge { background: #0066FF; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 18px; }
-        .timer-badge.warning { background: #FF4757; }
-        .lives-badge { background: #FF4757; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; font-weight: bold; }
-        .mode-selection { text-align: center; padding: 20px; }
-        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; }
-        .mode-btn { padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.2s; color: white; }
-        .mode-btn:hover { transform: scale(1.05); }
-        .mode-btn.normal { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .mode-btn.timed { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .mode-btn.survival { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .mode-btn.versus { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #333; }
-        .answer-button { padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; margin-bottom: 8px; }
         @media (max-width: 600px) {
             .header { flex-direction: column; text-align: center; }
             .score { margin-top: 15px; }
             h1 { font-size: 24px; }
             .difficulty-grid { grid-template-columns: 1fr; }
-            .mode-grid { grid-template-columns: 1fr; }
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -101,8 +86,7 @@
             A: { bg: '#FF4757', text: 'white' },
             B: { bg: '#0066FF', text: 'white' },
             C: { bg: '#2ED573', text: 'white' },
-            D: { bg: '#FFA502', text: 'white' },
-            ENTER: { bg: '#6C63FF', text: 'white' }
+            D: { bg: '#FFA502', text: 'white' }
         };
 
         // NAME VALIDATION
@@ -116,7 +100,7 @@
             'fanny', 'fannie', 'shitley', 'damn', 'dammit', 'ass'
         ];
 
-        function isNameValid(name, existingNames = []) {
+        function isNameValid(name) {
             const lower = name.toLowerCase().trim();
             
             if (lower.length < 2 || lower.length > 30) {
@@ -152,488 +136,286 @@
                 }
             }
             
-            if (/(.)\\1{4,}/.test(lower)) {
+            if (/(.)\1{4,}/.test(lower)) {
                 return { valid: false, reason: 'Name contains too many repeated characters' };
             }
             
             if (!/[a-z]/i.test(lower)) {
                 return { valid: false, reason: 'Name must contain at least one letter' };
             }
-
-            const nameExists = existingNames.some(existingName => 
-                existingName.toLowerCase() === lower
-            );
-            
-            if (nameExists) {
-                return { valid: false, reason: `"${name}" is already taken. Try "${name}1" or add numbers.` };
-            }
             
             return { valid: true };
         }
 
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
 
-        // UPDATED STATE
-        let state = {
-            gameStarted: false,
-            mode: null,
-            difficulty: 'medium',
-            gameMode: 'normal',
-            round: 0,
-            score: 0,
-            selected: null,
-            revealed: false,
-            complete: false,
-            playerName: null,
-            leaderboard: [],
-            nameError: '',
-            shuffledIndices: [],
-            existingNames: [],
-            streak: 0,
-            bestStreak: 0,
-            timeRemaining: 60,
-            timerInterval: null,
-            lives: 3,
-            maxLives: 3,
-            showConfetti: false,
-            totalGameTimeSeconds: 0,
-            gameStartTime: null
-        };
+        // CALL MY BLUFF - EASY MODE
+// CALL MY BLUFF - EASY MODE (fakes are obviously wrong, but same formatting as real)
+// CALL MY BLUFF - EASY MODE (for bright 6-7 year olds at 75%)
+        // CALL MY BLUFF - EASY MODE (for bright 6-7 year olds at 75%)
+        // Add this shuffle function at the top of your script section (before game state)
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
 
-        function incrementStreak() {
-            state.streak++;
-            state.bestStreak = Math.max(state.bestStreak, state.streak);
-        }
+// UPDATED GAME STATE - add shuffleState to track randomization
+let state = {
+    gameStarted: false,
+    mode: null,
+    difficulty: 'medium',
+    round: 0,
+    score: 0,
+    selected: null,
+    revealed: false,
+    complete: false,
+    playerName: null,
+    leaderboard: [],
+    nameError: '',
+    shuffledIndices: []  // NEW: track which position is real/fake
+};
 
-        function resetStreak() {
-            state.streak = 0;
-        }
-
-        function startTimedRound() {
-            state.timeRemaining = 60;
-            if (state.timerInterval) clearInterval(state.timerInterval);
-            
-            state.timerInterval = setInterval(() => {
-                state.timeRemaining--;
-                render();
-                
-                if (state.timeRemaining <= 0) {
-                    clearInterval(state.timerInterval);
-                    state.complete = true;
-                    render();
-                }
-            }, 1000);
-        }
-
-        function stopTimer() {
-            if (state.timerInterval) {
-                clearInterval(state.timerInterval);
-                state.timerInterval = null;
-            }
-        }
-
-        function loseLife() {
-            state.lives--;
-            if (state.lives <= 0) {
-                state.complete = true;
-            }
-        }
-
-        function triggerConfetti() {
-            state.showConfetti = true;
-            render();
-            setTimeout(() => {
-                state.showConfetti = false;
-                render();
-            }, 2000);
-        }
-
-        function getConfettiHTML() {
-            if (!state.showConfetti) return '';
-            
-            return `
-                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;">
-                    ${Array(50).fill().map((_, i) => `
-                        <div style="
-                            position: absolute;
-                            width: 10px;
-                            height: 10px;
-                            background: ${['#FF4757', '#0066FF', '#2ED573', '#FFA502', '#6C63FF'][Math.floor(Math.random() * 5)]};
-                            left: ${Math.random() * 100}%;
-                            top: -10px;
-                            border-radius: 50%;
-                            animation: fall ${2 + Math.random() * 1}s linear forwards;
-                        "></div>
-                    `).join('')}
-                </div>
-                <style>
-                    @keyframes fall {
-                        to {
-                            transform: translateY(100vh) rotate(720deg);
-                            opacity: 0;
-                        }
-                    }
-                </style>
-            `;
-        }
-
-        function getProgressBar() {
-            const roundsToUse = state.gameMode === 'timed' ? getTimedMarathonRounds(state.mode) : getRounds(state.difficulty, state.mode);
-            const totalRounds = roundsToUse.length;
-            const progress = ((state.round + 1) / totalRounds) * 100;
-            
-            return `
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progress}%;"></div>
-                </div>
-                <div class="progress-text">Round ${state.round + 1} / ${totalRounds}</div>
-            `;
-        }
-
-        function getTimedMarathonRounds(mode) {
-            const easy = mode === 'spotfake' ? spotFakeRoundsEasy : roundsEasy;
-            const medium = mode === 'spotfake' ? spotFakeRoundsMedium : roundsMedium;
-            const hard = mode === 'spotfake' ? spotFakeRoundsHard : roundsHard;
-            const timedExtra = mode === 'spotfake' ? spotFakeRoundsTimedExtra : roundsTimedExtra;
-            
-            return shuffleArray([...easy, ...medium, ...hard, ...timedExtra]);
-        }
-
-        function showModeSelection() {
-            const gameEl = document.getElementById('game');
-            
-            gameEl.innerHTML = `
-                <div class="mode-selection">
-                    <h1>${state.mode === 'callbluff' ? '🎭 CALL MY BLUFF' : '🎯 SPOT THE FAKE'}</h1>
-                    <p style="color: #999; margin-bottom: 30px;">Choose your game mode</p>
-                    
-                    <div class="mode-grid">
-                        <button onclick="startGame('${state.mode}', 'normal')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: transform 0.2s;">
-                            ⏱️ NORMAL<br><span style="font-size: 12px; opacity: 0.9;">4 rounds</span>
-                        </button>
-                        
-                        <button onclick="startGame('${state.mode}', 'timed')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: transform 0.2s;">
-                            ⚡ 60 SECOND<br><span style="font-size: 12px; opacity: 0.9;">How many can you get?</span>
-                        </button>
-                        
-                        <button onclick="startGame('${state.mode}', 'survival')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: transform 0.2s;">
-                            💀 SURVIVAL<br><span style="font-size: 12px; opacity: 0.9;">3 lives, no limit</span>
-                        </button>
-                    </div>
-                    
-                    <button onclick="backToMenu()" style="background: #999; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-top: 20px;">← Back</button>
-                </div>
-            `;
-        }
-
-        function startGame(mode, gameMode = 'normal') {
-            state.gameStarted = true;
-            state.mode = mode;
-            state.gameMode = gameMode;
-            state.round = 0;
-            state.score = 0;
-            state.streak = 0;
-            state.bestStreak = 0;
-            state.selected = null;
-            state.revealed = false;
-            state.gameStartTime = Date.now();
-            
-            if (gameMode === 'survival') {
-                state.lives = state.maxLives;
-            }
-            
-            if (gameMode === 'timed') {
-                startTimedRound();
-            }
-            
-            render();
-        }
-
-        function selectFact(idx) {
-            if (state.revealed) return;
-            state.selected = idx;
-            
-            stopTimer();
-            
-            if (state.mode === 'spotfake') {
-                const roundsToUse = state.gameMode === 'timed' ? getTimedMarathonRounds(state.mode) : getRounds(state.difficulty, state.mode);
-                const round = roundsToUse[state.round];
-                const selectedFact = round.facts[idx];
-                const isCorrect = selectedFact.fake;
-                
-                if (isCorrect) {
-                    state.score++;
-                    incrementStreak();
-                    triggerConfetti();
-                } else {
-                    resetStreak();
-                    if (state.gameMode === 'survival') loseLife();
-                }
+// UPDATED selectFact function to handle randomized positions
+function selectFact(idx) {
+    if (state.revealed) return;
+    state.selected = idx;
+    
+    if (state.mode === 'spotfake') {
+        const roundsToUse = getRounds(state.difficulty, state.mode);
+        const round = roundsToUse[state.round];
+        const selectedFact = round.facts[idx];
+        const isCorrect = selectedFact.fake;
+        if (isCorrect) state.score++;
+    } else {
+        const roundsToUse = getRounds(state.difficulty, state.mode);
+        const pair = roundsToUse[state.round].pairs[0];
+        
+        // For randomized pairs, check if selected index 0 matches where real is positioned
+        const realIsAtZero = pair.correctIsReal === true;
+        let isCorrect;
+        
+        if (state.shuffledIndices.length === 0) {
+            // Fallback if shuffle wasn't done (shouldn't happen)
+            isCorrect = (idx === 0) === pair.correctIsReal;
+        } else {
+            // idx 0 = position A, idx 1 = position B
+            // Check if the selected position has the real definition
+            if (idx === 0 && state.shuffledIndices[0] === 'real') {
+                isCorrect = pair.correctIsReal;
+            } else if (idx === 1 && state.shuffledIndices[1] === 'real') {
+                isCorrect = pair.correctIsReal;
             } else {
-                const roundsToUse = state.gameMode === 'timed' ? getTimedMarathonRounds(state.mode) : getRounds(state.difficulty, state.mode);
-                const pair = roundsToUse[state.round].pairs[0];
-                
-                if (state.shuffledIndices.length === 0) {
-                    const indices = [0, 1];
-                    state.shuffledIndices = shuffleArray(indices).map(i => i === 0 ? 'real' : 'fake');
-                }
-                
-                const isCorrectAtThisPosition = (idx === 0 && state.shuffledIndices[0] === 'real') || 
-                                                (idx === 1 && state.shuffledIndices[1] === 'real');
-                
-                if (isCorrectAtThisPosition) {
-                    state.score++;
-                    incrementStreak();
-                    triggerConfetti();
-                } else {
-                    resetStreak();
-                    if (state.gameMode === 'survival') loseLife();
-                }
+                isCorrect = false;
             }
-            
-            state.revealed = true;
-            render();
         }
+        
+        if (isCorrect) state.score++;
+    }
+    
+    state.revealed = true;
+    render();
+}
 
-        function nextRound() {
-            const roundsToUse = state.gameMode === 'timed' ? getTimedMarathonRounds(state.mode) : getRounds(state.difficulty, state.mode);
-            
-            if (state.gameMode === 'survival') {
-                if (state.lives <= 0) {
-                    state.complete = true;
-                    stopTimer();
-                } else {
-                    state.round++;
-                    state.selected = null;
-                    state.revealed = false;
-                    state.shuffledIndices = [];
-                    if (state.gameMode === 'timed') startTimedRound();
-                }
-            } else if (state.gameMode === 'timed') {
-                if (state.timeRemaining > 0 && state.round < roundsToUse.length - 1) {
-                    state.round++;
-                    state.selected = null;
-                    state.revealed = false;
-                    state.shuffledIndices = [];
-                } else {
-                    state.complete = true;
-                    stopTimer();
-                    state.totalGameTimeSeconds = 60 - state.timeRemaining;
-                }
+// UPDATED nextRound function to trigger shuffle for next round
+function nextRound() {
+    const roundsToUse = getRounds(state.difficulty, state.mode);
+    if (state.round < roundsToUse.length - 1) {
+        state.round++;
+        state.selected = null;
+        state.revealed = false;
+        state.shuffledIndices = [];  // Reset for new round
+    } else {
+        state.complete = true;
+    }
+    render();
+}
+
+// UPDATED render function - for Call My Bluff, randomize and shuffle on display
+function render() {
+    const gameEl = document.getElementById('game');
+
+    if (!state.gameStarted) {
+        // ... menu rendering code stays the same
+    }
+
+    // ... other renders stay the same until the Call My Bluff game render
+
+    const roundsToUse = getRounds(state.difficulty, state.mode);
+    
+    if (state.mode === 'spotfake') {
+        // SPOT THE FAKE - shuffle facts array each time (already randomized in content)
+        const round = roundsToUse[state.round];
+        const shuffledFacts = shuffleArray(round.facts);
+        
+        let factsHtml = '';
+        shuffledFacts.forEach((fact, idx) => {
+            const buttonColor = BUTTON_COLORS[['A', 'B', 'C', 'D'][idx]];
+            let classes = 'fact';
+            if (state.revealed) {
+                if (fact.fake && state.selected === idx) classes += ' correct';
+                else if (!fact.fake && state.selected === idx) classes += ' wrong';
+                else if (fact.fake) classes += ' wrong';
+                classes += ' disabled';
             } else {
-                if (state.round < roundsToUse.length - 1) {
-                    state.round++;
-                    state.selected = null;
-                    state.revealed = false;
-                    state.shuffledIndices = [];
-                } else {
-                    state.complete = true;
-                    stopTimer();
-                    state.totalGameTimeSeconds = Math.round((Date.now() - state.gameStartTime) / 1000);
-                }
+                if (state.selected === idx) classes += ' selected';
             }
-            render();
-        }
-
-        function render() {
-            const gameEl = document.getElementById('game');
-
-            if (!state.gameStarted) {
-                gameEl.innerHTML = `
-                    <div style="text-align: center; padding: 40px 20px;">
-                        <h1 style="font-size: 48px; margin-bottom: 20px;">🔍 MEDICAL DETECTIVE</h1>
-                        <p style="font-size: 18px; color: #666; margin-bottom: 40px;">Can you spot the fake medical facts? Or call the bluff?</p>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 40px 0;">
-                            <button onclick="state.mode='callbluff'; showModeSelection()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 12px; font-size: 20px; height: auto;">
-                                🎭<br>CALL MY BLUFF<br><span style="font-size: 12px; opacity: 0.9;">Pick the real definition</span>
-                            </button>
-                            
-                            <button onclick="state.mode='spotfake'; showModeSelection()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 40px; border-radius: 12px; font-size: 20px; height: auto;">
-                                🎯<br>SPOT THE FAKE<br><span style="font-size: 12px; opacity: 0.9;">Find the AI-generated lie</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                gameEl.innerHTML += getConfettiHTML();
-                return;
-            }
-
-            const roundsToUse = state.gameMode === 'timed' ? getTimedMarathonRounds(state.mode) : getRounds(state.difficulty, state.mode);
             
-            let headerHTML = `
-                <div class="header">
-                    <div>
-                        <div style="font-size: 24px; font-weight: bold; color: #333;">${state.mode === 'callbluff' ? '🎭 CALL MY BLUFF' : '🎯 SPOT THE FAKE'}</div>
-                        <div style="font-size: 12px; color: #999;">${state.gameMode.toUpperCase()} MODE</div>
-                    </div>
-                    <div class="score">
-                        <div class="score-label">Points</div>
-                        <div class="score-value">${state.score}</div>
-                    </div>
+            let badge = '';
+            if (state.revealed && fact.fake) {
+                badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
+            } else if (state.revealed && !fact.fake && state.selected === idx) {
+                badge = '<span class="fact-badge badge-real">✓ REAL</span>';
+            }
+            
+            const letter = String.fromCharCode(65 + idx);
+            factsHtml += `
+                <div class="${classes}" onclick="selectFact(${idx})" style="border-color: ${buttonColor.bg}; border-width: ${state.selected === idx ? '3px' : '2px'};">
+                    <div class="fact-name" style="color: ${buttonColor.bg};"><span style="display: inline-block; min-width: 30px; font-weight: bold;">${letter}.</span> ${fact.name}</div>
+                    <div class="fact-desc">${fact.desc}</div>
+                    ${badge}
                 </div>
             `;
-            
-            if (state.streak > 0) {
-                headerHTML += `<div class="streak-badge">🔥 STREAK: ${state.streak}</div>`;
-            }
-            
-            if (state.gameMode === 'timed') {
-                const timerClass = state.timeRemaining < 10 ? 'warning' : '';
-                headerHTML += `<div class="timer-badge ${timerClass}">⏱️ ${state.timeRemaining}s</div>`;
-            }
-            
-            if (state.gameMode === 'survival') {
-                headerHTML += `
-                    <div class="lives-badge">
-                        💀 Lives: ${Array(state.lives).fill('❤️').join('')} ${Array(state.maxLives - state.lives).fill('🖤').join('')}
-                    </div>
-                `;
-            }
-            
-            headerHTML += getProgressBar();
-            
-            if (state.mode === 'spotfake') {
-                const round = roundsToUse[state.round];
-                const shuffledFacts = state.revealed ? round.facts : (state.shuffledIndices.length === 0 ? shuffleArray(round.facts) : round.facts);
-                
-                let factsHtml = '';
-                shuffledFacts.forEach((fact, idx) => {
-                    const buttonColor = BUTTON_COLORS[['A', 'B', 'C', 'D'][idx]];
-                    let classes = 'fact';
-                    if (state.revealed) {
-                        if (fact.fake && state.selected === idx) classes += ' correct';
-                        else if (!fact.fake && state.selected === idx) classes += ' wrong';
-                        else if (fact.fake) classes += ' wrong';
-                        classes += ' disabled';
-                    } else {
-                        if (state.selected === idx) classes += ' selected';
-                    }
-                    
-                    let badge = '';
-                    if (state.revealed && fact.fake) {
-                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
-                    } else if (state.revealed && !fact.fake && state.selected === idx) {
-                        badge = '<span class="fact-badge badge-real">✓ REAL</span>';
-                    }
-                    
-                    factsHtml += `
-                        <div class="${classes}" onclick="selectFact(${idx})" style="border-color: ${buttonColor.bg}; ${state.selected === idx ? 'border-width: 3px;' : ''}">
-                            <div class="fact-name" style="color: ${buttonColor.bg};">[${['A', 'B', 'C', 'D'][idx]}] ${fact.name}</div>
-                            <div class="fact-desc">${fact.desc}</div>
-                            ${badge}
-                        </div>
-                    `;
-                });
-                
-                let explanation = '';
-                if (state.revealed) {
-                    explanation = `
-                        <div class="explanation show">
-                            <div class="explanation-title">💡 Why?</div>
-                            <div class="explanation-text">${round.explain}</div>
-                        </div>
-                    `;
-                }
-                
-                gameEl.innerHTML = `
-                    <div class="card">
-                        ${headerHTML}
-                        <div class="round-info">
-                            <div class="round-title">${round.title}</div>
-                            <span class="round-number">Round ${state.round + 1}</span>
-                        </div>
-                        <div class="instructions">3 of these are REAL. 1 is AI-generated. Which one is fake?</div>
-                        <div class="facts">
-                            ${factsHtml}
-                        </div>
-                        ${explanation}
-                        ${state.revealed ? `<button onclick="nextRound()">Press ENTER or click →</button>` : ''}
-                    </div>
-                    <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
-                `;
-            } else {
-                const round = roundsToUse[state.round];
-                const pair = round.pairs[0];
-                
-                if (state.shuffledIndices.length === 0) {
-                    const indices = [0, 1];
-                    state.shuffledIndices = shuffleArray(indices).map(i => i === 0 ? 'real' : 'fake');
-                }
-                
-                const definitions = [
-                    state.shuffledIndices[0] === 'real' ? pair.real : pair.fake,
-                    state.shuffledIndices[1] === 'real' ? pair.real : pair.fake
-                ];
-                
-                let factsHtml = '';
-                definitions.forEach((definition, idx) => {
-                    const isCorrectAtThisPosition = (idx === 0 && state.shuffledIndices[0] === 'real') || 
-                                                    (idx === 1 && state.shuffledIndices[1] === 'real');
-                    const buttonColor = BUTTON_COLORS[['A', 'B'][idx]];
-                    let classes = 'fact';
-                    
-                    if (state.revealed) {
-                        if (isCorrectAtThisPosition && state.selected === idx) classes += ' correct';
-                        else if (!isCorrectAtThisPosition && state.selected === idx) classes += ' wrong';
-                        else if (isCorrectAtThisPosition) classes += ' wrong';
-                        classes += ' disabled';
-                    } else {
-                        if (state.selected === idx) classes += ' selected';
-                    }
-                    
-                    let badge = '';
-                    if (state.revealed && !isCorrectAtThisPosition) {
-                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">WRONG</span>';
-                    } else if (state.revealed && isCorrectAtThisPosition && state.selected === idx) {
-                        badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
-                    }
-                    
-                    factsHtml += `
-                        <div class="${classes}" onclick="selectFact(${idx})" style="border-color: ${buttonColor.bg}; ${state.selected === idx ? 'border-width: 3px;' : ''}">
-                            <div class="fact-name" style="color: ${buttonColor.bg};">[${['A', 'B'][idx]}] Definition ${['A', 'B'][idx]}</div>
-                            <div class="fact-desc">${definition}</div>
-                            ${badge}
-                        </div>
-                    `;
-                });
-                
-                let explanation = '';
-                if (state.revealed) {
-                    explanation = `
-                        <div class="explanation show">
-                            <div class="explanation-title">💡 Why?</div>
-                            <div class="explanation-text">${round.explain}</div>
-                        </div>
-                    `;
-                }
-                
-                gameEl.innerHTML = `
-                    <div class="card">
-                        ${headerHTML}
-                        <div style="background: #f5f5f5; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                            <div style="font-size: 18px; font-weight: bold; color: #333;">${pair.condition}</div>
-                            <div style="font-size: 14px; color: #999; margin-top: 8px;">Which definition is correct?</div>
-                        </div>
-                        <div class="facts">
-                            ${factsHtml}
-                        </div>
-                        ${explanation}
-                        ${state.revealed ? `<button onclick="nextRound()">Press ENTER or click →</button>` : ''}
-                    </div>
-                    <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
-                `;
-            }
-            
-            gameEl.innerHTML += getConfettiHTML();
+        });
+
+        let explanation = '';
+        if (state.revealed) {
+            explanation = `
+                <div class="explanation show">
+                    <div class="explanation-title">Why was it fake?</div>
+                    <div class="explanation-text">${round.explain}</div>
+                </div>
+            `;
         }
+
+        gameEl.innerHTML = `
+            <div class="header">
+                <div>
+                    <h1>Spot The Fake</h1>
+                    <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                </div>
+                <div class="score">
+                    <div class="score-label">Score</div>
+                    <div class="score-value">${state.score}/4</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="round-info">
+                    <div class="round-title">${round.title}</div>
+                    <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                </div>
+                <div class="instructions">3 of these are REAL medical conditions. 1 is completely made up by AI. Which one is fake?</div>
+                <div class="instructions" style="font-size: 12px; color: #999;">Press A, B, C, or D on your keyboard to select</div>
+                <div class="facts">
+                    ${factsHtml}
+                </div>
+                ${explanation}
+                ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+            </div>
+            <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+            <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+        `;
+    } else {
+        // CALL MY BLUFF - randomize A/B positions each time
+        const round = roundsToUse[state.round];
+        const pair = round.pairs[0];
+        
+        // Shuffle the pair positions on first reveal of this round
+        if (state.shuffledIndices.length === 0) {
+            const indices = [0, 1];
+            state.shuffledIndices = shuffleArray(indices).map(i => i === 0 ? 'real' : 'fake');
+        }
+        
+        // Get definitions in shuffled order
+        const definitions = [pair.real, pair.fake];
+        const shuffledDefs = [
+            state.shuffledIndices[0] === 'real' ? pair.real : pair.fake,
+            state.shuffledIndices[1] === 'real' ? pair.real : pair.fake
+        ];
+        
+        let factsHtml = `
+            <div style="margin-bottom: 20px;">
+                <div style="background: #f0f7e8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4caf50;">${pair.condition}</div>
+                    <div style="font-size: 14px; color: #666;">Which definition is correct?</div>
+                </div>
+            </div>
+        `;
+
+        [shuffledDefs[0], shuffledDefs[1]].forEach((definition, idx) => {
+            const buttonColor = BUTTON_COLORS[['A', 'B'][idx]];
+            const isCorrectAtThisPosition = (idx === 0 && state.shuffledIndices[0] === 'real') || 
+                                            (idx === 1 && state.shuffledIndices[1] === 'real');
+            let classes = 'fact';
+            
+            if (state.revealed) {
+                if (isCorrectAtThisPosition && state.selected === idx) classes += ' correct';
+                else if (!isCorrectAtThisPosition && state.selected === idx) classes += ' wrong';
+                else if (isCorrectAtThisPosition) classes += ' wrong';
+                classes += ' disabled';
+            } else {
+                if (state.selected === idx) classes += ' selected';
+            }
+            
+            let badge = '';
+            if (state.revealed && !isCorrectAtThisPosition) {
+                badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
+            } else if (state.revealed && isCorrectAtThisPosition && state.selected === idx) {
+                badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
+            }
+            
+            const letter = String.fromCharCode(65 + idx);
+            factsHtml += `
+                <div class="${classes}" onclick="selectFact(${idx})" style="border-color: ${buttonColor.bg}; border-width: ${state.selected === idx ? '3px' : '2px'};">
+                    <div class="fact-name" style="color: ${buttonColor.bg};">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
+                    <div class="fact-desc">${definition}</div>
+                    ${badge}
+                </div>
+            `;
+        });
+        });
+
+        let explanation = '';
+        if (state.revealed) {
+            explanation = `
+                <div class="explanation show">
+                    <div class="explanation-title">Why?</div>
+                    <div class="explanation-text">${round.explain}</div>
+                </div>
+            `;
+        }
+
+        gameEl.innerHTML = `
+            <div class="header">
+                <div>
+                    <h1>Call My Bluff</h1>
+                    <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                </div>
+                <div class="score">
+                    <div class="score-label">Score</div>
+                    <div class="score-value">${state.score}/4</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="round-info">
+                    <div class="round-title">${round.title}</div>
+                    <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                </div>
+                <div class="instructions">Pick the correct definition.</div>
+                <div class="instructions" style="font-size: 12px; color: #999;">Press A or B on your keyboard to select</div>
+                <div class="facts">
+                    ${factsHtml}
+                </div>
+                ${explanation}
+                ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+            </div>
+            <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+            <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+        `;
+    }
+}
 
         function getRounds(difficulty, mode) {
             if (mode === 'spotfake') {
@@ -646,8 +428,22 @@
             return roundsMedium;
         }
 
+        function getNumOptions(mode) {
+            return mode === 'spotfake' ? 4 : 2;
+        }
+
         function setDifficulty(level) {
             state.difficulty = level;
+            render();
+        }
+
+        function startGame(mode) {
+            state.gameStarted = true;
+            state.mode = mode;
+            state.round = 0;
+            state.score = 0;
+            state.selected = null;
+            state.revealed = false;
             render();
         }
 
@@ -660,58 +456,47 @@
             state.selected = null;
             state.revealed = false;
             state.mode = null;
-            state.gameMode = 'normal';
             state.nameError = '';
-            state.streak = 0;
-            state.bestStreak = 0;
-            stopTimer();
             render();
         }
 
-        function loadLeaderboard() {
-            db.ref('scores').once('value', (snapshot) => {
-                const data = snapshot.val();
-                state.leaderboard = [];
-                const nameMap = {};
-                
-                if (data) {
-                    Object.values(data).forEach(entry => {
-                        if (!nameMap[entry.name]) {
-                            nameMap[entry.name] = {
-                                name: entry.name,
-                                bestScore: 0,
-                                totalAttempts: 0,
-                                newAttempts: 0,
-                                allRecords: []
-                            };
-                        }
-                        nameMap[entry.name].allRecords.push({
-                            score: entry.score,
-                            difficulty: entry.difficulty,
-                            timeSeconds: entry.timeSeconds || 420,
-                            isRetry: entry.isRetry || false
-                        });
-                        
-                        nameMap[entry.name].totalAttempts++;
-                        
-                        if (!entry.isRetry) {
-                            nameMap[entry.name].newAttempts++;
-                            nameMap[entry.name].bestScore = Math.max(nameMap[entry.name].bestScore, entry.score);
-                        }
-                    });
-                }
-                
-                state.leaderboard = Object.values(nameMap).sort((a, b) => b.bestScore - a.bestScore);
-                state.existingNames = state.leaderboard.map(entry => entry.name);
-                render();
-            });
+        function selectFact(idx) {
+            if (state.revealed) return;
+            state.selected = idx;
+            
+            if (state.mode === 'spotfake') {
+                const roundsToUse = getRounds(state.difficulty, state.mode);
+                const round = roundsToUse[state.round];
+                const isCorrect = round.facts[idx].fake;
+                if (isCorrect) state.score++;
+            } else {
+                const roundsToUse = getRounds(state.difficulty, state.mode);
+                const pair = roundsToUse[state.round].pairs[0];
+                const isCorrect = (idx === 0) === pair.correctIsReal;
+                if (isCorrect) state.score++;
+            }
+            
+            state.revealed = true;
+            render();
+        }
+
+        function nextRound() {
+            const roundsToUse = getRounds(state.difficulty, state.mode);
+            if (state.round < roundsToUse.length - 1) {
+                state.round++;
+                state.selected = null;
+                state.revealed = false;
+            } else {
+                state.complete = true;
+            }
+            render();
         }
 
         function submitScore() {
             const nameInput = document.getElementById('playerNameInput');
             const name = nameInput.value.trim();
             
-            const validation = isNameValid(name, state.existingNames);
+            const validation = isNameValid(name);
             
             if (!validation.valid) {
                 state.nameError = validation.reason;
@@ -727,9 +512,6 @@
                 score: state.score,
                 mode: state.mode,
                 difficulty: state.difficulty,
-                gameMode: state.gameMode,
-                timeSeconds: state.totalGameTimeSeconds,
-                isRetry: false,
                 timestamp: timestamp
             };
 
@@ -743,233 +525,290 @@
             });
         }
 
-        if (state.complete && !state.playerName) {
-            const gameEl = document.getElementById('game');
-            gameEl.innerHTML = `
-                <div class="card game-over">
-                    <h1 style="font-size: 36px; margin-bottom: 20px;">🎉 GAME OVER!</h1>
-                    <div class="final-score">${state.score}</div>
-                    <div class="message">Best Streak: 🔥 ${state.bestStreak} | Time: ⏱️ ${Math.round(state.totalGameTimeSeconds / 60)}m</div>
-                    
-                    <div style="margin: 20px 0;">
-                        <input type="text" id="playerNameInput" placeholder="Enter your username" style="padding: 12px; width: 100%; border: 2px solid #6C63FF; border-radius: 8px; font-size: 16px;">
-                        ${state.nameError ? `<div class="error-message">${state.nameError}</div>` : ''}
-                    </div>
-                    
-                    <button onclick="submitScore()" style="margin-bottom: 10px;">See My Ranking</button>
-                    <button onclick="backToMenu()" style="background: #999; margin-bottom: 10px;">Back to Menu</button>
-                </div>
-            `;
+        function loadLeaderboard() {
+            db.ref('scores').orderByChild('score').limitToLast(100).once('value', (snapshot) => {
+                const data = snapshot.val();
+                state.leaderboard = [];
+                if (data) {
+                    Object.values(data).forEach(entry => {
+                        state.leaderboard.push(entry);
+                    });
+                }
+                state.leaderboard.sort((a, b) => b.score - a.score);
+                render();
+            });
         }
 
-        // TIMED MODE ROUNDS - CALL MY BLUFF
-        const roundsTimedExtra = [
-            {
-                title: "Gene Therapy",
-                pairs: [{
-                    condition: "CRISPR Gene Therapy",
-                    real: "A technique using molecular scissors to edit DNA directly in cells. FDA-approved for treating sickle cell disease and beta-thalassemia. Works by targeting specific genetic mutations.",
-                    fake: "A process where AI robots inject liquid gold into your DNA to repair mutations. Approved in 2019. Patients glow under UV light for 3 weeks after treatment.",
-                    correctIsReal: true
-                }],
-                explain: "Real: CRISPR is an actual gene-editing tool. Fake: Liquid gold DNA injection with UV glow is complete nonsense."
-            },
-            {
-                title: "Telemedicine",
-                pairs: [{
-                    condition: "Virtual Diagnosis via AI",
-                    real: "AI systems can analyze symptoms and medical images to suggest diagnoses, but require human doctor confirmation. Studies show 85-95% accuracy for certain conditions like skin cancer from photos.",
-                    fake: "AI can diagnose any disease through video call by analyzing your face pixels. Accuracy is 99.9%. No doctor needed - the AI emails you prescription automatically.",
-                    correctIsReal: true
-                }],
-                explain: "Real: AI assists diagnosis with documented accuracy. Fake: AI auto-diagnoses and auto-prescribes (illegal and impossible)."
-            },
-            {
-                title: "Drug Development",
-                pairs: [{
-                    condition: "AI-Designed Drugs",
-                    real: "AI can predict how molecules interact with disease targets, reducing drug discovery time from 10 years to 3-5 years. Still requires lab testing and human trials.",
-                    fake: "AI designs perfect drugs in 1 hour by analyzing internet data. Approved instantly. Takes 2 weeks to produce. No human testing needed.",
-                    correctIsReal: true
-                }],
-                explain: "Real: AI speeds up molecule prediction, still needs years of testing. Fake: Instant design/approval without testing."
-            },
-            {
-                title: "Mental Health Tech",
-                pairs: [{
-                    condition: "AI Chatbot Therapy",
-                    real: "AI chatbots can provide cognitive behavioral therapy exercises and symptom tracking. Effective for mild anxiety/depression. Cannot replace human therapists for severe cases.",
-                    fake: "AI chatbots can cure depression in 5 sessions through mind control frequencies. Replaces therapists entirely.",
-                    correctIsReal: true
-                }],
-                explain: "Real: CBT-based chatbots help mild cases. Fake: Mind control frequencies and replacing human therapists."
-            },
-            {
-                title: "Pathology Analysis",
-                pairs: [{
-                    condition: "AI Pathology",
-                    real: "AI can analyze biopsy slides to detect cancer with 92-98% accuracy. Helps pathologists review slides faster. Pathologist still signs off on final diagnosis.",
-                    fake: "AI analyzes biopsies by scanning your blood type. Detects cancer 10 days before symptoms appear. Works through telekinesis.",
-                    correctIsReal: true
-                }],
-                explain: "Real: AI reads microscope slides, needs pathologist approval. Fake: Blood type scanning and telekinesis detection."
-            },
-            {
-                title: "Protein Folding",
-                pairs: [{
-                    condition: "AlphaFold Protein Prediction",
-                    real: "AI predicts 3D protein structures from amino acid sequences with 90% accuracy. Speeds up drug development by understanding disease protein shapes.",
-                    fake: "AI folds proteins in your body remotely, curing all genetic diseases instantly. Works by quantum connection with your cells.",
-                    correctIsReal: true
-                }],
-                explain: "Real: Predicts protein shapes for research. Fake: Remote body protein folding and quantum cell communication."
-            },
-            {
-                title: "MRI Enhancement",
-                pairs: [{
-                    condition: "MRI AI Reconstruction",
-                    real: "AI can reconstruct MRI images faster and clearer, reducing scan time from 45 minutes to 15 minutes while maintaining image quality.",
-                    fake: "AI MRI scans can read your memories and thoughts. Can see what you were thinking 3 weeks in the past. Illegal in most countries.",
-                    correctIsReal: true
-                }],
-                explain: "Real: AI speeds up MRI reconstruction. Fake: Mind-reading MRI and past thought recall (impossible)."
-            },
-            {
-                title: "Epidemic Prediction",
-                pairs: [{
-                    condition: "AI Outbreak Prediction",
-                    real: "AI models analyze disease spread patterns from social media, travel data, and hospital reports to predict outbreak locations 1-2 weeks in advance.",
-                    fake: "AI can predict pandemics 10 years in advance with 100% accuracy. Can prevent diseases by reprogramming virus DNA remotely.",
-                    correctIsReal: true
-                }],
-                explain: "Real: Pattern analysis predicts near-term outbreaks. Fake: 10-year prediction with remote virus reprogramming."
-            },
-            {
-                title: "Biomarker Discovery",
-                pairs: [{
-                    condition: "AI Biomarker Analysis",
-                    real: "AI analyzes blood tests to find patterns that predict disease 5-10 years before symptoms. Helps with early intervention for Alzheimer's, heart disease.",
-                    fake: "AI blood tests detect your exact death date from blood cells' 'mortality frequency'. Accurate within 3 days.",
-                    correctIsReal: true
-                }],
-                explain: "Real: Predictive biomarkers from blood analysis. Fake: Death date prediction from 'mortality frequency'."
-            },
-            {
-                title: "Robotic Surgery",
-                pairs: [{
-                    condition: "AI Surgical Guidance",
-                    real: "AI guides robotic surgical arms with millimeter precision, reducing complications by 30%. Surgeon still controls the robot in real-time.",
-                    fake: "Robots perform surgery 100% autonomously using AI, no surgeon needed. Robots communicate telepathically with patient cells.",
-                    correctIsReal: true
-                }],
-                explain: "Real: AI-assisted robotic surgery with surgeon supervision. Fake: Fully autonomous surgery and telepathic cell communication."
-            },
-            {
-                title: "Genetic Risk Assessment",
-                pairs: [{
-                    condition: "AI Genetic Risk",
-                    real: "AI analyzes your DNA to estimate risk of heart disease, diabetes, cancer. Helps doctors recommend screening and lifestyle changes. Not deterministic.",
-                    fake: "DNA test tells you exactly what disease you'll get and when. 100% accurate. Sends results to insurance to adjust premiums.",
-                    correctIsReal: true
-                }],
-                explain: "Real: Risk stratification from genetics. Fake: Deterministic disease prediction and automatic insurance reporting."
-            },
-            {
-                title: "Fall Detection",
-                pairs: [{
-                    condition: "AI Fall Detection Wearable",
-                    real: "Wearable AI devices detect falls in elderly patients using motion sensors, triggering emergency alerts to family/hospitals within seconds.",
-                    fake: "AI wearables prevent falls by sending electrical pulses to your legs. Prevents 100% of falls. Works via wireless brain implant.",
-                    correctIsReal: true
-                }],
-                explain: "Real: Motion sensor fall detection with alerts. Fake: Preventive electrical pulses and brain implants."
+        document.addEventListener('keydown', (e) => {
+    // If typing in an input field, only handle Enter for name submission
+            if (document.activeElement.tagName === 'INPUT') {
+                if (e.key === 'Enter') {
+                    submitScore();
+                }
+                return;
             }
-        ];
-
-        // TIMED MODE ROUNDS - SPOT THE FAKE
-        const spotFakeRoundsTimedExtra = [
-            {
-                title: "Tech in Medicine",
-                facts: [
-                    { name: "Neural Implants for Paralysis", desc: "Neuralink has successfully implanted brain chips in paralyzed patients, allowing them to control computer cursors and type with thoughts at 40 words per minute.", fake: false },
-                    { name: "AI Dream Recording", desc: "Scientists have developed AI that can record and playback your dreams with 87% visual accuracy. Your dreams are automatically uploaded to cloud server while you sleep.", fake: true },
-                    { name: "Continuous Glucose Monitoring", desc: "CGM devices use tiny sensors under skin to track blood sugar 24/7, helping diabetics optimize insulin without finger pricks.", fake: false },
-                    { name: "3D Bioprinted Organs", desc: "Researchers have successfully 3D-printed human hearts and kidneys that function perfectly after transplant with zero rejection rates.", fake: true }
-                ],
-                explain: "AI Dream Recording is fake - dreams can't be reliably recorded/played back. 3D Bioprinting with zero rejection rates is fake (no such perfect organs yet)."
-            },
-            {
-                title: "Diagnosis and AI",
-                facts: [
-                    { name: "Mammogram AI", desc: "AI detects breast cancer in mammograms with 94.5% sensitivity, sometimes better than experienced radiologists.", fake: false },
-                    { name: "Personality Disorder DNA", desc: "Saliva test determines narcissistic personality disorder with 99.2% accuracy by analyzing specific gene sequences.", fake: true },
-                    { name: "Diabetic Retinopathy", desc: "AI analyzes retinal photos to detect diabetic eye disease early, FDA-approved, catches disease before symptoms.", fake: false },
-                    { name: "Mood Ring Bracelets", desc: "Mood-sensing bracelets use biometric data to detect depression with 88% accuracy and automatically notify doctor.", fake: true }
-                ],
-                explain: "Personality Disorder DNA is fake - narcissism isn't determined by single genes. Mood Ring auto-notification is fake - mental health is complex."
-            },
-            {
-                title: "Drug and Treatment",
-                facts: [
-                    { name: "mRNA Vaccines", desc: "mRNA vaccines teach immune system to recognize pathogens. Proven effective against COVID-19 and in trials for cancer.", fake: false },
-                    { name: "Homeopathic AI", desc: "AI-optimized homeopathy uses water memory algorithms to cure any disease. Endorsed by 67% of medical schools.", fake: true },
-                    { name: "Monoclonal Antibodies", desc: "Lab-created antibodies target specific cancer cells or disease proteins. Used for arthritis, cancers, Alzheimer's.", fake: false },
-                    { name: "Consciousness Upload Therapy", desc: "Treatment uploads your consciousness to quantum computer to heal trauma. Restores 96% of mental health issues.", fake: true }
-                ],
-                explain: "Homeopathic AI is fake - water memory has no scientific basis. Consciousness Upload is fake - consciousness can't be digitized."
-            },
-            {
-                title: "Hospital Tech",
-                facts: [
-                    { name: "Electronic Health Records", desc: "Digital medical records accessible to authorized providers, reducing medication errors by 50%.", fake: false },
-                    { name: "Hospital Delivery Robots", desc: "Autonomous robots deliver meals and medications through hospital corridors, handling 300+ deliveries daily.", fake: false },
-                    { name: "Telepathic Doctor Rounds", desc: "Doctors conduct rounds by projecting consciousness into hospital rooms. Patients feel doctor's spiritual presence.", fake: true },
-                    { name: "Automated Pharmacy", desc: "Robotic dispensaries fill prescriptions, reducing errors from 1 in 5,000 to 1 in 5,000,000.", fake: false }
-                ],
-                explain: "Telepathic Doctor Rounds is fake - consciousness projection and spiritual presence are pseudoscience."
-            },
-            {
-                title: "Preventative Care",
-                facts: [
-                    { name: "Heart Rate Variability", desc: "Smartwatches measure HRV to detect stress, overtraining, or early infection signs. Gives 5-7 day advance warning.", fake: false },
-                    { name: "Predictive Smell Analysis", desc: "Trained AI dogs identify cancer by smell alone. Accuracy 97% across all cancer types from 6 feet away.", fake: true },
-                    { name: "Sleep Quality Tracking", desc: "Wearables monitor sleep stages, alerting you to sleep apnea or irregular patterns before dangerous.", fake: false },
-                    { name: "Quantum Health Harmonization", desc: "Quantum bracelet aligns cellular energy frequencies with earth's magnetic field, preventing all illness.", fake: true }
-                ],
-                explain: "Predictive Smell Analysis is fake - dogs can't detect all cancers at 97%. Quantum Health Harmonization is fake - 'cellular frequencies' aren't real."
-            },
-            {
-                title: "Mental Health Tech",
-                facts: [
-                    { name: "Exposure Therapy VR", desc: "VR exposes PTSD patients to controlled trauma scenarios to reduce anxiety. 70-80% show improvement after 8-12 sessions.", fake: false },
-                    { name: "Emotion Detection Mirrors", desc: "Smart mirrors scan facial microexpressions to detect anxiety/depression/suicidal ideation with 95% accuracy.", fake: true },
-                    { name: "Brain Stimulation", desc: "Transcranial magnetic stimulation (TMS) uses magnetic pulses to activate brain regions. FDA-approved for depression. 50-60% remission rate.", fake: false },
-                    { name: "Meditation AI Enhancement", desc: "App amplifies meditation brain waves through phone speakers, multiplying healing effects 10x. Cures anxiety permanently after 3 sessions.", fake: true }
-                ],
-                explain: "Emotion Detection Mirrors is fake - microexpressions can't diagnose mental illness that accurately. Meditation AI Enhancement is fake - can't multiply effects 10x or permanently cure anxiety."
-            },
-            {
-                title: "Lab Testing",
-                facts: [
-                    { name: "Liquid Biopsy", desc: "Blood test detects circulating tumor DNA from multiple cancer types 6-12 months before imaging shows tumors.", fake: false },
-                    { name: "Instant DNA Sequencing", desc: "New AI technology identifies entire genome in 6 minutes at home with cheek swab. Previous technology took 6 months.", fake: false },
-                    { name: "Consciousness Chemistry Test", desc: "Blood test measures exact consciousness level as number (0-100). Determines intelligence, morality, and life purpose.", fake: true },
-                    { name: "Microbiome Personality Profiling", desc: "Gut bacteria determine personality type. Stool sample AI predicts introversion, extroversion, narcissism with 91% accuracy.", fake: true }
-                ],
-                explain: "Consciousness Chemistry Test is fake - consciousness can't be measured as a number. Microbiome Personality Profiling is fake - gut bacteria don't determine personality."
-            },
-            {
-                title: "Future Medicine Hype",
-                facts: [
-                    { name: "Nano Medical Robots", desc: "Nanoscale robots travel through bloodstream to deliver drugs directly to cancer cells, reducing side effects.", fake: false },
-                    { name: "Cellular Rejuvenation Injection", desc: "Serum reverses aging by 20 years per injection. Makes cells young again. Available at wellness clinics now.", fake: true },
-                    { name: "Organ Regeneration", desc: "Scientists regrew bladders and ear cartilage using stem cells and tissue scaffolds. Full organ regeneration 10-15 years away.", fake: false },
-                    { name: "Time Travel Medicine", desc: "Treatment sends your DNA back in time to before you got sick, erasing disease from medical history.", fake: true }
-                ],
-                explain: "Cellular Rejuvenation Injection is fake - no magic anti-aging injection works that way. Time Travel Medicine is fake - DNA can't be sent back in time."
+    
+    // Game key controls only work during gameplay
+            if (!state.gameStarted || state.complete) return;
+    
+            const key = e.key.toUpperCase();
+            const numOptions = getNumOptions(state.mode);
+    
+            if (key === 'A') selectFact(0);
+            else if (key === 'B') selectFact(1);
+            else if (key === 'C' && numOptions >= 3) selectFact(2);
+            else if (key === 'D' && numOptions >= 4) selectFact(3);
+            else if (key === 'ENTER') {
+                if (state.revealed && !state.complete) nextRound();
             }
-        ];
+        });
+        
+        function render() {
+            const gameEl = document.getElementById('game');
 
+            if (!state.gameStarted) {
+                gameEl.innerHTML = `
+                    <div class="header">
+                        <div>
+                            <h1>Spot The Fake</h1>
+                            <p class="subtitle">Can you tell real from misleading?</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="menu-section">
+                            <h2>Select Game Mode</h2>
+                            <button onclick="startGame('callmybluff')" style="margin-bottom: 10px;">Call My Bluff</button>
+                            <p style="font-size: 12px; color: #666;">One real, one fake definition. Press A or B to choose.</p>
+                            
+                            <button onclick="startGame('spotfake')" style="margin-bottom: 10px; margin-top: 15px;">Spot The Fake</button>
+                            <p style="font-size: 12px; color: #666;">Find the AI hallucination among 4 options. Press A, B, C, or D to choose.</p>
+                        </div>
+
+                        <div style="border-top: 2px solid #eee; padding-top: 20px; margin-top: 20px;">
+                            <h2>Select Difficulty</h2>
+                            <div class="difficulty-grid">
+                                <button onclick="setDifficulty('easy')" class="difficulty-btn ${state.difficulty === 'easy' ? 'active' : 'inactive'}">Easy</button>
+                                <button onclick="setDifficulty('medium')" class="difficulty-btn ${state.difficulty === 'medium' ? 'active' : 'inactive'}">Medium</button>
+                                <button onclick="setDifficulty('hard')" class="difficulty-btn ${state.difficulty === 'hard' ? 'active' : 'inactive'}">Hard</button>
+                            </div>
+                            <p class="difficulty-desc">
+                                ${state.difficulty === 'easy' ? 'Clear definitions, obvious fakes. Great for kids and beginners.' : 
+                                  state.difficulty === 'medium' ? 'Tricky wording, plausible fakes. For intermediate players.' : 
+                                  'Expert-level, deceptively realistic. For medical enthusiasts.'}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (state.complete && !state.playerName) {
+                gameEl.innerHTML = `
+                    <div class="card game-over">
+                        <h1>Game Complete!</h1>
+                        <div class="final-score">${state.score} / 4</div>
+                        <div class="message">
+                            ${state.score === 4 ? "Perfect! You're a definition detective." : 
+                              state.score === 3 ? "Excellent! You caught most of the tricks." :
+                              state.score === 2 ? "Good effort! Misleading names are tough." :
+                              "Keep practicing! These tricks are sneaky."}
+                        </div>
+                        <div style="margin: 20px 0;">
+                            <input type="text" id="playerNameInput" placeholder="Enter your name" style="padding: 10px; width: 100%; border: 2px solid #4caf50; border-radius: 4px; font-size: 16px;">
+                            ${state.nameError ? `<div class="error-message">${state.nameError}</div>` : ''}
+                        </div>
+                        <button onclick="submitScore()" style="margin-bottom: 10px;">Submit Score</button>
+                        <button onclick="backToMenu()" style="background: #999; margin-bottom: 10px;">Back to Menu</button>
+                        <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (state.complete && state.playerName) {
+                const rank = state.leaderboard.findIndex(e => e.name === state.playerName && e.score === state.score) + 1;
+                let leaderboardHtml = '';
+                state.leaderboard.slice(0, 10).forEach((entry, idx) => {
+                    const isPlayer = entry.name === state.playerName && entry.score === state.score;
+                    leaderboardHtml += `
+                        <div style="display: flex; justify-content: space-between; padding: 10px; background: ${isPlayer ? '#fff9c4' : 'white'}; border-bottom: 1px solid #eee;">
+                            <span>${idx + 1}. ${entry.name}</span>
+                            <span style="font-weight: bold;">${entry.score}/4</span>
+                        </div>
+                    `;
+                });
+
+                gameEl.innerHTML = `
+                    <div class="card game-over">
+                        <h1>Game Complete!</h1>
+                        <div class="final-score">${state.score} / 4</div>
+                        <div class="message" style="font-size: 20px; color: #ff9800;">You ranked #${rank} on the leaderboard!</div>
+                        <div style="background: #f5f5f5; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">Top 10 Scores</div>
+                            ${leaderboardHtml}
+                        </div>
+                        <button onclick="backToMenu()" style="margin-bottom: 10px;">Play Again</button>
+                        <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const roundsToUse = getRounds(state.difficulty, state.mode);
+            
+            if (state.mode === 'spotfake') {
+                const round = roundsToUse[state.round];
+                let factsHtml = '';
+                
+                round.facts.forEach((fact, idx) => {
+                    let classes = 'fact';
+                    if (state.revealed) {
+                        if (fact.fake && state.selected === idx) classes += ' correct';
+                        else if (!fact.fake && state.selected === idx) classes += ' wrong';
+                        else if (fact.fake) classes += ' wrong';
+                        classes += ' disabled';
+                    } else {
+                        if (state.selected === idx) classes += ' selected';
+                    }
+                    
+                    let badge = '';
+                    if (state.revealed && fact.fake) {
+                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
+                    } else if (state.revealed && !fact.fake && state.selected === idx) {
+                        badge = '<span class="fact-badge badge-real">✓ REAL</span>';
+                    }
+                    
+                    const letter = String.fromCharCode(65 + idx);
+                    factsHtml += `
+                        <div class="${classes}" onclick="selectFact(${idx})">
+                            <div class="fact-name"><span style="display: inline-block; min-width: 30px; font-weight: bold; color: #ff9800;">${letter}.</span> ${fact.name}</div>
+                            <div class="fact-desc">${fact.desc}</div>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                let explanation = '';
+                if (state.revealed) {
+                    explanation = `
+                        <div class="explanation show">
+                            <div class="explanation-title">Why was it fake?</div>
+                            <div class="explanation-text">${round.explain}</div>
+                        </div>
+                    `;
+                }
+
+                gameEl.innerHTML = `
+                    <div class="header">
+                        <div>
+                            <h1>Spot The Fake</h1>
+                            <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">Score</div>
+                            <div class="score-value">${state.score}/4</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="round-info">
+                            <div class="round-title">${round.title}</div>
+                            <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                        </div>
+                        <div class="instructions">3 of these are REAL medical conditions. 1 is completely made up by AI. Which one is fake?</div>
+                        <div class="instructions" style="font-size: 12px; color: #999;">Press A, B, C, or D on your keyboard to select</div>
+                        <div class="facts">
+                            ${factsHtml}
+                        </div>
+                        ${explanation}
+                        ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+                    </div>
+                    <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+                    <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                `;
+            } else {
+                const round = roundsToUse[state.round];
+                const pair = round.pairs[0];
+                
+                let factsHtml = `
+                    <div style="margin-bottom: 20px;">
+                        <div style="background: #f0f7e8; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #4caf50;">${pair.condition}</div>
+                            <div style="font-size: 14px; color: #666;">Which definition is correct?</div>
+                        </div>
+                    </div>
+                `;
+
+                [pair.real, pair.fake].forEach((definition, idx) => {
+                    const isCorrect = (idx === 0) === pair.correctIsReal;
+                    let classes = 'fact';
+                    
+                    if (state.revealed) {
+                        if (isCorrect && state.selected === idx) classes += ' correct';
+                        else if (!isCorrect && state.selected === idx) classes += ' wrong';
+                        else if (isCorrect) classes += ' wrong';
+                        classes += ' disabled';
+                    } else {
+                        if (state.selected === idx) classes += ' selected';
+                    }
+                    
+                    let badge = '';
+                    if (state.revealed && !isCorrect) {
+                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
+                    } else if (state.revealed && isCorrect && state.selected === idx) {
+                        badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
+                    }
+                    
+                    const letter = String.fromCharCode(65 + idx);
+                    factsHtml += `
+                        <div class="${classes}" onclick="selectFact(${idx})">
+                            <div class="fact-name">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
+                            <div class="fact-desc">${definition}</div>
+                            ${badge}
+                        </div>
+                    `;
+                });
+
+                let explanation = '';
+                if (state.revealed) {
+                    explanation = `
+                        <div class="explanation show">
+                            <div class="explanation-title">Why?</div>
+                            <div class="explanation-text">${round.explain}</div>
+                        </div>
+                    `;
+                }
+
+                gameEl.innerHTML = `
+                    <div class="header">
+                        <div>
+                            <h1>Call My Bluff</h1>
+                            <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} Mode</p>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">Score</div>
+                            <div class="score-value">${state.score}/4</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="round-info">
+                            <div class="round-title">${round.title}</div>
+                            <span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>
+                        </div>
+                        <div class="instructions">Pick the correct definition.</div>
+                        <div class="instructions" style="font-size: 12px; color: #999;">Press A or B on your keyboard to select</div>
+                        <div class="facts">
+                            ${factsHtml}
+                        </div>
+                        ${explanation}
+                        ${state.revealed ? `<button onclick="nextRound()" id="nextBtn">Press Enter or click to continue</button>` : ''}
+                    </div>
+                    <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Back to Menu</button>
+                    <div class="lesson">Real medical names can be confusing. Always verify definitions with trusted medical sources.</div>
+                `;
+            }
+        }
+
+        loadLeaderboard();
         render();
     </script>
 </body>
