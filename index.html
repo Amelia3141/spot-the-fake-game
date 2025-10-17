@@ -315,20 +315,20 @@
                     <p style="color: #999; margin-bottom: 30px;">Choose your game mode</p>
                     
                     <div class="mode-grid">
-                        <button class="mode-btn normal" onclick="startGame('${state.mode}', 'normal')">
+                        <button onclick="startGame('${state.mode}', 'normal')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: transform 0.2s;">
                             ⏱️ NORMAL<br><span style="font-size: 12px; opacity: 0.9;">4 rounds</span>
                         </button>
                         
-                        <button class="mode-btn timed" onclick="startGame('${state.mode}', 'timed')">
+                        <button onclick="startGame('${state.mode}', 'timed')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: transform 0.2s;">
                             ⚡ 60 SECOND<br><span style="font-size: 12px; opacity: 0.9;">How many can you get?</span>
                         </button>
                         
-                        <button class="mode-btn survival" onclick="startGame('${state.mode}', 'survival')">
+                        <button onclick="startGame('${state.mode}', 'survival')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: transform 0.2s;">
                             💀 SURVIVAL<br><span style="font-size: 12px; opacity: 0.9;">3 lives, no limit</span>
                         </button>
                     </div>
                     
-                    <button onclick="backToMenu()" style="background: #999;">← Back</button>
+                    <button onclick="backToMenu()" style="background: #999; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; margin-top: 20px;">← Back</button>
                 </div>
             `;
         }
