@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spot The Fake</title>
+    <title>Spot The Fake - Medical AI Detection</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -19,6 +19,13 @@
             --correct: #4caf50;
             --wrong: #f44336;
             --shadow: rgba(0,0,0,0.1);
+            --option-a: #FF9AA2;
+            --option-b: #70D6FF;
+            --option-c: #C49BFF;
+            --option-d: #FFE380;
+            --enter-green: #A8E6CF;
+            --hint-bg: #fff3e0;
+            --hint-border: #ff9800;
         }
         
         body.dark-mode {
@@ -30,6 +37,13 @@
             --text-secondary: #b0b0b0;
             --text-muted: #707070;
             --shadow: rgba(0,0,0,0.3);
+            --option-a: #FFADB3;
+            --option-b: #85DFFF;
+            --option-c: #D4B0FF;
+            --option-d: #FFED9A;
+            --enter-green: #B8F0DC;
+            --hint-bg: rgba(255, 152, 0, 0.15);
+            --hint-border: #ffa726;
         }
         
         body { 
@@ -100,6 +114,34 @@
             margin-bottom: 20px; 
             box-shadow: 0 2px 8px var(--shadow);
             transition: background 0.3s, border 0.3s;
+        }
+        
+        .hints-box {
+            background: var(--hint-bg);
+            border: 2px solid var(--hint-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .hints-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .hints-list {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+        
+        .hints-list li {
+            margin-bottom: 6px;
         }
         
         .progress-bar-container {
@@ -191,70 +233,118 @@
             border: 2px solid #ddd; 
             border-radius: 8px; 
             cursor: pointer; 
-            transition: all 0.3s; 
-            text-align: left; 
-            background: var(--card-bg);
+            transition: all 0.3s;
+            position: relative;
         }
         
-        body.dark-mode .fact {
-            border-color: #444;
+        .fact:hover:not(.disabled) { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px var(--shadow); 
         }
-        
-        .fact:hover:not(.disabled) { border-color: var(--border-primary); }
-        .fact.selected { background: #e8f5e9; border-color: var(--border-primary); }
-        .fact.correct { background: #e8f5e9; border-color: var(--correct); }
-        .fact.wrong { background: #ffebee; border-color: var(--wrong); }
-        .fact.disabled { cursor: not-allowed; }
-        
-        body.dark-mode .fact.selected { background: rgba(76, 175, 80, 0.2); }
-        body.dark-mode .fact.correct { background: rgba(76, 175, 80, 0.2); }
-        body.dark-mode .fact.wrong { background: rgba(244, 67, 54, 0.2); }
         
         .fact-name { 
             font-weight: bold; 
             font-size: 16px; 
-            margin-bottom: 8px; 
-            color: var(--accent); 
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        
+        .fact-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .letter-a { background: var(--option-a); }
+        .letter-b { background: var(--option-b); }
+        .letter-c { background: var(--option-c); }
+        .letter-d { background: var(--option-d); }
         
         .fact-desc { 
-            font-size: 14px; 
             color: var(--text-secondary); 
-            line-height: 1.5; 
+            font-size: 14px; 
+            line-height: 1.6;
         }
         
-        .fact-badge { 
-            display: inline-block; 
-            margin-top: 10px; 
-            padding: 6px 10px; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            font-weight: bold; 
-            color: white; 
+        .fact.selected { 
+            border-color: var(--border-primary); 
+            background: rgba(76, 175, 80, 0.1); 
         }
         
-        .badge-fake { background: var(--wrong); }
-        .badge-real { background: var(--correct); }
+        .fact.correct { 
+            border-color: var(--correct); 
+            background: rgba(76, 175, 80, 0.2); 
+        }
+        
+        .fact.wrong { 
+            border-color: var(--wrong); 
+            background: rgba(244, 67, 54, 0.1); 
+        }
+        
+        .fact.disabled { cursor: not-allowed; opacity: 0.7; }
+        
+        .fact-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-fake {
+            background: var(--wrong);
+            color: white;
+        }
+        
+        .badge-real {
+            background: var(--correct);
+            color: white;
+        }
         
         .explanation { 
-            background: #f0f7e8; 
-            border: 1px solid var(--correct); 
+            background: rgba(76, 175, 80, 0.1); 
+            border: 2px solid var(--correct); 
             border-radius: 8px; 
-            padding: 15px; 
-            margin-bottom: 20px; 
-            display: none; 
+            padding: 20px; 
+            margin-top: 20px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
         }
         
-        body.dark-mode .explanation {
-            background: rgba(76, 175, 80, 0.15);
+        .explanation.show {
+            max-height: 500px;
+            opacity: 1;
         }
         
-        .explanation.show { display: block; }
-        .explanation-title { font-weight: bold; margin-bottom: 8px; }
-        .explanation-text { font-size: 14px; line-height: 1.6; }
+        .explanation-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--correct);
+        }
+        
+        .explanation-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
         
         button { 
-            background: linear-gradient(135deg, var(--accent) 0%, var(--correct) 100%); 
+            background: linear-gradient(135deg, var(--border-primary) 0%, var(--correct) 100%); 
             color: white; 
             border: none; 
             padding: 15px 30px; 
@@ -262,8 +352,8 @@
             font-size: 16px; 
             font-weight: bold; 
             cursor: pointer; 
-            transition: 0.3s; 
             width: 100%; 
+            transition: all 0.3s;
         }
         
         button:hover { transform: translateY(-2px); }
@@ -414,7 +504,7 @@
         // GAME STATE
         let state = {
             screen: 'menu',
-            gameMode: 'classic', // classic, timed, survival, speedrun
+            gameMode: 'classic',
             difficulty: null,
             gameType: null,
             round: 0,
@@ -429,10 +519,11 @@
             timerInterval: null,
             startTime: null,
             darkMode: false,
-            callMyBluffOrder: null // stores randomized order for current Call My Bluff question
+            callMyBluffOrder: null,
+            leaderboard: []
         };
 
-        // NAME VALIDATION (keeping your existing implementation)
+        // NAME VALIDATION
         const blockedWords = [
             'f4g', 'fagg', 'n1gg', 'nigg', 'sh1t', 'shitt', 
             'kys', 'kill', 'die', 'slut', 'whore', 'cunt'
@@ -499,397 +590,251 @@
             return shuffled;
         }
 
-        // GAME DATA (keeping your existing data structure - truncated for brevity)
-        const easyRounds = [
+        // GAME DATA - AI TRUSTWORTHINESS FOCUSED
+        const easySpotRounds = [
             {
-                title: 'Find The Fake Medical Condition',
+                title: 'Round 1: Learning the Clues',
+                hints: [
+                    '🔍 AI often makes up exact percentages like "2.3%" or "1 in 8,000"',
+                    '🎯 Watch for impossible claims that sound too amazing',
+                    '📊 Real medical facts usually say "about" or "roughly" instead of exact numbers'
+                ],
                 facts: shuffleArray([
-                    { name: 'Alien Hand Syndrome', desc: 'A condition where one hand acts independently, as if controlled by an outside force. The person may find their hand unbuttoning clothes they just buttoned, or grabbing objects without conscious control.', fake: false },
-                    { name: 'Water Allergy', desc: 'A rare condition where contact with water causes painful hives and rashes. Even tears, sweat, and rain can trigger severe reactions that can last for hours.', fake: false },
-                    { name: 'Stone Man Syndrome', desc: 'An extremely rare disease where muscles and connective tissue gradually turn into bone. Over time, the body becomes locked in place as a second skeleton forms around the first.', fake: false },
-                    { name: 'Digital Echo Syndrome', desc: 'A modern condition where people experience phantom vibrations from devices that aren\'t there. Sufferers report feeling continuous phone buzzing even when their devices are off or absent.', fake: true }
+                    { name: 'Brain Freeze', desc: 'The headache from eating ice cream too fast happens when cold hits the roof of your mouth. This makes blood vessels in your head quickly squeeze and then expand, which triggers pain.', fake: false },
+                    { name: 'Hiccups', desc: 'Hiccups are caused by your diaphragm muscle having spasms. The longest case of hiccups ever recorded lasted 68 years.', fake: false },
+                    { name: 'Growing Pains', desc: 'Kids sometimes feel aches in their legs at night as they grow. This is normal and usually goes away as they get older.', fake: false },
+                    { name: 'Color Taste Syndrome', desc: 'A condition affecting exactly 1.7% of children worldwide where the brain makes kids taste colors in their mouth. Red things taste spicy, blue things taste sweet, and yellow things taste sour.', fake: true }
                 ]),
-                explain: 'Digital Echo Syndrome is completely made up. While phantom vibration syndrome (feeling your phone buzz when it hasn\'t) is real and common, "Digital Echo Syndrome" as a formal medical condition with continuous, device-independent symptoms doesn\'t exist. The other three are real, documented medical conditions with actual case studies.'
+                explain: '**Color Taste Syndrome** is AI-generated. Red flags: The exact percentage "1.7%" (AI loves fake precision), the too-perfect pattern (each color = one taste), and the made-up scientific name. Real conditions are messy, not this neat!'
             },
             {
-                title: 'Unusual Medical Conditions',
+                title: 'Round 2: Spotting Fake Patterns',
+                hints: [
+                    '⚠️ Be suspicious when something sounds TOO organized or perfect',
+                    '🤖 AI makes up names by combining real medical words',
+                    '✨ Real medicine rarely has "magical" solutions that fix everything'
+                ],
                 facts: shuffleArray([
-                    { name: 'Walking Corpse Syndrome', desc: 'A mental disorder where people believe they are dead, missing body parts, or that they don\'t exist. Some patients refuse to eat because they think they don\'t need food anymore.', fake: false },
-                    { name: 'Laughing Disease', desc: 'A fatal brain disease that caused uncontrollable laughing and trembling. It was spread through funeral rituals in Papua New Guinea where relatives ate the brains of the deceased.', fake: false },
-                    { name: 'Sleeping Beauty Syndrome', desc: 'A rare disorder where people sleep for days or weeks at a time, waking only briefly to eat and use the bathroom before falling asleep again.', fake: false },
-                    { name: 'Mirror Memory Syndrome', desc: 'A condition where patients can only form memories while looking at their reflection. Without a mirror, they experience complete amnesia and cannot recall events from moments before.', fake: true }
+                    { name: 'Goosebumps', desc: 'Your skin gets bumpy when you\'re cold or scared. This happens because tiny muscles pull on your hair follicles. It\'s left over from when our ancestors had more body hair.', fake: false },
+                    { name: 'Yawning', desc: 'When you yawn, you take in a big breath of air. Yawning is contagious - seeing someone yawn often makes you yawn too! Scientists think it helps wake up your brain.', fake: false },
+                    { name: 'Rainbow Vision Effect', desc: 'After looking at bright lights, you might see colored spots or shapes. These usually go away after blinking a few times.', fake: false },
+                    { name: 'Digital Eye Syndrome', desc: 'Looking at screens for 47 minutes or longer causes temporary loss of color vision for exactly 12 minutes. This affects 94.6% of children who use tablets and requires special green-tinted glasses to prevent.', fake: true }
                 ]),
-                explain: 'Mirror Memory Syndrome is fake. The real conditions are Cotard\'s Syndrome (walking corpse), Kuru (laughing disease), and Kleine-Levin Syndrome (sleeping beauty syndrome).'
+                explain: '**Digital Eye Syndrome** is fake! Red flags: Super specific numbers (47 min, 12 min, 94.6%), too-perfect timing, and a magic solution (special glasses). Real screen problems cause tiredness and dry eyes, but don\'t make you lose color vision!'
             },
             {
-                title: 'Strange Body Phenomena',
+                title: 'Round 3: Testing Your Skills',
+                hints: [
+                    '🔬 Real conditions don\'t have perfect mathematical patterns',
+                    '💭 If it sounds like a superhero power, it\'s probably fake',
+                    '📝 Check if the description uses lots of big science words without explaining them'
+                ],
                 facts: shuffleArray([
-                    { name: 'Fish Odor Syndrome', desc: 'A metabolic disorder where the body can\'t break down certain compounds, causing people to smell like rotting fish. The odor comes from breath, sweat, and urine.', fake: false },
-                    { name: 'Vampire Disease', desc: 'A blood disorder causing extreme sensitivity to sunlight. Exposure causes severe blisters, and in some cases, skin can turn brown or purple and become very fragile.', fake: false },
-                    { name: 'Auto-Brewery Syndrome', desc: 'A condition where the gut produces alcohol from carbohydrates. People can become drunk without drinking any alcohol, failing breathalyzer tests after eating bread or pasta.', fake: false },
-                    { name: 'Crystal Tears Syndrome', desc: 'A rare disorder where tear ducts produce microscopic salt crystals instead of normal tears. The crystals cause extreme pain and can scratch the cornea, requiring surgical removal.', fake: true }
+                    { name: 'Butterflies in Your Stomach', desc: 'When you\'re nervous or excited, your stomach can feel fluttery. This happens because your body is getting ready for action by sending blood to your muscles.', fake: false },
+                    { name: 'Pins and Needles', desc: 'Your foot or hand can feel tingly and numb if you sit or lie in one position too long. This happens when pressure stops blood flowing normally, but it goes away quickly.', fake: false },
+                    { name: 'Sleepwalking', desc: 'Some people get up and walk around while they\'re still asleep. They usually don\'t remember it in the morning. It\'s most common in children.', fake: false },
+                    { name: 'Temperature Reading Ability', desc: 'One in every 2,500 people are born with specialized skin sensors that let them detect the exact temperature of any object within 0.1 degrees just by looking at it. This ability strengthens with practice.', fake: true }
                 ]),
-                explain: 'Crystal Tears Syndrome is made up. The real conditions are Trimethylaminuria (fish odor), Porphyria (vampire disease), and Auto-Brewery Syndrome.'
+                explain: '**Temperature Reading Ability** is made up! Red flags: Exact fraction (1 in 2,500), impossible precision (0.1 degrees "just by looking"), and the claim it gets better with practice. You can\'t develop superpowers! Real temperature sensing requires touch.'
             },
             {
-                title: 'Bizarre Brain Disorders',
+                title: 'Round 4: You\'re an Expert Now!',
+                hints: [
+                    '👁️ Look carefully at any exact statistics or percentages',
+                    '⚡ Real bodies are unpredictable - be suspicious of perfect patterns',
+                    '🎪 If it sounds like magic or a cartoon superpower, it\'s likely AI-generated'
+                ],
                 facts: shuffleArray([
-                    { name: 'Foreign Accent Syndrome', desc: 'After a stroke or brain injury, people suddenly speak with a completely different accent they never had before, like suddenly speaking English with a French accent.', fake: false },
-                    { name: 'Alice in Wonderland Syndrome', desc: 'A neurological condition where people see objects as much larger or smaller than they really are. A door might look tiny or a dog might appear elephant-sized.', fake: false },
-                    { name: 'Exploding Head Syndrome', desc: 'People hear incredibly loud explosive noises or crashes in their head when falling asleep or waking up. The sounds aren\'t real but seem completely genuine to the person.', fake: false },
-                    { name: 'Thought Echo Syndrome', desc: 'A rare condition where patients hear their own thoughts repeated back to them 3-5 seconds after thinking them, like a mental echo. The delayed thoughts often feel like someone else is speaking.', fake: true }
+                    { name: 'Blushing', desc: 'Your face turns red when you\'re embarrassed because blood rushes to your cheeks. This is an automatic reaction you can\'t control.', fake: false },
+                    { name: 'Pruney Fingers', desc: 'Your fingers and toes get wrinkly after being in water for a while. Scientists think this gives you better grip on wet objects.', fake: false },
+                    { name: 'Dizzy Spells', desc: 'Standing up too fast can make you feel dizzy or see spots. This happens because blood takes a moment to reach your brain. Sitting back down helps it pass.', fake: false },
+                    { name: 'Musical Memory Syndrome', desc: 'Affects approximately 3.8% of children aged 8-12, causing them to remember only information presented in song form. Speaking the same information results in zero retention, but singing achieves 100% recall every time.', fake: true }
                 ]),
-                explain: 'Thought Echo Syndrome is fake. The other three are real documented conditions with actual patients.'
-            },
-            {
-                title: 'Unusual Physical Conditions',
-                facts: shuffleArray([
-                    { name: 'Human Werewolf Syndrome', desc: 'A genetic condition causing excessive hair growth all over the face and body, including areas where hair doesn\'t normally grow. Only about 50 cases have ever been documented.', fake: false },
-                    { name: 'Blue Skin Syndrome', desc: 'A real condition where people have blue or purple skin caused by a rare blood disorder. One famous family in Kentucky had blue skin for generations.', fake: false },
-                    { name: 'Tree Man Syndrome', desc: 'A severe HPV infection causing large, bark-like growths on hands and feet. The warts can grow several inches and look exactly like tree bark.', fake: false },
-                    { name: 'Glass Bone Delusion', desc: 'A psychological condition where people believe their bones are made of glass and will shatter with any movement. Patients become completely paralyzed by fear of breaking.', fake: true }
-                ]),
-                explain: 'Glass Bone Delusion is made up. The real conditions are Hypertrichosis (werewolf), Argyria/Methemoglobinemia (blue skin), and Epidermodysplasia verruciformis (tree man).'
-            },
-            {
-                title: 'Mind and Memory Tricks',
-                facts: shuffleArray([
-                    { name: 'Capgras Syndrome', desc: 'People believe their loved ones have been replaced by identical imposters. They recognize the face but feel no emotional connection, concluding it must be a fake person.', fake: false },
-                    { name: 'Face Blindness', desc: 'A condition where people cannot recognize faces, even of close family members. Some can\'t even recognize their own face in a mirror.', fake: false },
-                    { name: 'Calendar Syndrome', desc: 'People with this condition can instantly tell you what day of the week any date in history fell on. They can also remember what they were doing on any specific date from their entire life.', fake: false },
-                    { name: 'Reality Fade Syndrome', desc: 'Patients experience progressive inability to distinguish between dreams and reality. Eventually, they cannot tell if current experiences are real or if they are still dreaming.', fake: true }
-                ]),
-                explain: 'Reality Fade Syndrome is fake. The real conditions are Capgras Syndrome, Prosopagnosia (face blindness), and Hyperthymesia (calendar syndrome/superior autobiographical memory).'
-            },
-            {
-                title: 'Strange Sensory Disorders',
-                facts: shuffleArray([
-                    { name: 'Mirror-Touch Synesthesia', desc: 'People literally feel what they see others experiencing. If they watch someone get touched on the arm, they feel it on their own arm in the same spot.', fake: false },
-                    { name: 'Super Taste Syndrome', desc: 'Some people have significantly more taste buds than normal, making them "super tasters." Foods taste intensely strong to them - vegetables can be unbearably bitter and sweets overwhelmingly sweet.', fake: false },
-                    { name: 'Phantom Limb Syndrome', desc: 'After losing an arm or leg, people continue to feel the missing limb is still there. They can feel pain, itching, or movement in body parts that no longer exist.', fake: false },
-                    { name: 'Sensory Reversal Syndrome', desc: 'A condition where patients experience senses backwards - they feel cold when touching hot objects, taste sweet when eating sour foods, and hear low sounds as high-pitched.', fake: true }
-                ]),
-                explain: 'Sensory Reversal Syndrome is made up. The others are real: Mirror-Touch Synesthesia, Supertaster (super taste), and Phantom Limb Syndrome.'
-            },
-            {
-                title: 'Rare Genetic Conditions',
-                facts: shuffleArray([
-                    { name: 'Progeria', desc: 'A genetic condition causing rapid aging in children. Kids with this disease look elderly by age 10 and rarely live past their teens. Their bodies age about 8-10 times faster than normal.', fake: false },
-                    { name: 'Uner Tan Syndrome', desc: 'An extremely rare genetic disorder causing people to walk on all fours like animals. They cannot walk upright and have impaired speech and cognitive abilities.', fake: false },
-                    { name: 'Mermaid Syndrome', desc: 'A rare birth defect where a baby is born with their legs fused together, resembling a mermaid\'s tail. Most babies with this condition don\'t survive, but surgery can sometimes separate the legs.', fake: false },
-                    { name: 'Reverse Growth Syndrome', desc: 'An extremely rare genetic disorder where patients grow normally until puberty, then begin shrinking. Adults with this condition can lose several inches per year, eventually reaching child-like proportions.', fake: true }
-                ]),
-                explain: 'Reverse Growth Syndrome is fake. The real conditions are Progeria (rapid aging), Uner Tan Syndrome (quadrupedal locomotion), and Sirenomelia (mermaid syndrome).'
-            },
-            {
-                title: 'Unusual Sleep Disorders',
-                facts: shuffleArray([
-                    { name: 'Fatal Familial Insomnia', desc: 'A genetic disease where people completely lose the ability to sleep. Over several months, they deteriorate mentally and physically, and the disease is always fatal with no cure.', fake: false },
-                    { name: 'Sleep Eating Disorder', desc: 'People raid their refrigerator and eat food while completely asleep. They wake up with no memory of it, only finding evidence like crumbs in bed or empty containers.', fake: false },
-                    { name: 'Sexsomnia', desc: 'A sleep disorder where people initiate sexual activity while completely asleep. They have no memory of it afterward and the behavior happens during deep sleep stages.', fake: false },
-                    { name: 'Dream Transfer Syndrome', desc: 'A condition where people can only dream what the person next to them is dreaming. Patients must sleep beside someone or they experience no dreams at all, just blank sleep.', fake: true }
-                ]),
-                explain: 'Dream Transfer Syndrome is made up. The other three are real documented sleep disorders: Fatal Familial Insomnia, Sleep-Related Eating Disorder, and Sexsomnia.'
-            },
-            {
-                title: 'Mysterious Pain Conditions',
-                facts: shuffleArray([
-                    { name: 'Cluster Headaches', desc: 'Considered one of the most painful conditions known to medicine. People describe it as feeling like a hot poker stabbing through the eye. Attacks come in clusters and can occur multiple times daily.', fake: false },
-                    { name: 'Ice Cream Headache Disease', desc: 'Some people experience debilitating brain freeze that lasts for hours instead of seconds. Any cold food or drink triggers severe, long-lasting head pain that resembles a migraine.', fake: true },
-                    { name: 'CIPA', desc: 'Congenital Insensitivity to Pain with Anhidrosis - people feel no pain and cannot sweat. Children often injure themselves severely without realizing it because they can\'t feel broken bones or burns.', fake: false },
-                    { name: 'Trigeminal Neuralgia', desc: 'Known as the suicide disease because the pain is so severe. It causes sudden, extreme facial pain that feels like electric shocks. Even light touches to the face can trigger agonizing attacks.', fake: false }
-                ]),
-                explain: 'Ice Cream Headache Disease is fake. The real conditions are Cluster Headaches, CIPA (congenital insensitivity to pain), and Trigeminal Neuralgia (suicide disease).'
-            },
-            {
-                title: 'Behavioral Disorders',
-                facts: shuffleArray([
-                    { name: 'Pica', desc: 'A disorder where people compulsively eat non-food items like dirt, chalk, paint, or metal. Some people with pica have eaten hundreds of pounds of these materials over their lifetime.', fake: false },
-                    { name: 'Kleptomania', desc: 'An uncontrollable urge to steal items, often things the person doesn\'t need or want. It\'s not about the value of items but the act of stealing itself, which temporarily relieves anxiety.', fake: false },
-                    { name: 'Trichotillomania', desc: 'A disorder causing people to compulsively pull out their own hair from their scalp, eyebrows, or other body areas. They often feel tension before pulling and relief afterward.', fake: false },
-                    { name: 'Reverse Hoarding Disorder', desc: 'The opposite of hoarding - patients feel overwhelming compulsion to throw away all possessions. They cannot keep any belongings and become distressed if items remain in their home for more than a few hours.', fake: true }
-                ]),
-                explain: 'Reverse Hoarding Disorder is made up. The real conditions are Pica, Kleptomania, and Trichotillomania - all documented impulse control disorders.'
+                explain: '**Musical Memory Syndrome** is AI nonsense! Red flags: Fake precision (3.8%, ages 8-12), impossible absolutes (zero retention vs 100% recall), and too-perfect opposites. Real memory doesn\'t work in such extreme, mathematical patterns. Music CAN help memory, but not this magically!'
             }
         ];
 
-        const mediumRounds = [
+        const mediumSpotRounds = [
             {
-                title: 'Medical Condition Detection',
+                title: 'Round 1: Intermediate Detection',
+                hints: [
+                    'AI often creates plausible-sounding mechanisms that don\'t match real biology',
+                    'Watch for conditions with suspiciously convenient timelines or measurements',
+                    'Real rare conditions have messy, variable presentations'
+                ],
                 facts: shuffleArray([
-                    { name: 'Cotard\'s Syndrome', desc: 'A rare mental disorder where patients believe they are dead, don\'t exist, or have lost their blood or internal organs. Some refuse to eat because they believe they don\'t need food anymore.', fake: false },
-                    { name: 'Tree Man Syndrome', desc: 'A severe case of HPV infection that causes bark-like warts to grow uncontrollably on hands and feet. The growths can reach several inches and resemble tree bark in texture and appearance.', fake: false },
-                    { name: 'Fatal Familial Insomnia', desc: 'A genetic disease that causes complete inability to sleep. Over months, patients lose the ability to sleep entirely, leading to hallucinations, rapid weight loss, and eventual death. No cure exists.', fake: false },
-                    { name: 'Chromatic Aphasia', desc: 'A neurological disorder where patients lose the ability to perceive or name colors in sequence. They can see individual colors but cannot process color gradients or transitions, seeing only discrete blocks of color.', fake: true }
+                    { name: 'Exploding Head Syndrome', desc: 'People hear loud explosion sounds or crashes when falling asleep or waking up. Despite the scary name, it\'s completely harmless but can be very frightening the first time it happens.', fake: false },
+                    { name: 'Ice Pick Headache', desc: 'Sharp, stabbing pains that last only a few seconds, feeling like an ice pick stabbing the head. They\'re sudden, intense, and usually don\'t need treatment.', fake: false },
+                    { name: 'Foreign Accent Syndrome', desc: 'After brain injury or stroke, people can suddenly speak with a different accent they never had before. It\'s caused by damage to brain areas controlling speech patterns.', fake: false },
+                    { name: 'Sensory Crosswire Disorder', desc: 'A neurological condition where sensory signals swap pathways every 90 minutes in precise cycles. Patients taste sounds, hear colors, then revert to normal, repeating this pattern with clock-like regularity throughout the day.', fake: true }
                 ]),
-                explain: 'Chromatic Aphasia is fabricated. While color blindness and visual processing disorders exist, this specific condition of losing sequential color perception isn\'t a real diagnosis. The other three are genuine, well-documented medical conditions.'
+                explain: '**Sensory Crosswire Disorder** is fabricated. Red flags: Clock-like 90-minute cycles (biology isn\'t that precise), reversible sensory swapping on a timer, and multiple different synesthesias alternating predictably. Real synesthesia is consistent, not cyclical.'
             },
             {
-                title: 'Neurological Mysteries',
+                title: 'Round 2: Subtle AI Tells',
+                hints: [
+                    'Genuine conditions rarely have multiple symptoms that perfectly mirror each other',
+                    'Be skeptical of statistics that seem designed to be memorable',
+                    'Real medical progression is gradual, not step-wise or instantaneous'
+                ],
                 facts: shuffleArray([
-                    { name: 'Fregoli Syndrome', desc: 'The opposite of Capgras - patients believe different people are actually the same person in disguise. They think one person is following them by constantly changing their appearance.', fake: false },
-                    { name: 'Synesthesia', desc: 'A neurological condition where stimulation of one sense triggers another. People might see colors when they hear music, taste words, or feel textures when looking at certain colors.', fake: false },
-                    { name: 'Anton Syndrome', desc: 'Cortical blindness where people are completely blind but firmly deny it. They confabulate visual experiences and are convinced they can see, even while walking into walls.', fake: false },
-                    { name: 'Temporal Displacement Disorder', desc: 'Patients experience consciousness several seconds behind real time. They perceive events that just happened as if watching a slightly delayed broadcast, making real-time interaction extremely difficult.', fake: true }
+                    { name: 'Mirror-Touch Synesthesia', desc: 'People physically feel what they see others experiencing. Watching someone get touched on the arm makes them feel it on their own arm in the same spot.', fake: false },
+                    { name: 'Alice in Wonderland Syndrome', desc: 'Objects appear much larger or smaller than they really are, and body parts feel like they\'re changing size. Often triggered by migraines or infections in children.', fake: false },
+                    { name: 'Hyperthymesia', desc: 'An extremely rare ability to remember every day of your life in vivid detail. People with this condition can tell you what day of the week any past date fell on and what they did that day.', fake: false },
+                    { name: 'Symmetrical Symptom Disorder', desc: 'A condition where any symptom that appears on one side of the body manifests identically on the opposite side exactly 6 hours later. Documented in roughly 1 in 15,000 individuals, it affects pain, rashes, and numbness with perfect bilateral timing.', fake: true }
                 ]),
-                explain: 'Temporal Displacement Disorder is fake. The real conditions are Fregoli Syndrome, Synesthesia, and Anton Syndrome (denial of blindness).'
+                explain: '**Symmetrical Symptom Disorder** is AI-generated. Red flags: Perfect 6-hour delay (too precise), exact mirror symptoms across all types, and the "roughly 1 in 15,000" fake precision. Real bilateral symptoms appear simultaneously or randomly, not on a precise schedule.'
             },
             {
-                title: 'Rare Psychological Conditions',
+                title: 'Round 3: Complex Patterns',
+                hints: [
+                    'Real disorders show individual variation - identical presentations across patients is suspicious',
+                    'Check whether proposed mechanisms actually match known physiology',
+                    'Multiple precise numbers in one description often signal AI fabrication'
+                ],
                 facts: shuffleArray([
-                    { name: 'Erotomania', desc: 'A delusional disorder where people believe someone, usually of higher social status, is secretly in love with them. They interpret any interaction as secret romantic signals.', fake: false },
-                    { name: 'Cotard\'s Delusion', desc: 'Patients believe they are dead, decomposing, or have lost essential body parts. Some insist they don\'t need food or water because dead people don\'t eat.', fake: false },
-                    { name: 'Alice in Wonderland Syndrome', desc: 'A disorienting condition where people see their own body or objects around them as much larger or smaller than they really are. A door might look tiny or their hand might appear giant.', fake: false },
-                    { name: 'Reverse Paranoia Syndrome', desc: 'The opposite of paranoia - patients believe everyone is secretly conspiring to help them. They interpret all events, even negative ones, as elaborate schemes for their benefit.', fake: true }
+                    { name: 'Capgras Delusion', desc: 'People believe their loved ones have been replaced by identical imposters. They recognize faces but feel no emotional connection, creating the certainty it\'s someone else.', fake: false },
+                    { name: 'Prosopagnosia', desc: 'Face blindness - people cannot recognize faces, even of close family members. Some can\'t recognize their own face in a mirror and must identify people by voice or clothing.', fake: false },
+                    { name: 'Cotard Delusion', desc: 'People believe they\'re dead or don\'t exist. Some think they\'ve lost their blood or organs. Despite feeling "dead," they continue walking and talking.', fake: false },
+                    { name: 'Cascading Amnesia Pattern', desc: 'A memory disorder where patients lose memories in reverse chronological order at a consistent rate of one year per week. After 20 weeks, memories stabilize at age 20, regardless of current age. Shows 87% correlation with vitamin B12 deficiency.', fake: true }
                 ]),
-                explain: 'Reverse Paranoia Syndrome is made up. The real conditions are Erotomania, Cotard\'s Delusion, and Alice in Wonderland Syndrome (size distortion perception).'
+                explain: '**Cascading Amnesia Pattern** is fake. Red flags: Perfect mathematical progression (one year per week), universal stabilization point (age 20), and specific correlation percentage (87%). Real amnesia is chaotic and unpredictable, not formula-driven. The B12 detail adds fake credibility.'
             },
             {
-                title: 'Physical Anomalies',
+                title: 'Round 4: Advanced Challenge',
+                hints: [
+                    'AI combines real medical concepts incorrectly to sound credible',
+                    'Treatment descriptions that are too simple for complex conditions are suspicious',
+                    'Watch for descriptions that mix unrelated physiological systems'
+                ],
                 facts: shuffleArray([
-                    { name: 'Fibrodysplasia Ossificans Progressiva', desc: 'Stone Man Syndrome - muscles and connective tissue gradually turn into bone. Any injury, even minor bumps, triggers new bone formation. Eventually the body becomes completely rigid.', fake: false },
-                    { name: 'Harlequin Ichthyosis', desc: 'A severe genetic skin disorder where babies are born with thick, diamond-shaped plates of skin separated by deep cracks. The skin is so tight it pulls facial features.', fake: false },
-                    { name: 'Proteus Syndrome', desc: 'Causes overgrowth of bones, skin, and other tissues asymmetrically. Body parts grow disproportionately large, creating severe disfigurement. The Elephant Man likely had this condition.', fake: false },
-                    { name: 'Cellular Reversal Syndrome', desc: 'An extremely rare genetic disorder where adult cells spontaneously revert to embryonic state. Patients experience random tissue regression, with mature organs occasionally transforming back into fetal tissue.', fake: true }
+                    { name: 'Synesthesia', desc: 'Stimulation of one sense triggers another. People might see colors when hearing music, taste words, or feel textures when looking at certain colors. It\'s a genuine neurological wiring difference.', fake: false },
+                    { name: 'Hemispatial Neglect', desc: 'After certain brain injuries, people ignore one entire half of their world. They might only eat from one side of their plate or only dress one side of their body.', fake: false },
+                    { name: 'Phantom Limb Syndrome', desc: 'After amputation, people continue feeling their missing limb is still there. They can experience pain, itching, or sensation in body parts that no longer exist.', fake: false },
+                    { name: 'Circadian Reversal Syndrome', desc: 'A disorder where the body\'s clock flips exactly 12 hours every 2 weeks. Patients experience normal sleep from weeks 1-2, complete day-night reversal weeks 3-4, then reset. Affects core temperature, hormone release, and alertness in synchronized 14-day cycles across all patients.', fake: true }
                 ]),
-                explain: 'Cellular Reversal Syndrome is fabricated. The real conditions are FOP (Stone Man), Harlequin Ichthyosis, and Proteus Syndrome.'
-            },
-            {
-                title: 'Perception Disorders',
-                facts: shuffleArray([
-                    { name: 'Charles Bonnet Syndrome', desc: 'People with vision loss see complex, vivid hallucinations. They know the visions aren\'t real but can\'t control them - seeing elaborate scenes, people, or geometric patterns.', fake: false },
-                    { name: 'Hemispatial Neglect', desc: 'After a stroke, patients completely ignore one half of space. They only eat food from one half of their plate, shave one side of their face, and deny the other half exists.', fake: false },
-                    { name: 'Prosopagnosia', desc: 'Face blindness - inability to recognize faces, even of close family. Some severe cases can\'t even recognize their own face in a mirror or photographs.', fake: false },
-                    { name: 'Dimensional Perception Disorder', desc: 'A rare visual processing condition where patients cannot perceive depth or 3D space. They see the world as completely flat, like looking at a photograph, unable to judge distances.', fake: true }
-                ]),
-                explain: 'Dimensional Perception Disorder is fake. The real conditions are Charles Bonnet Syndrome, Hemispatial Neglect, and Prosopagnosia.'
-            },
-            {
-                title: 'Metabolic Disorders',
-                facts: shuffleArray([
-                    { name: 'Maple Syrup Urine Disease', desc: 'A genetic disorder where the body can\'t break down certain amino acids. This causes urine, sweat, and earwax to smell exactly like maple syrup.', fake: false },
-                    { name: 'Trimethylaminuria', desc: 'Fish Odor Syndrome - the body can\'t break down trimethylamine, causing a strong fish smell in breath, sweat, and urine. No treatment exists, only dietary management.', fake: false },
-                    { name: 'Phenylketonuria', desc: 'PKU - inability to break down phenylalanine causes intellectual disability if untreated. All babies are tested at birth because early dietary intervention prevents brain damage.', fake: false },
-                    { name: 'Chromatic Metabolism Disorder', desc: 'A condition where the body produces excess chromophores, causing skin to temporarily change color based on diet. Eating tomatoes turns skin red, carrots orange, and leafy greens slightly green.', fake: true }
-                ]),
-                explain: 'Chromatic Metabolism Disorder is fake. The real conditions are Maple Syrup Urine Disease, Trimethylaminuria, and PKU.'
-            },
-            {
-                title: 'Movement Disorders',
-                facts: shuffleArray([
-                    { name: 'Dystonia', desc: 'Involuntary muscle contractions cause repetitive movements or abnormal postures. Muscles can lock in twisted positions for hours, causing severe pain.', fake: false },
-                    { name: 'Huntington\'s Disease', desc: 'A genetic disorder causing involuntary jerking movements and progressive brain deterioration. Symptoms typically start in middle age and the disease is always fatal.', fake: false },
-                    { name: 'Tardive Dyskinesia', desc: 'Often caused by psychiatric medications - causes involuntary, repetitive body movements. Patients make grimacing facial expressions, stick out their tongue, or rock back and forth.', fake: false },
-                    { name: 'Kinetic Echo Disorder', desc: 'Patients involuntarily mimic all movements they see, like a physical echo. Watching someone wave forces them to wave, seeing a person walk makes them walk in parallel.', fake: true }
-                ]),
-                explain: 'Kinetic Echo Disorder is fake. The real conditions are Dystonia, Huntington\'s Disease, and Tardive Dyskinesia.'
-            },
-            {
-                title: 'Blood and Immune Disorders',
-                facts: shuffleArray([
-                    { name: 'Hemophilia', desc: 'Blood doesn\'t clot properly, causing severe bleeding from minor injuries. Even a small cut can bleed for hours or days. Internal bleeding can occur spontaneously.', fake: false },
-                    { name: 'Sickle Cell Disease', desc: 'Red blood cells become crescent-shaped and get stuck in blood vessels, causing severe pain, organ damage, and strokes. The misshapen cells live only 10-20 days instead of 120.', fake: false },
-                    { name: 'Severe Combined Immunodeficiency', desc: 'Bubble Boy Disease - born with no immune system. Any infection can be fatal, requiring complete isolation in sterile environments until treatment.', fake: false },
-                    { name: 'Hemoglobin Reversal Syndrome', desc: 'A rare blood disorder where hemoglobin molecules bind carbon dioxide instead of oxygen. Patients must breathe CO2-enriched air to survive and normal air is toxic to them.', fake: true }
-                ]),
-                explain: 'Hemoglobin Reversal Syndrome is fabricated. The real conditions are Hemophilia, Sickle Cell Disease, and SCID.'
-            },
-            {
-                title: 'Hormonal Conditions',
-                facts: shuffleArray([
-                    { name: 'Acromegaly', desc: 'Excess growth hormone in adults causes hands, feet, and face to slowly grow larger. Facial features become coarse, jaw juts forward, and organs enlarge.', fake: false },
-                    { name: 'Addison\'s Disease', desc: 'Adrenal glands don\'t produce enough hormones, causing extreme fatigue, weight loss, and darkening of skin. Can be life-threatening if untreated.', fake: false },
-                    { name: 'Cushing\'s Syndrome', desc: 'Too much cortisol causes rapid weight gain in the face and abdomen, while arms and legs stay thin. Face becomes round and red, purple stretch marks appear.', fake: false },
-                    { name: 'Temporal Hormone Disorder', desc: 'Hormones are released in reverse daily patterns - patients produce melatonin during day and cortisol at night. Their biological clock runs completely backwards from normal.', fake: true }
-                ]),
-                explain: 'Temporal Hormone Disorder is made up. The real conditions are Acromegaly, Addison\'s Disease, and Cushing\'s Syndrome.'
-            },
-            {
-                title: 'Autoimmune Mysteries',
-                facts: shuffleArray([
-                    { name: 'Guillain-Barré Syndrome', desc: 'The immune system attacks nerves, causing rapid muscle weakness starting in legs. In severe cases, patients become completely paralyzed within days and need ventilators to breathe.', fake: false },
-                    { name: 'Myasthenia Gravis', desc: 'Antibodies block muscle receptors, causing severe muscle weakness. Eyelids droop, double vision occurs, and speaking or swallowing becomes difficult, worsening throughout the day.', fake: false },
-                    { name: 'Lupus', desc: 'The immune system attacks multiple organs and tissues. Symptoms vary wildly - rashes, joint pain, kidney failure, heart problems. Called "the great imitator" because it mimics many diseases.', fake: false },
-                    { name: 'Selective Immunity Reversal', desc: 'The immune system functions normally against bacteria but actively protects viruses. Patients never get bacterial infections but suffer chronic severe viral infections.', fake: true }
-                ]),
-                explain: 'Selective Immunity Reversal is fake. The real conditions are Guillain-Barré Syndrome, Myasthenia Gravis, and Lupus.'
-            },
-            {
-                title: 'Gastrointestinal Oddities',
-                facts: shuffleArray([
-                    { name: 'Gastroparesis', desc: 'The stomach can\'t empty properly, causing severe nausea, vomiting, and pain. Food sits in the stomach for hours or days, sometimes fermenting and causing alcohol-like intoxication.', fake: false },
-                    { name: 'Rumination Syndrome', desc: 'People regurgitate food back up after eating, rechew it, and swallow again - like cows chewing cud. It\'s involuntary and can happen with every meal for years.', fake: false },
-                    { name: 'Pica', desc: 'Compulsive eating of non-food items like dirt, chalk, or metal. Some people consume pounds of these materials daily. Can cause intestinal blockages or poisoning.', fake: false },
-                    { name: 'Digestive Reversal Syndrome', desc: 'The digestive system processes food backwards - nutrients are absorbed in the large intestine while the small intestine only handles waste. Patients must eat partially digested food or receive special formulations.', fake: true }
-                ]),
-                explain: 'Digestive Reversal Syndrome is made up. The real conditions are Gastroparesis, Rumination Syndrome, and Pica.'
+                explain: '**Circadian Reversal Syndrome** is fabricated. Red flags: Perfect 12-hour/2-week mathematical cycle, identical timing across all patients, complete system synchronization. Real circadian disorders show individual variation and don\'t flip on precise schedules. The mechanistic details sound scientific but describe impossible biology.'
             }
         ];
 
-        const hardRounds = [
+        const hardSpotRounds = [
             {
-                title: 'Spot The Fake Syndrome',
+                title: 'Round 1: Advanced Detection',
+                hints: [
+                    'Examine whether proposed pathophysiology aligns with established medical knowledge',
+                    'Statistical clustering or prevalence patterns may reveal fabrication'
+                ],
                 facts: shuffleArray([
-                    { name: 'Capgras Syndrome', desc: 'A psychiatric disorder where the person believes that someone close to them has been replaced by an identical-looking impostor. They recognize the person\'s face but feel no emotional connection, leading them to conclude it\'s not really them.', fake: false },
-                    { name: 'Foreign Accent Syndrome', desc: 'A speech disorder that causes people to suddenly speak their native language with a foreign accent following brain injury or stroke. The accent is not one they\'ve been exposed to but emerges spontaneously from neurological damage.', fake: false },
-                    { name: 'Electromagnetic Hypersensitivity', desc: 'A condition where people experience physical symptoms like headaches and nausea from exposure to electromagnetic fields from WiFi and phones. While reported symptoms are real, no scientific studies have found evidence of actual electromagnetic sensitivity.', fake: false },
-                    { name: 'Temporal Perseveration Disorder', desc: 'A rare neurological condition where patients experience moments frozen in time. They report being conscious but unable to perceive the passage of time, with seconds feeling like hours. The condition primarily affects the brain\'s time-processing regions in the prefrontal cortex.', fake: true }
+                    { name: 'Kleine-Levin Syndrome', desc: 'Sleeping Beauty Syndrome - recurring episodes of excessive sleep lasting days to weeks. Patients wake briefly to eat and use bathroom before falling back asleep. Episodes can recur for years.', fake: false },
+                    { name: 'Kuru', desc: 'A prion disease causing uncontrollable laughing and tremors, historically found among Papua New Guinea tribes who practiced mortuary cannibalism. The "laughing death" was transmitted through consuming infected brain tissue.', fake: false },
+                    { name: 'Takotsubo Cardiomyopathy', desc: 'Broken Heart Syndrome - extreme emotional stress temporarily reshapes the heart into a balloon-like shape mimicking a heart attack. Named after Japanese octopus traps due to the cardiac imaging appearance.', fake: false },
+                    { name: 'Metabolic Echo Phenomenon', desc: 'A mitochondrial disorder where cellular ATP production shows delayed oscillating patterns. Initial energy use triggers secondary depletion exactly 73 minutes later, with amplitude decreasing by precisely 15% per cycle. Responds specifically to thiamine doses of 200mg administered at 2.5 hour intervals.', fake: true }
                 ]),
-                explain: 'Temporal Perseveration Disorder is completely made up. While time perception disorders exist, this specific syndrome with "frozen time" moments isn\'t real. The other three are all documented conditions, though Electromagnetic Hypersensitivity remains controversial as symptoms are real but causation is unproven.'
+                explain: '**Metabolic Echo Phenomenon** is AI hallucination. Red flags: Suspiciously precise timing (73 min), mathematical decay pattern (exactly 15% per cycle), and overly specific treatment protocol. Real mitochondrial disorders show variable presentations, not clock-work cellular mechanics with such neat numerical patterns.'
             },
             {
-                title: 'Advanced Neurological Phenomena',
+                title: 'Round 2: Sophisticated Fabrication',
+                hints: [
+                    'Consider whether symptom clusters follow known neural or physiological pathways',
+                    'Epidemiological data that\'s too specific or patterned suggests AI generation'
+                ],
                 facts: shuffleArray([
-                    { name: 'Reduplicative Paramnesia', desc: 'After brain injury, patients believe a location exists in two places simultaneously. They might insist the hospital they\'re in is also somehow located in their home city, and both are equally real.', fake: false },
-                    { name: 'Somatoparaphrenia', desc: 'Patients deny ownership of their own limbs, insisting a body part belongs to someone else. They might claim their left arm is their sister\'s arm attached to them.', fake: false },
-                    { name: 'Cotard\'s Syndrome Type II', desc: 'Beyond believing they\'re dead, patients believe they\'re in the afterlife. They think everyone around them is also dead and this is hell, heaven, or purgatory.', fake: false },
-                    { name: 'Neural Plasticity Cascade Disorder', desc: 'Extreme neuroplasticity causes skills to overwrite each other. Learning something new completely erases a previous skill - learning guitar makes them forget how to type.', fake: true }
+                    { name: 'Fatal Familial Insomnia', desc: 'A prion disease causing progressive, complete inability to sleep. Over months, patients lose sleep capacity entirely, experiencing hallucinations, dementia, and autonomic dysfunction. Universally fatal with no treatment.', fake: false },
+                    { name: 'Fregoli Delusion', desc: 'Opposite of Capgras - patients believe different people are actually one person in disguise. They think someone is following them by constantly changing appearance and identity.', fake: false },
+                    { name: 'Stendhal Syndrome', desc: 'Exposure to exceptional art or beauty triggers rapid heartbeat, dizziness, confusion, and even hallucinations. First documented in Florence among tourists viewing Renaissance masterpieces.', fake: false },
+                    { name: 'Cognitive Bifurcation Disorder', desc: 'A neurological split where patients develop two distinct cognitive processing modes operating in 40-minute alternating cycles. Mode A shows enhanced analytical reasoning with suppressed emotional processing; Mode B shows reverse pattern. Brain imaging reveals alternating hemispheric dominance with 92% accuracy in predicting transitions.', fake: true }
                 ]),
-                explain: 'Neural Plasticity Cascade Disorder is fake. The real conditions are Reduplicative Paramnesia, Somatoparaphrenia, and Cotard\'s Type II.'
+                explain: '**Cognitive Bifurcation Disorder** is fabricated. Red flags: Perfect 40-minute cycles, mutually exclusive cognitive modes, predictable hemispheric switching (92% accuracy), and oversimplified left/right brain dichotomy. Real cognitive variations occur along continua, not binary switches, and brains don\'t alternate hemispheric dominance on timers.'
             },
             {
-                title: 'Rare Genetic Syndromes',
+                title: 'Round 3: Expert-Level Analysis',
+                hints: [
+                    'Evaluate whether genetic or biochemical mechanisms described actually exist',
+                    'Real rare diseases have messy inheritance patterns and variable expressivity'
+                ],
                 facts: shuffleArray([
-                    { name: 'Lesch-Nyhan Syndrome', desc: 'A genetic disorder causing uncontrollable self-injury. Patients compulsively bite their own lips and fingers, sometimes amputating them. They desperately want to stop but cannot control it.', fake: false },
-                    { name: 'Ondine\'s Curse', desc: 'Central Hypoventilation Syndrome - patients lose automatic breathing control. They must consciously remember to breathe and can die in their sleep if they forget to breathe.', fake: false },
-                    { name: 'Prader-Willi Syndrome', desc: 'A genetic disorder causing insatiable hunger. Patients never feel full and will eat continuously until their stomach ruptures if not monitored. They\'ll eat rotten food or garbage.', fake: false },
-                    { name: 'Genomic Echo Syndrome', desc: 'Genetic material randomly activates evolutionary ancestors\' traits. Patients temporarily develop extinct hominid features - protruding brow ridges, different jaw structures, or vestigial tail extension.', fake: true }
+                    { name: 'Trimethylaminuria', desc: 'Fish Odor Syndrome - metabolic disorder preventing breakdown of trimethylamine compounds. Patients emit strong fish-like odor from breath, sweat, and urine due to enzyme deficiency. No cure, only dietary management.', fake: false },
+                    { name: 'Porphyria', desc: 'Vampire Disease - group of disorders affecting heme synthesis. Some variants cause extreme photosensitivity with severe blisters from sun exposure. Skin can become fragile and discolored. May have inspired vampire legends.', fake: false },
+                    { name: 'Fibrodysplasia Ossificans Progressiva', desc: 'Muscles and connective tissue gradually turn into bone. Any injury triggers bone formation. Eventually, patients become immobilized as second skeleton forms. Caused by ACVR1 gene mutation. No effective treatment.', fake: false },
+                    { name: 'Progressive Enzyme Sequencing Disorder', desc: 'A metabolic condition where digestive enzymes activate in reverse order every 4th day. Days 1-3 show normal digestion; day 4 experiences lipase activating before amylase and pepsin, causing cyclical malabsorption. Prevalence of 1.3 per 100,000 in Scandinavian populations, linked to CYP2D6*17 allele variant.', fake: true }
                 ]),
-                explain: 'Genomic Echo Syndrome is fabricated. The real conditions are Lesch-Nyhan Syndrome, Ondine\'s Curse (CCHS), and Prader-Willi Syndrome.'
+                explain: '**Progressive Enzyme Sequencing Disorder** is AI-generated. Red flags: Precise 4-day cycle, specific population prevalence (1.3 per 100,000), named gene variant (CYP2D6*17), and mechanistically impossible reversed enzyme cascade. Real digestive enzyme disorders don\'t follow timed cycles, and enzyme activation order is biochemically determined, not reversible on schedules.'
             },
             {
-                title: 'Extreme Perception Disorders',
+                title: 'Round 4: Ultimate Challenge',
+                hints: [
+                    'Scrutinize whether described cellular/molecular mechanisms could physically occur',
+                    'Overly tidy symptom presentations across patient populations indicate fabrication'
+                ],
                 facts: shuffleArray([
-                    { name: 'Akinetopsia', desc: 'Motion blindness - patients see the world as a series of still frames like a strobe light. Moving objects teleport from position to position. Pouring liquid looks like a frozen stream.', fake: false },
-                    { name: 'Achromatopsia', desc: 'Complete color blindness from birth - the world appears in black, white, and gray. Different from common color blindness, nothing has color. Usually paired with severe light sensitivity.', fake: false },
-                    { name: 'Apperceptive Agnosia', desc: 'Visual information reaches the brain but can\'t be assembled into recognizable images. Patients see colors and shapes but can\'t identify objects or faces - like visual static.', fake: false },
-                    { name: 'Proprioceptive Inversion Disorder', desc: 'Body position sense works in reverse - patients feel upside down when standing, horizontal when vertical. They must constantly fight their perception to move normally.', fake: true }
+                    { name: 'Urbach-Wiethe Disease', desc: 'Lipoid proteinosis causes calcium deposits in brain\'s amygdala. Patients lose ability to feel fear. They can\'t recognize fear in others\' faces and don\'t experience fear themselves, even in dangerous situations.', fake: false },
+                    { name: 'Ehlers-Danlos Syndrome', desc: 'Connective tissue disorder causing hyperflexible joints and stretchy skin. Severe cases experience frequent dislocations, organ rupture risk, and chronic pain. Caused by collagen production defects.', fake: false },
+                    { name: 'Hutchinson-Gilford Progeria', desc: 'Genetic condition causing rapid aging in children. Kids appear elderly by age 10, developing cardiovascular disease, joint problems, and hair loss. Age 8-10 times faster than normal. Most don\'t survive past teens.', fake: false },
+                    { name: 'Neuroplastic Oscillation Syndrome', desc: 'A synaptic disorder where neural pruning and genesis alternate in 21-day cycles with 96% periodicity consistency. Cognitive function peaks mid-genesis phase, declines during pruning. MRI shows synchronized hippocampal volume changes of 0.3cc between phases. Treatment requires timed administration of neurotrophin-3 analogs based on cycle phase mapping.', fake: true }
                 ]),
-                explain: 'Proprioceptive Inversion Disorder is made up. The real conditions are Akinetopsia (motion blindness), Achromatopsia (total color blindness), and Apperceptive Agnosia.'
-            },
-            {
-                title: 'Complex Psychiatric Conditions',
-                facts: shuffleArray([
-                    { name: 'Dissociative Identity Disorder', desc: 'Multiple distinct personalities inhabit one body, each with different memories, behaviors, and even physical symptoms. Personalities can have different vision prescriptions or allergies.', fake: false },
-                    { name: 'Clinical Lycanthropy', desc: 'Patients believe they can transform into animals or have transformed. They crawl on all fours, howl, and insist they\'re a wolf, dog, or other animal.', fake: false },
-                    { name: 'Ekbom Syndrome', desc: 'Delusional parasitosis - unshakable belief that parasites infest the skin. Patients bring in "specimens" (lint, skin flakes) as proof and perform self-surgery to remove imaginary bugs.', fake: false },
-                    { name: 'Identity Flux Syndrome', desc: 'Patients\' sense of self changes hourly. They experience different personalities as their "true self" throughout the day but remember all states, creating existential confusion about who they really are.', fake: true }
-                ]),
-                explain: 'Identity Flux Syndrome is fake. The real conditions are Dissociative Identity Disorder (DID), Clinical Lycanthropy, and Ekbom Syndrome (delusional parasitosis).'
-            },
-            {
-                title: 'Bizarre Physical Manifestations',
-                facts: shuffleArray([
-                    { name: 'Stiff Person Syndrome', desc: 'Progressive muscle rigidity and spasms turn the body into a human statue. Loud noises or stress trigger spasms so severe that bones can break. Eventually patients cannot move.', fake: false },
-                    { name: 'Jumping Frenchmen of Maine', desc: 'An exaggerated startle reflex syndrome. Sudden noises cause violent jumps, arm flailing, and shouting. Patients immediately obey any command given during the startle response.', fake: false },
-                    { name: 'Aquagenic Urticaria', desc: 'Allergy to water - contact with water of any temperature causes painful hives. Patients can\'t shower, swim, or go in rain. Even their own sweat and tears cause reactions.', fake: false },
-                    { name: 'Cellular Petrification Syndrome', desc: 'Living tissue gradually converts to a stone-like substance while remaining partially functional. Unlike FOP, this affects all cell types including organs, creating living fossil tissue.', fake: true }
-                ]),
-                explain: 'Cellular Petrification Syndrome is made up. The real conditions are Stiff Person Syndrome, Jumping Frenchmen of Maine, and Aquagenic Urticaria.'
-            },
-            {
-                title: 'Unusual Brain Damage Effects',
-                facts: shuffleArray([
-                    { name: 'Savant Syndrome', desc: 'After brain injury, patients suddenly gain extraordinary abilities - photographic memory, artistic genius, or mathematical brilliance they never had before. The brain compensates by unlocking hidden potential.', fake: false },
-                    { name: 'Prosopometamorphopsia', desc: 'Face perception is distorted - people\'s faces appear demonic, with elongated features, wrong colors, or grotesque expressions. Only faces are affected; everything else looks normal.', fake: false },
-                    { name: 'Utilization Behavior', desc: 'Compulsive use of any object in reach. Place scissors near patients and they start cutting. They compulsively use tools without purpose or awareness, unable to stop themselves.', fake: false },
-                    { name: 'Synaptic Echo Disorder', desc: 'Neural signals loop and amplify randomly. Thinking about moving a finger causes the thought to repeat and intensify until it triggers an uncontrollable movement minutes later.', fake: true }
-                ]),
-                explain: 'Synaptic Echo Disorder is fabricated. The real conditions are Acquired Savant Syndrome, Prosopometamorphopsia, and Utilization Behavior.'
-            },
-            {
-                title: 'Extreme Sensory Conditions',
-                facts: shuffleArray([
-                    { name: 'Congenital Analgesia', desc: 'Born unable to feel physical pain. Children break bones without noticing, bite through their tongues, and suffer severe injuries without realizing. Life expectancy is significantly reduced.', fake: false },
-                    { name: 'Hyperosmia', desc: 'Extremely heightened sense of smell - can detect odors from miles away. Overwhelming sensitivity makes normal environments unbearable. Some can identify medical conditions by smell.', fake: false },
-                    { name: 'Misophonia', desc: 'Specific sounds (chewing, breathing, tapping) trigger intense rage and panic. The reaction is involuntary and disproportionate - patients may become violent or flee from sound triggers.', fake: false },
-                    { name: 'Tactile Reversal Syndrome', desc: 'Touch sensations are inverted - soft feels sharp, rough feels smooth, hot feels cold. Patients must relearn all tactile interaction based on reversed sensory input.', fake: true }
-                ]),
-                explain: 'Tactile Reversal Syndrome is made up. The real conditions are Congenital Analgesia, Hyperosmia (super smell), and Misophonia.'
-            },
-            {
-                title: 'Severe Autoimmune Attacks',
-                facts: shuffleArray([
-                    { name: 'Anti-NMDA Receptor Encephalitis', desc: 'Immune system attacks brain receptors causing psychosis, seizures, and catatonia. Patients act possessed, have violent outbursts, then become immobile. Inspired "The Exorcist."', fake: false },
-                    { name: 'Pemphigus Vulgaris', desc: 'Immune system attacks skin and mucous membranes. Massive painful blisters form and tear at the slightest touch. Even swallowing causes mouth blisters. Can be fatal if untreated.', fake: false },
-                    { name: 'Autoimmune Retinopathy', desc: 'Immune system destroys photoreceptors in the retina, causing progressive vision loss over months. Patients go blind as their immune system systematically kills their retinal cells.', fake: false },
-                    { name: 'Selective Organelle Autoimmunity', desc: 'Immune system targets specific cell organelles across all tissues. Antibodies might attack only mitochondria or only ribosomes, causing systematic cellular dysfunction in every organ simultaneously.', fake: true }
-                ]),
-                explain: 'Selective Organelle Autoimmunity is fake. The real conditions are Anti-NMDA Receptor Encephalitis, Pemphigus Vulgaris, and Autoimmune Retinopathy.'
-            },
-            {
-                title: 'Rare Degenerative Diseases',
-                facts: shuffleArray([
-                    { name: 'Creutzfeldt-Jakob Disease', desc: 'A prion disease causing rapid dementia and death within a year. Proteins misfold and create holes in the brain, literally turning it sponge-like. No treatment exists.', fake: false },
-                    { name: 'Progressive Supranuclear Palsy', desc: 'A degenerative disease attacking brain cells that control eye movement and balance. Patients lose ability to look up or down, fall frequently, and develop severe rigidity.', fake: false },
-                    { name: 'Multiple System Atrophy', desc: 'A rare condition causing widespread nervous system degeneration. Combines symptoms of Parkinson\'s, autonomic failure, and balance loss. Most patients survive only 6-9 years.', fake: false },
-                    { name: 'Dendritic Regression Syndrome', desc: 'Neurons\' dendrites progressively retract, like trees losing branches. The brain maintains neuron count but loses all connections, causing isolated consciousness with no ability to process information.', fake: true }
-                ]),
-                explain: 'Dendritic Regression Syndrome is made up. The real conditions are Creutzfeldt-Jakob Disease (CJD), Progressive Supranuclear Palsy (PSP), and Multiple System Atrophy (MSA).'
-            },
-            {
-                title: 'Medical Mysteries',
-                facts: shuffleArray([
-                    { name: 'Stendhal Syndrome', desc: 'Viewing beautiful art causes rapid heartbeat, dizziness, fainting, and hallucinations. Most commonly reported at Florence\'s Uffizi Gallery. The beauty literally overwhelms the nervous system.', fake: false },
-                    { name: 'Paris Syndrome', desc: 'Japanese tourists visiting Paris experience severe psychological shock when reality doesn\'t match their idealized expectations. Symptoms include hallucinations, anxiety, and delusions.', fake: false },
-                    { name: 'Resignation Syndrome', desc: 'Refugee children enter coma-like states for months or years, unresponsive to all stimuli. They must be tube-fed but may suddenly wake up when granted residency.', fake: false },
-                    { name: 'Architectural Dissonance Disorder', desc: 'Specific building designs trigger vertigo and panic attacks. Patients can sense structural imperfections invisible to others and experience physical symptoms near "wrong" architecture.', fake: true }
-                ]),
-                explain: 'Architectural Dissonance Disorder is fabricated. The real conditions are Stendhal Syndrome, Paris Syndrome, and Resignation Syndrome (Uppgivenhetssyndrom).'
+                explain: '**Neuroplastic Oscillation Syndrome** is AI hallucination. Red flags: Impossibly precise 21-day cycles (96% consistency), measurable volume oscillations (0.3cc), synchronized bilateral changes, and overly specific treatment targeting "cycle phase." Real neuroplasticity is continuous and variable, not cyclical. The technical language sounds sophisticated but describes neurobiologically impossible timing mechanisms.'
             }
         ];
 
-        const easyBluffRounds = [
+        const easyCallRounds = [
             {
-                title: 'Medical Definition Game',
+                title: 'Round 1: Basic Terms',
+                hints: [
+                    '💡 Simple medical words usually describe what you see or feel',
+                    '🎯 Watch out for definitions that sound too complicated for a simple word',
+                    '🤔 If it doesn\'t match what you know from real life, it might be fake'
+                ],
                 pairs: [
                     {
                         condition: 'Fever',
-                        real: 'When your body temperature gets higher than normal, usually because you\'re sick.',
-                        fake: 'When you feel very cold and start shivering uncontrollably.',
+                        real: 'When your body temperature is higher than normal, usually because you\'re sick. Your body feels hot and you might need medicine to cool down.',
+                        fake: 'A temporary condition where your temperature drops below normal and you feel very cold and need extra blankets to stay warm.',
                         correctIsReal: true
                     }
                 ],
-                explain: 'Fever is when your body gets hotter than usual, often when fighting an infection. Feeling cold and shivering is actually called chills.'
+                explain: 'A fever means you\'re HOT, not cold! The fake definition switched the temperature direction to trick you. This is a common AI error - reversing key facts while keeping other details correct.'
             },
             {
-                title: 'What Does This Mean?',
-                pairs: [
-                    {
-                        condition: 'Bruise',
-                        real: 'A dark mark on your skin that appears after you bump or hit something.',
-                        fake: 'A cut on your skin that bleeds and needs a bandage.',
-                        correctIsReal: true
-                    }
+                title: 'Round 2: Common Health Words',
+                hints: [
+                    '⚠️ AI might mix up opposite meanings (hot vs cold, up vs down)',
+                    '📚 Think about what you\'ve heard doctors or parents say',
+                    '✅ The real definition should make sense with how the word is actually used'
                 ],
-                explain: 'A bruise is the dark purple or blue mark you get when you bump into something. A cut that bleeds is called a wound or laceration.'
-            },
-            {
-                title: 'Medical Term Challenge',
-                pairs: [
-                    {
-                        condition: 'Dizzy',
-                        real: 'Feeling like the room is spinning or you might fall over.',
-                        fake: 'Having a headache that makes your head hurt a lot.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dizzy means feeling like things are spinning around you. A painful head is called a headache, not dizziness.'
-            },
-            {
-                title: 'Know Your Conditions',
                 pairs: [
                     {
                         condition: 'Contagious',
-                        real: 'Something you can catch from another person, like a cold or the flu.',
-                        fake: 'When you feel tired and need to rest or take a nap.',
+                        real: 'When a sickness can spread from one person to another, like catching a cold from your friend.',
+                        fake: 'When you feel tired and need to rest your body by taking a nap or going to bed early.',
                         correctIsReal: true
                     }
                 ],
-                explain: 'Contagious means you can spread it to others. Feeling tired is called being fatigued or exhausted.'
+                explain: 'Contagious means it can SPREAD to others - nothing to do with being tired! The fake answer describes something completely different (fatigue) using confident language to seem correct.'
             },
             {
-                title: 'Medical Vocabulary',
+                title: 'Round 3: Body Functions',
+                hints: [
+                    '🔍 Check if the definition matches what actually happens in your body',
+                    '🚨 Be suspicious if simple words get complicated explanations',
+                    '💭 Trust what you know from experience'
+                ],
+                pairs: [
+                    {
+                        condition: 'Dizzy',
+                        real: 'Feeling like the room is spinning around you or like you might fall over.',
+                        fake: 'Having pain in your head that makes it hard to think clearly or focus on tasks.',
+                        correctIsReal: true
+                    }
+                ],
+                explain: 'Dizzy is about SPINNING or balance problems, not head pain! The fake definition describes a headache instead. AI often swaps one medical term\'s meaning for another related term.'
+            },
+            {
+                title: 'Round 4: Final Test',
+                hints: [
+                    '👀 Does the definition actually explain what the word means?',
+                    '🎪 Watch for definitions that talk about something totally different',
+                    '⭐ You\'ve learned to spot AI tricks - trust your skills!'
+                ],
                 pairs: [
                     {
                         condition: 'Rash',
@@ -898,680 +843,154 @@
                         correctIsReal: true
                     }
                 ],
-                explain: 'A rash is red or bumpy skin. A blocked nose is called congestion or a stuffy nose.'
-            },
-            {
-                title: 'Common Medical Terms',
-                pairs: [
-                    {
-                        condition: 'Symptom',
-                        real: 'A sign that shows you might be sick, like a cough or sore throat.',
-                        fake: 'Medicine that a doctor gives you to help you feel better.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A symptom is a sign of being sick. Medicine from a doctor is called a prescription or treatment.'
-            },
-            {
-                title: 'Basic Medical Knowledge',
-                pairs: [
-                    {
-                        condition: 'Allergy',
-                        real: 'When your body reacts badly to something like peanuts or pollen, causing sneezing or itching.',
-                        fake: 'When you eat too much food and your stomach feels uncomfortable.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'An allergy is when your body doesn\'t like something and reacts to it. Eating too much causes a stomach ache or feeling too full.'
-            },
-            {
-                title: 'Health Terms Test',
-                pairs: [
-                    {
-                        condition: 'Injury',
-                        real: 'When you hurt a part of your body, like spraining your ankle or cutting your finger.',
-                        fake: 'When germs get inside your body and make you feel sick.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'An injury is physical damage to your body. When germs make you sick, it\'s called an infection.'
-            },
-            {
-                title: 'Medical Definition Quiz',
-                pairs: [
-                    {
-                        condition: 'Sore Throat',
-                        real: 'When the inside of your throat hurts, especially when you swallow.',
-                        fake: 'When you cough a lot and can\'t stop coughing.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A sore throat is pain in your throat. Coughing a lot is just called a cough or coughing fit.'
-            },
-            {
-                title: 'Common Conditions',
-                pairs: [
-                    {
-                        condition: 'Vaccine',
-                        real: 'A shot that helps protect you from getting certain diseases.',
-                        fake: 'Medicine you swallow as a pill to make a headache go away.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A vaccine is a protective shot. Medicine for headaches is called pain reliever or headache medicine.'
-            },
-            {
-                title: 'Medical Terms 101',
-                pairs: [
-                    {
-                        condition: 'Stomach Ache',
-                        real: 'When your belly or tummy hurts.',
-                        fake: 'When you feel like you need to throw up.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A stomach ache is pain in your belly. Feeling like you\'ll throw up is called nausea or feeling queasy.'
-            },
-            {
-                title: 'Easy Health Terms',
-                pairs: [
-                    {
-                        condition: 'Germs',
-                        real: 'Tiny living things that can make you sick if they get inside your body.',
-                        fake: 'Red spots that appear on your skin when you have chicken pox.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Germs are tiny organisms that cause illness. Red spots from chicken pox are called a rash or pox.'
-            },
-            {
-                title: 'Body Terms',
-                pairs: [
-                    {
-                        condition: 'Blister',
-                        real: 'A bubble of liquid under your skin, usually from rubbing or burning.',
-                        fake: 'A big lump or bump under your skin that feels hard.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A blister is a fluid-filled bubble on skin. A hard lump is called a bump or swelling.'
-            },
-            {
-                title: 'Simple Medical Words',
-                pairs: [
-                    {
-                        condition: 'Bandage',
-                        real: 'A strip of cloth or material you put over a cut or wound to protect it.',
-                        fake: 'Liquid medicine you put on a cut to clean it and kill germs.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A bandage covers and protects wounds. Liquid for cleaning cuts is called antiseptic or disinfectant.'
-            },
-            {
-                title: 'Health Basics',
-                pairs: [
-                    {
-                        condition: 'Sprain',
-                        real: 'When you twist or stretch a joint too far and it hurts to move.',
-                        fake: 'When a bone breaks into two or more pieces.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A sprain is a twisted joint. When a bone breaks, it\'s called a fracture or broken bone.'
-            },
-            {
-                title: 'Medical Language',
-                pairs: [
-                    {
-                        condition: 'Dehydrated',
-                        real: 'When your body doesn\'t have enough water and you need to drink more.',
-                        fake: 'When you\'re very hungry and need to eat food.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dehydrated means needing water. Being very hungry has no special medical term - it\'s just hunger or being famished.'
-            },
-            {
-                title: 'Common Health Words',
-                pairs: [
-                    {
-                        condition: 'Swollen',
-                        real: 'When a body part gets bigger and puffier than normal, often after an injury.',
-                        fake: 'When your skin turns red and feels hot to touch.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Swollen means puffed up and bigger. Red, hot skin is called inflammation or being inflamed.'
-            },
-            {
-                title: 'Basic Terms',
-                pairs: [
-                    {
-                        condition: 'Numb',
-                        real: 'When you can\'t feel anything in a part of your body.',
-                        fake: 'When a body part tingles like pins and needles.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Numb means no feeling at all. Pins and needles feeling is called tingling or a limb "falling asleep."'
-            },
-            {
-                title: 'Health Knowledge',
-                pairs: [
-                    {
-                        condition: 'Thermometer',
-                        real: 'A tool that measures how hot your body is to check if you have a fever.',
-                        fake: 'A tool doctors use to listen to your heartbeat and breathing.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'A thermometer measures temperature. The tool for listening to heartbeats is called a stethoscope.'
-            },
-            {
-                title: 'Medical Basics',
-                pairs: [
-                    {
-                        condition: 'Itch',
-                        real: 'When your skin feels uncomfortable and you want to scratch it.',
-                        fake: 'When your skin feels numb and you can\'t feel anything.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'An itch makes you want to scratch. Not feeling anything is called numbness.'
+                explain: 'A rash is on your SKIN, not in your nose! The fake definition describes a stuffy nose instead. This is a classic AI error - giving a definition for a completely different symptom while sounding confident.'
             }
         ];
 
-        const mediumBluffRounds = [
+        const mediumCallRounds = [
             {
-                title: 'Call My Bluff',
+                title: 'Round 1: Medical Terminology',
+                hints: [
+                    'Check if technical terms are used correctly in their proper context',
+                    'AI may mix similar-sounding conditions or swap related symptoms'
+                ],
                 pairs: [
                     {
-                        condition: 'Anemia',
-                        real: 'A condition where you don\'t have enough healthy red blood cells to carry oxygen, making you feel tired and weak.',
-                        fake: 'A disorder where your blood clots too easily, causing dangerous blockages in blood vessels.',
+                        condition: 'Edema',
+                        real: 'Swelling caused by excess fluid trapped in body tissues. Commonly occurs in feet, ankles, and legs.',
+                        fake: 'Inflammation of joint cartilage causing stiffness and reduced range of motion. Commonly affects knees and hips in patients over 40.',
                         correctIsReal: true
                     }
                 ],
-                explain: 'Anemia means not enough red blood cells. Blood clotting too easily is called thrombophilia or hypercoagulation.'
+                explain: 'Edema is FLUID accumulation (swelling), not joint inflammation. The fake definition describes arthritis instead. AI confidently substituted a different condition while maintaining medical language to seem authoritative.'
             },
             {
-                title: 'Tricky Terminology',
+                title: 'Round 2: Diagnostic Terms',
+                hints: [
+                    'Consider whether cause-and-effect relationships make physiological sense',
+                    'Watch for plausible-sounding mechanisms that don\'t match the actual condition'
+                ],
                 pairs: [
                     {
-                        condition: 'Concussion',
-                        real: 'A type of brain injury from a blow to the head that can cause confusion, headaches, and memory problems.',
-                        fake: 'A condition where pressure builds up inside the skull, causing severe headaches and vision problems.',
+                        condition: 'Tachycardia',
+                        real: 'Abnormally fast heart rate, typically over 100 beats per minute while at rest. Can be felt as heart pounding or racing.',
+                        fake: 'Irregular heart rhythm where heartbeats occur in pairs followed by abnormal pauses. Creates a distinct "double-beat, skip" pattern on ECG.',
                         correctIsReal: true
                     }
                 ],
-                explain: 'A concussion is a traumatic brain injury from impact. Pressure in the skull is called intracranial pressure or brain swelling.'
+                explain: 'Tachycardia means FAST heart rate, not irregular rhythm. The fake definition describes a different arrhythmia pattern (bigeminy). AI mixed up two separate cardiac conditions with confident medical details.'
             },
             {
-                title: 'Medical Language',
+                title: 'Round 3: Symptom Descriptions',
+                hints: [
+                    'Evaluate if symptom progressions follow logical physiological patterns',
+                    'Suspiciously specific timelines or measurements may indicate fabrication'
+                ],
                 pairs: [
                     {
-                        condition: 'Asthma',
-                        real: 'A condition where airways narrow and produce extra mucus, making it hard to breathe and causing wheezing.',
-                        fake: 'An infection in the lungs that causes fluid buildup and makes breathing painful.',
+                        condition: 'Orthostatic Hypotension',
+                        real: 'Blood pressure drops significantly when standing up from sitting or lying down, causing dizziness or lightheadedness.',
+                        fake: 'Blood pressure gradually increases throughout the day, peaking between 6-8 PM regardless of activity level, then normalizes overnight.',
                         correctIsReal: true
                     }
                 ],
-                explain: 'Asthma is chronic airway narrowing. Lung infection with fluid is pneumonia.'
+                explain: 'Orthostatic hypotension is about blood pressure DROP with position change, not daily cycles. The fake definition invented a circadian pattern with specific timing (6-8 PM). Real orthostatic hypotension is position-dependent, not time-dependent.'
             },
             {
-                title: 'Advanced Definitions',
-                pairs: [
-                    {
-                        condition: 'Fracture',
-                        real: 'The medical term for a broken bone, which can be a crack or a complete break.',
-                        fake: 'When a joint is forced out of its normal position, causing pain and inability to move it.',
-                        correctIsReal: true
-                    }
+                title: 'Round 4: Complex Conditions',
+                hints: [
+                    'Assess whether described mechanisms align with actual anatomical systems',
+                    'AI may combine real medical concepts in physiologically impossible ways'
                 ],
-                explain: 'A fracture is a broken bone. A joint out of place is called a dislocation.'
-            },
-            {
-                title: 'Complex Conditions',
-                pairs: [
-                    {
-                        condition: 'Diabetes',
-                        real: 'A disease where your body can\'t properly control blood sugar levels, often requiring insulin.',
-                        fake: 'A hormone disorder that affects metabolism, causing unexplained weight changes and fatigue.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Diabetes is about blood sugar control. General hormone/metabolism issues describe thyroid disorders.'
-            },
-            {
-                title: 'Medical Challenge',
-                pairs: [
-                    {
-                        condition: 'Inflammation',
-                        real: 'The body\'s response to injury or infection, causing redness, swelling, heat, and pain.',
-                        fake: 'A condition where the immune system is overactive and attacks the body\'s own cells.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Inflammation is a protective response to harm. The immune system attacking itself is autoimmune disease.'
-            },
-            {
-                title: 'Definition Test',
-                pairs: [
-                    {
-                        condition: 'Migraine',
-                        real: 'A severe type of headache that can cause throbbing pain, nausea, and sensitivity to light and sound.',
-                        fake: 'Brief episodes of sharp, stabbing facial pain triggered by everyday activities like eating or talking.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Migraines are severe headaches with specific symptoms. Facial stabbing pain is trigeminal neuralgia.'
-            },
-            {
-                title: 'Medical Terminology',
-                pairs: [
-                    {
-                        condition: 'Appendicitis',
-                        real: 'Inflammation of the appendix causing severe belly pain that gets worse, often requiring surgery.',
-                        fake: 'Inflammation of the stomach lining causing pain, nausea, and difficulty digesting food.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Appendicitis is an inflamed appendix. Inflamed stomach lining is gastritis.'
-            },
-            {
-                title: 'Know The Term',
-                pairs: [
-                    {
-                        condition: 'Pneumonia',
-                        real: 'A lung infection where air sacs fill with fluid or pus, causing cough, fever, and trouble breathing.',
-                        fake: 'Chronic lung disease from long-term exposure to irritants, making it progressively harder to breathe.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Pneumonia is an acute lung infection. Chronic lung disease from irritants is COPD.'
-            },
-            {
-                title: 'Medical Definitions',
-                pairs: [
-                    {
-                        condition: 'Seizure',
-                        real: 'Sudden, uncontrolled electrical activity in the brain causing shaking, loss of consciousness, or strange sensations.',
-                        fake: 'Temporary loss of consciousness from insufficient blood flow to the brain, also known as fainting.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Seizures are abnormal brain electrical activity. Loss of consciousness from blood flow is syncope (fainting).'
-            },
-            {
-                title: 'Clinical Terms',
-                pairs: [
-                    {
-                        condition: 'Tonsillitis',
-                        real: 'Infection and inflammation of the tonsils at the back of the throat, causing sore throat and difficulty swallowing.',
-                        fake: 'Inflammation of the voice box causing hoarseness, loss of voice, and pain when speaking.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Tonsillitis affects the tonsils. Inflamed voice box is laryngitis.'
-            },
-            {
-                title: 'Health Terms',
-                pairs: [
-                    {
-                        condition: 'Strep Throat',
-                        real: 'A bacterial throat infection causing severe sore throat, fever, and sometimes white patches on tonsils.',
-                        fake: 'A viral infection causing cold symptoms, body aches, fever, and extreme fatigue.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Strep throat is a bacterial throat infection. Viral infection with those symptoms describes influenza (flu).'
-            },
-            {
-                title: 'Medical Knowledge',
-                pairs: [
-                    {
-                        condition: 'Lactose Intolerant',
-                        real: 'Unable to digest lactose (milk sugar), causing bloating, gas, and stomach pain after eating dairy.',
-                        fake: 'An immune reaction to gluten found in wheat, causing digestive problems and other symptoms.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Lactose intolerance is about milk sugar. Gluten immune reaction is celiac disease.'
-            },
-            {
-                title: 'Body Terms',
-                pairs: [
-                    {
-                        condition: 'Dehydration',
-                        real: 'When your body loses more fluids than you take in, causing thirst, dry mouth, and tiredness.',
-                        fake: 'When your blood sugar drops too low, causing shakiness, confusion, and weakness.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dehydration is fluid loss. Low blood sugar is hypoglycemia.'
-            },
-            {
-                title: 'Common Conditions',
-                pairs: [
-                    {
-                        condition: 'Insomnia',
-                        real: 'Difficulty falling asleep or staying asleep, leaving you tired during the day.',
-                        fake: 'Excessive daytime sleepiness with sudden sleep attacks, even during activities.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Insomnia is trouble sleeping. Sudden sleep attacks describe narcolepsy.'
-            },
-            {
-                title: 'Medical Basics',
-                pairs: [
-                    {
-                        condition: 'Bronchitis',
-                        real: 'Inflammation of the airways leading to the lungs, causing cough with mucus and chest discomfort.',
-                        fake: 'Severe narrowing of the airways during an attack, making breathing very difficult and causing wheezing.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Bronchitis is inflamed airways. Severe narrowing attacks describe asthma attacks.'
-            },
-            {
-                title: 'Health Conditions',
-                pairs: [
-                    {
-                        condition: 'Arthritis',
-                        real: 'Joint inflammation causing pain, stiffness, and swelling, making movement difficult.',
-                        fake: 'Progressive weakening of bones, making them brittle and easily broken.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Arthritis is joint inflammation. Weak, brittle bones describe osteoporosis.'
-            },
-            {
-                title: 'Disease Terms',
-                pairs: [
-                    {
-                        condition: 'Hypertension',
-                        real: 'Consistently high blood pressure that can damage your heart and blood vessels over time.',
-                        fake: 'Irregular heartbeat where the heart beats too fast, too slow, or with an abnormal rhythm.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Hypertension is high blood pressure. Irregular heartbeat is arrhythmia.'
-            },
-            {
-                title: 'Medical Vocabulary',
-                pairs: [
-                    {
-                        condition: 'Eczema',
-                        real: 'A skin condition causing red, itchy, inflamed patches that may become dry and cracked.',
-                        fake: 'A contagious fungal infection of the skin causing circular, red, itchy patches.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Eczema is inflammatory skin condition. Contagious circular fungal patches describe ringworm.'
-            },
-            {
-                title: 'Final Challenge',
-                pairs: [
-                    {
-                        condition: 'Antibiotic',
-                        real: 'Medicine that kills bacteria or stops them from multiplying, used to treat bacterial infections.',
-                        fake: 'Medicine that reduces inflammation and relieves pain, like aspirin or ibuprofen.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Antibiotics fight bacteria. Pain/inflammation reducers are anti-inflammatories or pain relievers.'
-            }
-        ];
-
-        const hardBluffRounds = [
-            {
-                title: 'Expert Level Definition',
-                pairs: [
-                    {
-                        condition: 'Syncope',
-                        real: 'Temporary loss of consciousness caused by insufficient blood flow to the brain, commonly known as fainting.',
-                        fake: 'A chronic condition causing involuntary muscle contractions and spasms in the extremities.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Syncope is fainting from reduced cerebral blood flow. The fake definition loosely describes dystonia or tetany.'
-            },
-            {
-                title: 'Advanced Medical Terms',
-                pairs: [
-                    {
-                        condition: 'Ataxia',
-                        real: 'Loss of voluntary muscle coordination affecting balance, speech, and movement, often indicating cerebellar dysfunction.',
-                        fake: 'Sudden episodes of muscle weakness or paralysis triggered by strong emotions, associated with narcolepsy.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Ataxia is lack of voluntary coordination. The fake definition describes cataplexy.'
-            },
-            {
-                title: 'Rare Terminology',
-                pairs: [
-                    {
-                        condition: 'Dysphagia',
-                        real: 'Difficulty swallowing due to problems with the muscles or nerves that control swallowing.',
-                        fake: 'Impaired speech production characterized by difficulty articulating words despite intact language comprehension.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dysphagia is swallowing difficulty. The fake definition describes dysarthria (speech motor problem).'
-            },
-            {
-                title: 'Complex Medical Language',
                 pairs: [
                     {
                         condition: 'Nystagmus',
-                        real: 'Involuntary rhythmic oscillation of the eyes, which can be congenital or acquired from neurological conditions.',
-                        fake: 'Progressive opacity of the crystalline lens resulting in gradual vision loss.',
+                        real: 'Involuntary, rapid, rhythmic eye movements. Eyes may move side-to-side, up-and-down, or in circular patterns.',
+                        fake: 'Progressive vision loss starting peripherally and moving centrally over 5-7 years. Patients first lose night vision, then color perception, finally central detail.',
                         correctIsReal: true
                     }
                 ],
-                explain: 'Nystagmus is involuntary eye movement. The fake definition describes cataracts.'
-            },
-            {
-                title: 'Specialized Conditions',
-                pairs: [
-                    {
-                        condition: 'Aphasia',
-                        real: 'Impairment of language abilities affecting speech production or comprehension due to brain damage.',
-                        fake: 'Inability to recognize or identify objects despite intact sensory function.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Aphasia is language impairment. The fake definition describes agnosia (recognition failure).'
-            },
-            {
-                title: 'Expert Diagnosis',
-                pairs: [
-                    {
-                        condition: 'Bradycardia',
-                        real: 'Heart rate slower than 60 beats per minute in adults, which may be normal in athletes or pathological.',
-                        fake: 'Irregular heart rhythm characterized by premature ventricular contractions disrupting normal cardiac cycle.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Bradycardia is slow heart rate. The fake definition describes arrhythmia with PVCs.'
-            },
-            {
-                title: 'Challenging Terminology',
-                pairs: [
-                    {
-                        condition: 'Diplopia',
-                        real: 'Double vision resulting from misalignment of the visual axes, often indicating cranial nerve dysfunction.',
-                        fake: 'Partial or complete loss of vision in one eye due to optic nerve damage.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Diplopia is double vision from eye misalignment. Vision loss from nerve damage is optic neuropathy.'
-            },
-            {
-                title: 'Neurological Terms',
-                pairs: [
-                    {
-                        condition: 'Dysarthria',
-                        real: 'Motor speech disorder causing difficulty articulating words due to muscle weakness or incoordination.',
-                        fake: 'Language disorder causing difficulty naming objects or finding words despite preserved comprehension.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dysarthria is motor speech problem. The fake definition describes anomia (word-finding difficulty).'
-            },
-            {
-                title: 'Clinical Expertise',
-                pairs: [
-                    {
-                        condition: 'Hemiparesis',
-                        real: 'Muscular weakness affecting one side of the body, commonly following stroke.',
-                        fake: 'Complete paralysis of all four limbs resulting from cervical spinal cord injury.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Hemiparesis is one-sided weakness. Four-limb paralysis is quadriplegia or tetraplegia.'
-            },
-            {
-                title: 'Advanced Pathology',
-                pairs: [
-                    {
-                        condition: 'Dyspnea',
-                        real: 'Subjective sensation of breathlessness or difficulty breathing, a symptom rather than a diagnosis.',
-                        fake: 'Abnormal accumulation of fluid in the pleural space surrounding the lungs.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dyspnea is the sensation of breathlessness. Fluid in pleural space is pleural effusion.'
-            },
-            {
-                title: 'Master Level',
-                pairs: [
-                    {
-                        condition: 'Hemianopia',
-                        real: 'Loss of half of the visual field in each eye, typically affecting the same side bilaterally.',
-                        fake: 'Perception of objects as abnormally large or small due to visual processing dysfunction.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Hemianopia is half visual field loss. Size perception distortion is macropsia/micropsia.'
-            },
-            {
-                title: 'Advanced Terminology',
-                pairs: [
-                    {
-                        condition: 'Ptosis',
-                        real: 'Drooping of the upper eyelid due to weakness of the levator palpebrae superioris muscle.',
-                        fake: 'Paralysis of facial muscles on one side caused by dysfunction of the facial nerve.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Ptosis is eyelid drooping. Facial nerve paralysis is Bell\'s palsy or facial paralysis.'
-            },
-            {
-                title: 'Clinical Challenge',
-                pairs: [
-                    {
-                        condition: 'Anisocoria',
-                        real: 'Unequal pupil sizes, which may be physiological or indicate neurological pathology.',
-                        fake: 'Involuntary rapid movements of the eyes affecting visual fixation and tracking.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Anisocoria is unequal pupils. Involuntary eye movements are nystagmus.'
-            },
-            {
-                title: 'Medical Expertise',
-                pairs: [
-                    {
-                        condition: 'Anosognosia',
-                        real: 'Lack of awareness or denial of one\'s own neurological deficit, often seen after right hemisphere stroke.',
-                        fake: 'Inability to perform purposeful movements despite intact motor and sensory function.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Anosognosia is deficit unawareness. Inability to perform learned movements is apraxia.'
-            },
-            {
-                title: 'Diagnostic Terms',
-                pairs: [
-                    {
-                        condition: 'Myalgia',
-                        real: 'Muscle pain that may be localized or diffuse, often accompanying infections or inflammatory conditions.',
-                        fake: 'Chronic widespread musculoskeletal pain with associated fatigue and sleep disturbance.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Myalgia is simply muscle pain. The fake definition describes fibromyalgia syndrome.'
-            },
-            {
-                title: 'Expert Challenge',
-                pairs: [
-                    {
-                        condition: 'Pruritus',
-                        real: 'The sensation of itching, which can be a symptom of dermatological, systemic, or neurological conditions.',
-                        fake: 'Abnormal sensations such as tingling, burning, or numbness without apparent external stimulus.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Pruritus is itching. Abnormal sensations like tingling are paresthesias.'
-            },
-            {
-                title: 'Advanced Diagnosis',
-                pairs: [
-                    {
-                        condition: 'Dyskinesia',
-                        real: 'Involuntary, repetitive movements that may be medication-induced or result from neurological damage.',
-                        fake: 'Progressive loss of muscle mass and function despite adequate nutrition.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Dyskinesia is abnormal involuntary movement. Muscle wasting is cachexia or muscular atrophy.'
-            },
-            {
-                title: 'Clinical Mastery',
-                pairs: [
-                    {
-                        condition: 'Proprioception',
-                        real: 'The sense of body position and movement in space mediated by mechanoreceptors in muscles and joints.',
-                        fake: 'The perception of painful stimuli from internal organs often referred to distant body locations.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Proprioception is position sense. Pain from organs felt elsewhere is referred pain or visceral pain.'
-            },
-            {
-                title: 'Specialist Level',
-                pairs: [
-                    {
-                        condition: 'Asterixis',
-                        real: 'A flapping tremor caused by brief lapses in sustained muscle contraction, often indicating metabolic encephalopathy.',
-                        fake: 'Sudden, brief, shock-like involuntary movements affecting various muscle groups.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Asterixis is flapping tremor from metabolic issues. Sudden jerks are myoclonus.'
-            },
-            {
-                title: 'Final Challenge',
-                pairs: [
-                    {
-                        condition: 'Hematemesis',
-                        real: 'Vomiting of blood, indicating upper gastrointestinal bleeding.',
-                        fake: 'Coughing up blood from the respiratory tract, typically from the lungs or bronchi.',
-                        correctIsReal: true
-                    }
-                ],
-                explain: 'Hematemesis is vomiting blood (GI source). Coughing up blood is hemoptysis (respiratory source).'
+                explain: 'Nystagmus is EYE MOVEMENT disorder, not progressive vision loss. The fake definition describes retinitis pigmentosa progression with specific timeframes. AI substituted a completely different ophthalmologic condition with detailed but irrelevant sequential symptoms.'
             }
         ];
+
+        const hardCallRounds = [
+            {
+                title: 'Round 1: Advanced Pathophysiology',
+                hints: [
+                    'Verify cellular/molecular mechanisms against established biochemistry',
+                    'Statistically precise claims may reveal AI generation'
+                ],
+                pairs: [
+                    {
+                        condition: 'Myasthenia Gravis',
+                        real: 'Autoimmune disorder where antibodies attack acetylcholine receptors at neuromuscular junction. Causes progressive muscle weakness that worsens with activity and improves with rest.',
+                        fake: 'Autoimmune disorder affecting myelin-producing oligodendrocytes in peripheral nerves. Antibodies target MOG protein, causing weakness that follows a distal-to-proximal pattern over precisely 6-month intervals.',
+                        correctIsReal: true
+                    }
+                ],
+                explain: 'Myasthenia Gravis affects the NEUROMUSCULAR JUNCTION, not myelin. The fake definition confused it with variants of peripheral demyelinating disorders, added fake specificity (6-month intervals), and referenced MOG protein (relevant to different conditions). AI mixed multiple neurological disorders.'
+            },
+            {
+                title: 'Round 2: Diagnostic Criteria',
+                hints: [
+                    'Real diagnostic criteria show individual variation and probabilistic language',
+                    'Overly deterministic or mathematical presentations suggest fabrication'
+                ],
+                pairs: [
+                    {
+                        condition: 'Guillain-Barré Syndrome',
+                        real: 'Acute autoimmune polyneuropathy causing ascending paralysis following infection. Weakness begins in legs and rises. CSF shows albuminocytologic dissociation. Most patients recover with supportive care.',
+                        fake: 'Autoimmune polyneuropathy with descending paralysis pattern starting at 3-5 days post-infection. Progression rate of exactly 1 spinal segment per 18 hours with 91% consistency. EMG shows synchronized demyelination velocity of 28 m/s across all affected nerves.',
+                        correctIsReal: true
+                    }
+                ],
+                explain: 'GBS shows ASCENDING paralysis, not descending. The fake definition reversed the direction and added impossible precision: exact timing (1 segment/18 hrs), specific percentages (91%), and uniform nerve conduction velocity (28 m/s). Real neurological progression is variable, not clock-work.'
+            },
+            {
+                title: 'Round 3: Molecular Mechanisms',
+                hints: [
+                    'Evaluate whether genetic/enzymatic cascades follow known biochemical pathways',
+                    'Overly neat symptom-genotype correlations may indicate AI fabrication'
+                ],
+                pairs: [
+                    {
+                        condition: 'Porphyria Cutanea Tarda',
+                        real: 'Most common porphyria. Uroporphyrinogen decarboxylase deficiency causes photosensitive skin blistering. Triggers include alcohol, estrogen, hepatitis C. Skin fragility and hyperpigmentation develop. Treated by phlebotomy or antimalarials.',
+                        fake: 'Porphyrin accumulation disorder with phase-dependent enzyme inhibition. UROD activity decreases by exactly 12% per decade starting at age 30. Symptom severity correlates with serum iron at 0.87 coefficient. Treatment requires maintaining ferritin between 180-220 ng/mL for optimal enzyme recovery.',
+                        correctIsReal: true
+                    }
+                ],
+                explain: 'PCT involves enzyme DEFICIENCY, not decade-based progressive inhibition. The fake definition invented mathematical decline (12% per decade), spurious correlation coefficient (0.87), and overly precise treatment targets (180-220 ng/mL). Real enzyme disorders don\'t follow linear age-based mathematical progressions.'
+            },
+            {
+                title: 'Round 4: Neurological Syndromes',
+                hints: [
+                    'Scrutinize whether neural pathway descriptions match neuroanatomy',
+                    'Perfect bilateral symmetry or timing in brain lesions is physiologically implausible'
+                ],
+                pairs: [
+                    {
+                        condition: 'Wernicke-Korsakoff Syndrome',
+                        real: 'Thiamine deficiency causing Wernicke encephalopathy (confusion, ataxia, ophthalmoplegia) potentially progressing to Korsakoff syndrome (anterograde amnesia, confabulation). Mammillary body and thalamic damage. Common in chronic alcoholism.',
+                        fake: 'Thiamine deficiency syndrome with bimodal cognitive impairment. Initial phase affects hippocampal CA1 neurons exclusively, causing isolated working memory deficits. After precisely 21 days, secondary phase involves bilateral mammillary body damage with 0.8cc volume loss per hemisphere. Confabulation emerges only when both structures show >70% neuronal loss.',
+                        correctIsReal: true
+                    }
+                ],
+                explain: 'WKS involves COMBINED pathology from onset, not a phased 21-day progression. The fake definition invented: sequential single-structure involvement, precise timing (21 days), exact volume loss (0.8cc bilateral), and a threshold percentage (>70%) for symptom emergence. Real neurological damage patterns are simultaneous and variable, not mathematically staged.'
+            }
+        ];
+
+        const gameData = {
+            easy: { spot: easySpotRounds, call: easyCallRounds },
+            medium: { spot: mediumSpotRounds, call: mediumCallRounds },
+            hard: { spot: hardSpotRounds, call: hardCallRounds }
+        };
 
         // GAME FUNCTIONS
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
-            document.body.classList.toggle('dark-mode', state.darkMode);
+            document.body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', state.darkMode);
             render();
         }
@@ -1582,175 +1001,171 @@
             render();
         }
 
-        function selectDifficulty(difficulty) {
-            state.difficulty = difficulty;
-            state.screen = 'gametype';
+        function selectDifficulty(diff) {
+            state.difficulty = diff;
+            state.screen = 'gameType';
             render();
         }
 
         function selectGameType(type) {
             state.gameType = type;
+            state.screen = 'name';
+            render();
+        }
+
+        function startGame() {
+            const input = document.getElementById('playerNameInput');
+            const name = input ? input.value.trim() : '';
+            
+            const validation = isNameValid(name);
+            if (!validation.valid) {
+                const errorEl = document.getElementById('nameError');
+                if (errorEl) {
+                    errorEl.textContent = validation.reason;
+                }
+                return;
+            }
+            
+            state.playerName = name;
+            state.screen = 'playing';
             state.round = 0;
             state.score = 0;
             state.selected = null;
             state.revealed = false;
             state.streak = 0;
+            state.bestStreak = 0;
             state.lives = state.gameMode === 'survival' ? 3 : 0;
             state.startTime = state.gameMode === 'speedrun' ? Date.now() : null;
             
-            state.screen = 'playing';
-            
             if (state.gameMode === 'timed') {
-                state.timer = 60;
-                render(); // Render to show 60 first
-                startTimer(); // Then start counting down
-            } else {
-                render();
+                state.timer = 30;
+                startTimer();
             }
+            
+            render();
         }
 
         function startTimer() {
             if (state.timerInterval) clearInterval(state.timerInterval);
+            
             state.timerInterval = setInterval(() => {
                 state.timer--;
+                render();
+                
                 if (state.timer <= 0) {
                     clearInterval(state.timerInterval);
-                    handleTimeout();
+                    gameOver();
                 }
-                render();
             }, 1000);
-        }
-
-        function handleTimeout() {
-            if (state.gameMode === 'timed') {
-                clearInterval(state.timerInterval);
-                state.screen = 'gameover';
-            } else {
-                state.revealed = true;
-                state.streak = 0;
-                if (state.gameMode === 'survival') {
-                    state.lives--;
-                    if (state.lives <= 0) {
-                        state.screen = 'gameover';
-                    }
-                }
-            }
-            render();
         }
 
         function selectFact(idx) {
             if (state.revealed) return;
             state.selected = idx;
-            state.revealed = true;
+            render();
+        }
+
+        function submitAnswer() {
+            if (state.selected === null) return;
             
-            // Don't stop timer in timed mode - it keeps running
-            if (state.timerInterval && state.gameMode !== 'timed') {
-                clearInterval(state.timerInterval);
-            }
+            const rounds = gameData[state.difficulty][state.gameType];
+            const round = rounds[state.round % rounds.length];
             
-            const roundsToUse = state.gameType === 'callmybluff' ? 
-                (state.difficulty === 'easy' ? easyBluffRounds : state.difficulty === 'medium' ? mediumBluffRounds : hardBluffRounds) :
-                (state.difficulty === 'easy' ? easyRounds : state.difficulty === 'medium' ? mediumRounds : hardRounds);
+            let isCorrect = false;
             
-            const displayRound = state.gameMode === 'timed' ? state.round % roundsToUse.length : state.round;
-            const round = roundsToUse[displayRound];
-            
-            let correct = false;
-            if (state.gameType === 'callmybluff') {
-                // Use stored randomization order
-                const pair = round.pairs[0];
-                const positions = state.callMyBluffOrder === 0 ? [pair.real, pair.fake] : [pair.fake, pair.real];
-                const correctIndex = positions[0] === pair.real ? 0 : 1;
-                correct = idx === correctIndex;
+            if (state.gameType === 'spot') {
+                isCorrect = round.facts[state.selected].fake;
             } else {
-                correct = round.facts[idx].fake;
+                const positions = state.callMyBluffOrder === 0 
+                    ? [round.pairs[0].real, round.pairs[0].fake]
+                    : [round.pairs[0].fake, round.pairs[0].real];
+                isCorrect = positions[state.selected] === round.pairs[0].real;
             }
             
-            if (correct) {
+            if (isCorrect) {
                 state.score++;
                 state.streak++;
                 if (state.streak > state.bestStreak) {
                     state.bestStreak = state.streak;
                 }
+                triggerConfetti();
             } else {
                 state.streak = 0;
                 if (state.gameMode === 'survival') {
                     state.lives--;
                     if (state.lives <= 0) {
-                        state.screen = 'gameover';
+                        state.revealed = true;
+                        setTimeout(() => gameOver(), 2000);
+                        render();
+                        return;
                     }
                 }
             }
             
+            state.revealed = true;
             render();
         }
 
         function nextRound() {
-            const roundsToUse = state.gameType === 'callmybluff' ? 
-                (state.difficulty === 'easy' ? easyBluffRounds : state.difficulty === 'medium' ? mediumBluffRounds : hardBluffRounds) :
-                (state.difficulty === 'easy' ? easyRounds : state.difficulty === 'medium' ? mediumRounds : hardRounds);
-            
             state.round++;
-            state.callMyBluffOrder = null; // Reset randomization for next question
+            state.selected = null;
+            state.revealed = false;
+            state.callMyBluffOrder = null;
             
-            // Timed mode: keep going until time runs out, loop content but keep counter going
-            if (state.gameMode === 'timed') {
-                state.selected = null;
-                state.revealed = false;
-                render();
-                return;
-            }
+            const rounds = gameData[state.difficulty][state.gameType];
+            const maxRounds = state.gameMode === 'classic' ? 4 : rounds.length;
             
-            // Survival mode: keep going until lives run out
-            if (state.gameMode === 'survival' && state.lives > 0) {
-                if (state.round >= roundsToUse.length) {
-                    state.round = 0; // Loop back to start
-                }
-                state.selected = null;
-                state.revealed = false;
-                render();
-                return;
-            }
-            
-            // Classic and speedrun: end after all rounds
-            if (state.round >= roundsToUse.length) {
-                if (state.gameMode === 'speedrun') {
-                    const elapsed = ((Date.now() - state.startTime) / 1000).toFixed(1);
-                    state.finalTime = elapsed;
-                    createConfetti();
-                }
-                state.screen = 'gameover';
+            if (state.gameMode === 'classic' && state.round >= maxRounds) {
+                gameOver();
+            } else if (state.gameMode === 'speedrun' && state.round >= maxRounds) {
+                gameOver();
             } else {
-                state.selected = null;
-                state.revealed = false;
+                render();
             }
+        }
+
+        function gameOver() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+            
+            if (state.gameMode === 'speedrun' && state.startTime) {
+                const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+                state.finalTime = elapsed;
+            }
+            
+            submitScore();
+            state.screen = 'gameover';
             render();
         }
 
         function backToMenu() {
-            if (state.timerInterval) clearInterval(state.timerInterval);
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
             state.screen = 'menu';
             state.round = 0;
             state.score = 0;
             state.selected = null;
             state.revealed = false;
             state.streak = 0;
-            state.lives = 3;
+            state.callMyBluffOrder = null;
             render();
         }
 
-        function createConfetti() {
+        function triggerConfetti() {
             const container = document.getElementById('confettiContainer');
-            const colors = ['#ff9800', '#4caf50', '#2196f3', '#f44336', '#9c27b0', '#ffeb3b'];
+            const colors = ['#FF9AA2', '#70D6FF', '#C49BFF', '#FFE380', '#4caf50', '#ff9800'];
             
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
                     confetti.className = 'confetti';
                     confetti.style.left = Math.random() * 100 + '%';
                     confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
                     confetti.style.animationDelay = Math.random() * 0.5 + 's';
-                    confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
                     container.appendChild(confetti);
                     
                     setTimeout(() => confetti.remove(), 3000);
@@ -1758,136 +1173,303 @@
             }
         }
 
-        // RENDER FUNCTION
+        // LEADERBOARD
+        function submitScore() {
+            if (!state.playerName) return;
+            
+            const scoreData = {
+                name: state.playerName,
+                score: state.score,
+                mode: state.gameMode,
+                difficulty: state.difficulty,
+                type: state.gameType,
+                streak: state.bestStreak,
+                timestamp: Date.now(),
+                approved: false
+            };
+            
+            if (state.gameMode === 'speedrun') {
+                scoreData.time = state.finalTime;
+            }
+            
+            db.ref('scores').push(scoreData);
+        }
+
+        function loadLeaderboard() {
+            db.ref('scores').orderByChild('approved').equalTo(true).limitToLast(100).on('value', (snapshot) => {
+                const scores = [];
+                snapshot.forEach((child) => {
+                    scores.push({ id: child.key, ...child.val() });
+                });
+                state.leaderboard = scores.reverse();
+            });
+        }
+
+        function viewLeaderboard() {
+            state.screen = 'leaderboard';
+            render();
+        }
+
+        // RENDER
         function render() {
             const gameEl = document.getElementById('game');
             
             if (state.screen === 'menu') {
-                gameEl.innerHTML = `
-                    <div class="header">
-                        <div class="header-left">
-                            <h1>Spot The Fake</h1>
-                            <p class="subtitle">Test your knowledge and critical thinking</p>
-                        </div>
-                        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
-                            ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <h2>Select Game Mode</h2>
-                        <div class="mode-selection">
-                            <div class="mode-card" onclick="selectGameMode('classic')">
-                                <div class="mode-icon">🎯</div>
-                                <div class="mode-title">Classic</div>
-                                <div class="mode-desc">4 rounds, play at your own pace</div>
-                            </div>
-                            <div class="mode-card" onclick="selectGameMode('timed')">
-                                <div class="mode-icon">⏱️</div>
-                                <div class="mode-title">Timed</div>
-                                <div class="mode-desc">60 seconds - how many can you answer?</div>
-                            </div>
-                            <div class="mode-card" onclick="selectGameMode('survival')">
-                                <div class="mode-icon">❤️</div>
-                                <div class="mode-title">Survival</div>
-                                <div class="mode-desc">3 lives, endless rounds</div>
-                            </div>
-                            <div class="mode-card" onclick="selectGameMode('speedrun')">
-                                <div class="mode-icon">⚡</div>
-                                <div class="mode-title">Speed Run</div>
-                                <div class="mode-desc">Complete 4 rounds as fast as possible</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                renderMenu(gameEl);
             } else if (state.screen === 'difficulty') {
-                gameEl.innerHTML = `
-                    <div class="header">
-                        <div class="header-left">
-                            <h1>Select Difficulty</h1>
-                            <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} Mode</p>
-                        </div>
-                        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
-                            ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="difficulty-grid">
-                            <button class="difficulty-btn inactive" onclick="selectDifficulty('easy')">Easy</button>
-                            <button class="difficulty-btn inactive" onclick="selectDifficulty('medium')">Medium</button>
-                            <button class="difficulty-btn inactive" onclick="selectDifficulty('hard')">Hard</button>
-                        </div>
-                    </div>
-                    <button onclick="backToMenu()" style="background: #999;">Back</button>
-                `;
-            } else if (state.screen === 'gametype') {
-                gameEl.innerHTML = `
-                    <div class="header">
-                        <div class="header-left">
-                            <h1>Select Game Type</h1>
-                            <p class="subtitle">${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} - ${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)}</p>
-                        </div>
-                        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
-                            ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="mode-selection">
-                            <div class="mode-card" onclick="selectGameType('spotthefake')">
-                                <div class="mode-icon">🔍</div>
-                                <div class="mode-title">Spot The Fake</div>
-                                <div class="mode-desc">Find the AI-generated fake among real facts</div>
-                            </div>
-                            <div class="mode-card" onclick="selectGameType('callmybluff')">
-                                <div class="mode-icon">🎭</div>
-                                <div class="mode-title">Call My Bluff</div>
-                                <div class="mode-desc">Choose the correct definition</div>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="backToMenu()" style="background: #999;">Back</button>
-                `;
+                renderDifficulty(gameEl);
+            } else if (state.screen === 'gameType') {
+                renderGameType(gameEl);
+            } else if (state.screen === 'name') {
+                renderName(gameEl);
             } else if (state.screen === 'playing') {
-                renderGameScreen(gameEl);
+                renderGame(gameEl);
             } else if (state.screen === 'gameover') {
                 renderGameOver(gameEl);
+            } else if (state.screen === 'leaderboard') {
+                renderLeaderboard(gameEl);
             }
         }
 
-        function renderGameScreen(gameEl) {
-            const roundsToUse = state.gameType === 'callmybluff' ? 
-                (state.difficulty === 'easy' ? easyBluffRounds : state.difficulty === 'medium' ? mediumBluffRounds : hardBluffRounds) :
-                (state.difficulty === 'easy' ? easyRounds : state.difficulty === 'medium' ? mediumRounds : hardRounds);
+        function renderMenu(gameEl) {
+            gameEl.innerHTML = `
+                <div class="header">
+                    <div class="header-left">
+                        <h1>Medical AI Detection Game</h1>
+                        <p class="subtitle">Learn to spot AI-generated medical misinformation</p>
+                    </div>
+                    <div class="header-right">
+                        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                            ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Welcome! 🎮</h2>
+                    <p style="margin-bottom: 20px; line-height: 1.6;">
+                        AI can generate fake medical information that looks real. This game teaches you to spot the clues 
+                        that reveal AI-generated content. Learn to detect false confidence, fake statistics, and impossible patterns!
+                    </p>
+                    
+                    <h3 style="margin-bottom: 15px;">Choose Your Mode</h3>
+                    <div class="mode-selection">
+                        <div class="mode-card" onclick="selectGameMode('classic')">
+                            <div class="mode-icon">🎯</div>
+                            <div class="mode-title">Classic</div>
+                            <div class="mode-desc">4 rounds, learn at your own pace</div>
+                        </div>
+                        <div class="mode-card" onclick="selectGameMode('timed')">
+                            <div class="mode-icon">⏱️</div>
+                            <div class="mode-title">Timed</div>
+                            <div class="mode-desc">30 seconds to answer as many as you can</div>
+                        </div>
+                        <div class="mode-card" onclick="selectGameMode('survival')">
+                            <div class="mode-icon">❤️</div>
+                            <div class="mode-title">Survival</div>
+                            <div class="mode-desc">3 lives - how long can you last?</div>
+                        </div>
+                        <div class="mode-card" onclick="selectGameMode('speedrun')">
+                            <div class="mode-icon">⚡</div>
+                            <div class="mode-title">Speedrun</div>
+                            <div class="mode-desc">Complete all rounds as fast as possible</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="viewLeaderboard()" style="background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%); margin-top: 20px;">
+                        🏆 View Leaderboard
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderDifficulty(gameEl) {
+            gameEl.innerHTML = `
+                <div class="header">
+                    <div class="header-left">
+                        <h1>Medical AI Detection Game</h1>
+                        <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} Mode</p>
+                    </div>
+                    <div class="header-right">
+                        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                            ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Choose Difficulty</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                        Pick the right challenge level for your age and experience
+                    </p>
+                    
+                    <div class="difficulty-grid">
+                        <button class="difficulty-btn" onclick="selectDifficulty('easy')">
+                            😊 Easy<br>
+                            <span style="font-size: 11px; font-weight: normal;">Ages 7-10</span>
+                        </button>
+                        <button class="difficulty-btn" onclick="selectDifficulty('medium')">
+                            🤔 Medium<br>
+                            <span style="font-size: 11px; font-weight: normal;">Ages 13-16</span>
+                        </button>
+                        <button class="difficulty-btn" onclick="selectDifficulty('hard')">
+                            🔥 Hard<br>
+                            <span style="font-size: 11px; font-weight: normal;">University</span>
+                        </button>
+                    </div>
+                    
+                    <div class="difficulty-desc">
+                        <strong>Easy:</strong> Simple clues, obvious AI tells, kid-friendly content<br>
+                        <strong>Medium:</strong> Subtle patterns, requires critical thinking<br>
+                        <strong>Hard:</strong> Complex medical concepts, sophisticated AI detection
+                    </div>
+                    
+                    <button onclick="backToMenu()" style="background: #999; margin-top: 20px;">
+                        ← Back to Menu
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderGameType(gameEl) {
+            gameEl.innerHTML = `
+                <div class="header">
+                    <div class="header-left">
+                        <h1>Medical AI Detection Game</h1>
+                        <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} - ${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)}</p>
+                    </div>
+                    <div class="header-right">
+                        <button class="dark-mode-toggle" onclick="toggleDarkMode()">
+                            ${state.darkMode ? '☀️ Light' : '🌙 Dark'}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Choose Game Type</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                        Two ways to test your AI detection skills
+                    </p>
+                    
+                    <div class="mode-selection">
+                        <div class="mode-card" onclick="selectGameType('spot')">
+                            <div class="mode-icon">🔍</div>
+                            <div class="mode-title">Spot The Fake</div>
+                            <div class="mode-desc">Find the AI-generated fake among 4 options</div>
+                        </div>
+                        <div class="mode-card" onclick="selectGameType('call')">
+                            <div class="mode-icon">🎭</div>
+                            <div class="mode-title">Call My Bluff</div>
+                            <div class="mode-desc">Pick the correct definition from 2 choices</div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="state.screen = 'difficulty'; render();" style="background: #999; margin-top: 20px;">
+                        ← Back
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderName(gameEl) {
+            gameEl.innerHTML = `
+                <div class="header">
+                    <div class="header-left">
+                        <h1>Medical AI Detection Game</h1>
+                        <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} - ${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)} - ${state.gameType === 'spot' ? 'Spot The Fake' : 'Call My Bluff'}</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Enter Your Name</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                        Your score will be saved to the leaderboard after approval
+                    </p>
+                    
+                    <input 
+                        type="text" 
+                        id="playerNameInput" 
+                        placeholder="Enter your name..." 
+                        maxlength="30"
+                        onkeypress="if(event.key === 'Enter') startGame()"
+                    />
+                    <div id="nameError" class="error-message"></div>
+                    
+                    <button onclick="startGame()" style="margin-top: 20px;">Start Game</button>
+                    <button onclick="state.screen = 'gameType'; render();" style="background: #999; margin-top: 10px;">
+                        ← Back
+                    </button>
+                </div>
+            `;
             
-            // For timed mode, use modulo to cycle through rounds but keep actual round counter going
-            const displayRound = state.gameMode === 'timed' ? state.round % roundsToUse.length : state.round;
-            const round = roundsToUse[displayRound];
-            const progress = state.gameMode === 'timed' ? 0 : (((state.round + (state.revealed ? 1 : 0)) / roundsToUse.length) * 100);
+            setTimeout(() => {
+                const input = document.getElementById('playerNameInput');
+                if (input) input.focus();
+            }, 100);
+        }
+
+        function renderGame(gameEl) {
+            const rounds = gameData[state.difficulty][state.gameType];
+            const round = rounds[state.round % rounds.length];
+            const maxRounds = state.gameMode === 'classic' ? 4 : rounds.length;
+            const displayRound = state.round % rounds.length;
+            const progress = ((state.round + 1) / maxRounds) * 100;
             
             let headerExtras = '';
-            if (state.gameMode === 'timed') {
-                const warningClass = state.timer <= 10 ? 'warning' : '';
-                headerExtras = `<div class="timer-display ${warningClass}">${state.timer}s</div>`;
-            }
             if (state.gameMode === 'survival') {
-                const hearts = '❤️'.repeat(state.lives) + '🖤'.repeat(3 - state.lives);
-                headerExtras = `<div class="lives-display">${hearts}</div>`;
+                const livesHtml = Array(3).fill(0).map((_, i) => 
+                    `<span class="life-icon ${i >= state.lives ? 'lost' : ''}">❤️</span>`
+                ).join('');
+                headerExtras += `<div class="lives-display">${livesHtml}</div>`;
             }
-            if (state.streak > 1) {
-                headerExtras += `<div class="streak-display">🔥 ${state.streak} Streak!</div>`;
+            
+            if (state.gameMode === 'timed') {
+                headerExtras += `<div class="timer-display ${state.timer <= 5 ? 'warning' : ''}">${state.timer}s</div>`;
+            }
+            
+            if (state.streak > 0) {
+                headerExtras += `<div class="streak-display">🔥 ${state.streak} Streak</div>`;
+            }
+            
+            let hintsHtml = '';
+            if (state.difficulty === 'easy' && round.hints && !state.revealed) {
+                hintsHtml = `
+                    <div class="hints-box">
+                        <div class="hints-title">💡 Detection Tips:</div>
+                        <ul class="hints-list">
+                            ${round.hints.map(hint => `<li>${hint}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (state.difficulty === 'medium' && round.hints && !state.revealed) {
+                hintsHtml = `
+                    <div class="hints-box">
+                        <div class="hints-title">💡 Look for:</div>
+                        <ul class="hints-list">
+                            ${round.hints.map(hint => `<li>${hint}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (state.difficulty === 'hard' && round.hints && !state.revealed) {
+                hintsHtml = `
+                    <div class="hints-box">
+                        <div class="hints-title">🔬 Consider:</div>
+                        <ul class="hints-list">
+                            ${round.hints.map(hint => `<li>${hint}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
             }
             
             let factsHtml = '';
             
-            if (state.gameType === 'spotthefake') {
+            if (state.gameType === 'spot') {
                 round.facts.forEach((fact, idx) => {
                     let classes = 'fact';
                     
                     if (state.revealed) {
-                        if (fact.fake && state.selected === idx) classes += ' correct';
-                        else if (!fact.fake && state.selected === idx) classes += ' wrong';
+                        if (fact.fake && state.selected === idx) classes += ' wrong';
+                        else if (!fact.fake && state.selected === idx) classes += ' correct';
                         else if (fact.fake) classes += ' wrong';
                         classes += ' disabled';
                     } else {
@@ -1896,15 +1478,19 @@
                     
                     let badge = '';
                     if (state.revealed && fact.fake) {
-                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED FAKE</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
+                        badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ AI-GENERATED</span>' : '<span class="fact-badge badge-fake">AI FAKE</span>';
                     } else if (state.revealed && !fact.fake && state.selected === idx) {
                         badge = '<span class="fact-badge badge-real">✓ REAL</span>';
                     }
                     
                     const letter = String.fromCharCode(65 + idx);
+                    const letterClass = `letter-${letter.toLowerCase()}`;
                     factsHtml += `
                         <div class="${classes}" onclick="selectFact(${idx})">
-                            <div class="fact-name"><span style="display: inline-block; min-width: 30px; font-weight: bold;">${letter}.</span> ${fact.name}</div>
+                            <div class="fact-name">
+                                <span class="fact-letter ${letterClass}">${letter}</span>
+                                <span>${fact.name}</span>
+                            </div>
                             <div class="fact-desc">${fact.desc}</div>
                             ${badge}
                         </div>
@@ -1913,7 +1499,6 @@
             } else {
                 const pair = round.pairs[0];
                 
-                // Generate or use stored randomization
                 if (!state.revealed && state.callMyBluffOrder === null) {
                     state.callMyBluffOrder = Math.random() < 0.5 ? 0 : 1;
                 }
@@ -1937,7 +1522,7 @@
                     if (state.revealed) {
                         if (isCorrect && state.selected === idx) classes += ' correct';
                         else if (!isCorrect && state.selected === idx) classes += ' wrong';
-                        else if (isCorrect) classes += ' wrong';
+                        else if (isCorrect) classes += ' correct';
                         classes += ' disabled';
                     } else {
                         if (state.selected === idx) classes += ' selected';
@@ -1946,14 +1531,18 @@
                     let badge = '';
                     if (state.revealed && !isCorrect) {
                         badge = state.selected === idx ? '<span class="fact-badge badge-fake">✗ WRONG</span>' : '<span class="fact-badge badge-fake">FAKE</span>';
-                    } else if (state.revealed && isCorrect && state.selected === idx) {
+                    } else if (state.revealed && isCorrect) {
                         badge = '<span class="fact-badge badge-real">✓ CORRECT</span>';
                     }
                     
                     const letter = String.fromCharCode(65 + idx);
+                    const letterClass = `letter-${letter.toLowerCase()}`;
                     factsHtml += `
                         <div class="${classes}" onclick="selectFact(${idx})">
-                            <div class="fact-name">${letter}. ${idx === 0 ? 'Definition A' : 'Definition B'}</div>
+                            <div class="fact-name">
+                                <span class="fact-letter ${letterClass}">${letter}</span>
+                                <span>Definition ${letter}</span>
+                            </div>
                             <div class="fact-desc">${definition}</div>
                             ${badge}
                         </div>
@@ -1965,21 +1554,23 @@
             if (state.revealed) {
                 explanation = `
                     <div class="explanation show">
-                        <div class="explanation-title">Explanation</div>
+                        <div class="explanation-title">🧠 Why This Matters</div>
                         <div class="explanation-text">${round.explain}</div>
                     </div>
                 `;
             }
             
-            // Don't show round counter for timed mode
             const roundCounter = state.gameMode === 'timed' ? '' : 
                 state.gameMode === 'survival' ? `<span class="round-number">Round ${displayRound + 1}</span>` :
-                `<span class="round-number">Round ${state.round + 1}/${roundsToUse.length}</span>`;
+                `<span class="round-number">Round ${state.round + 1}/${maxRounds}</span>`;
+            
+            const submitButton = !state.revealed ? 
+                `<button onclick="submitAnswer()" ${state.selected === null ? 'disabled' : ''}>Submit Answer</button>` : '';
             
             gameEl.innerHTML = `
                 <div class="header">
                     <div class="header-left">
-                        <h1>${state.gameType === 'spotthefake' ? 'Spot The Fake' : 'Call My Bluff'}</h1>
+                        <h1>${state.gameType === 'spot' ? 'Spot The Fake' : 'Call My Bluff'}</h1>
                         <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} - ${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)}</p>
                     </div>
                     <div class="header-right">
@@ -2000,13 +1591,26 @@
                         <div class="round-title">${round.title}</div>
                         ${roundCounter}
                     </div>
-                    <div class="instructions">${state.gameType === 'spotthefake' ? '3 of these are REAL. 1 is AI-generated. Which is fake?' : 'Pick the correct definition.'}</div>
-                    <div class="instructions" style="font-size: 12px; color: var(--text-muted);">Use keyboard shortcuts: A, B${state.gameType === 'spotthefake' ? ', C, D' : ''}</div>
+                    
+                    ${hintsHtml}
+                    
+                    <div class="instructions">
+                        ${state.gameType === 'spot' ? 
+                            '🔍 <strong>3 are REAL. 1 is AI-generated.</strong> Which is the fake?' : 
+                            '🎭 <strong>Pick the correct definition</strong> - one is real, one is AI-generated'
+                        }
+                    </div>
+                    <div class="instructions" style="font-size: 12px; color: var(--text-muted);">
+                        ⌨️ Keyboard shortcuts: A, B${state.gameType === 'spot' ? ', C, D' : ''} to select • Enter to continue
+                    </div>
+                    
                     <div class="facts">
                         ${factsHtml}
                     </div>
+                    
+                    ${submitButton}
                     ${explanation}
-                    ${state.revealed ? '<button onclick="nextRound()" id="nextBtn">Continue (Enter)</button>' : ''}
+                    ${state.revealed ? '<button onclick="nextRound()" id="nextBtn" style="background: var(--enter-green); color: #333; margin-top: 10px;">Continue (Enter) →</button>' : ''}
                 </div>
                 <button onclick="backToMenu()" style="background: #999; margin-top: 10px;">Exit to Menu</button>
             `;
@@ -2014,32 +1618,107 @@
 
         function renderGameOver(gameEl) {
             let message = '';
-            let finalInfo = '';
             
             if (state.gameMode === 'speedrun') {
                 message = `Completed in ${state.finalTime} seconds!`;
-                finalInfo = `<div class="message">Best Streak: ${state.bestStreak}</div>`;
             } else if (state.gameMode === 'survival') {
                 message = `Survived ${state.round} rounds!`;
-                finalInfo = `<div class="message">Best Streak: ${state.bestStreak}</div>`;
+            } else if (state.gameMode === 'timed') {
+                message = `Time's up!`;
             } else {
-                message = state.score === 4 ? 'Perfect Score!' : state.score >= 2 ? 'Good Job!' : 'Keep Practicing!';
-                finalInfo = `<div class="message">Best Streak: ${state.bestStreak}</div>`;
+                message = state.score === 4 ? 'Perfect Score! 🎉' : state.score >= 3 ? 'Great Job! 🌟' : state.score >= 2 ? 'Good Effort! 👍' : 'Keep Practicing! 💪';
             }
+            
+            const submissionMessage = state.playerName 
+                ? `<div class="message" style="color: var(--correct);">✓ Score submitted as "${state.playerName}"</div>
+                   <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                       Your score will appear on the leaderboard after approval.
+                   </p>`
+                : '';
+            
+            const performanceText = state.score >= 3 ? 
+                "You're great at detecting AI-generated content! Your skills will help you spot misinformation." :
+                state.score >= 2 ?
+                "You're learning the patterns! Keep practicing to improve your detection skills." :
+                "AI detection takes practice. Try again and focus on the hints to improve!";
             
             gameEl.innerHTML = `
                 <div class="header">
                     <div class="header-left">
                         <h1>Game Over</h1>
-                        <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} Mode</p>
+                        <p class="subtitle">${state.gameMode.charAt(0).toUpperCase() + state.gameMode.slice(1)} Mode - ${state.difficulty.charAt(0).toUpperCase() + state.difficulty.slice(1)}</p>
                     </div>
                 </div>
                 
                 <div class="card game-over">
                     <h2>${message}</h2>
                     <div class="final-score">${state.score}</div>
-                    ${finalInfo}
+                    <div class="message">Best Streak: ${state.bestStreak} 🔥</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                        ${performanceText}
+                    </p>
+                    ${submissionMessage}
+                    
                     <button onclick="backToMenu()">Play Again</button>
+                    <button onclick="viewLeaderboard()" style="background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%); margin-top: 10px;">
+                        🏆 View Leaderboard
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderLeaderboard(gameEl) {
+            const modes = ['classic', 'timed', 'survival', 'speedrun'];
+            const difficulties = ['easy', 'medium', 'hard'];
+            
+            let leaderboardHtml = '';
+            
+            modes.forEach(mode => {
+                difficulties.forEach(diff => {
+                    const filtered = state.leaderboard
+                        .filter(s => s.mode === mode && s.difficulty === diff)
+                        .slice(0, 10);
+                    
+                    if (filtered.length > 0) {
+                        leaderboardHtml += `
+                            <div style="margin-bottom: 30px;">
+                                <h3 style="margin-bottom: 15px; color: var(--border-primary);">
+                                    ${mode.charAt(0).toUpperCase() + mode.slice(1)} - ${diff.charAt(0).toUpperCase() + diff.slice(1)}
+                                </h3>
+                                <div style="background: rgba(76, 175, 80, 0.05); border-radius: 8px; padding: 15px;">
+                                    ${filtered.map((score, idx) => `
+                                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                                            <span><strong>${idx + 1}.</strong> ${score.name}</span>
+                                            <span style="color: var(--correct); font-weight: bold;">
+                                                ${score.score} ${mode === 'speedrun' ? `(${score.time}s)` : ''}
+                                            </span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            });
+            
+            if (!leaderboardHtml) {
+                leaderboardHtml = '<p style="text-align: center; color: var(--text-muted);">No scores yet. Be the first!</p>';
+            }
+            
+            gameEl.innerHTML = `
+                <div class="header">
+                    <div class="header-left">
+                        <h1>🏆 Leaderboard</h1>
+                        <p class="subtitle">Top AI Detection Experts</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    ${leaderboardHtml}
+                    
+                    <button onclick="backToMenu()" style="margin-top: 20px;">
+                        ← Back to Menu
+                    </button>
                 </div>
             `;
         }
@@ -2050,10 +1729,14 @@
             
             const key = e.key.toUpperCase();
             
-            if (key === 'ENTER' && state.revealed) {
-                nextRound();
+            if (key === 'ENTER') {
+                if (state.revealed) {
+                    nextRound();
+                } else if (state.selected !== null) {
+                    submitAnswer();
+                }
             } else if (!state.revealed) {
-                const maxOptions = state.gameType === 'callmybluff' ? 2 : 4;
+                const maxOptions = state.gameType === 'call' ? 2 : 4;
                 const idx = key.charCodeAt(0) - 65;
                 if (idx >= 0 && idx < maxOptions) {
                     selectFact(idx);
@@ -2068,6 +1751,7 @@
             document.body.classList.add('dark-mode');
         }
 
+        loadLeaderboard();
         render();
     </script>
 </body>
