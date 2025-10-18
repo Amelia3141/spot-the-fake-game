@@ -2709,7 +2709,7 @@
     
     const key = e.key.toUpperCase();
     
-    if (key === 'ENTER') {
+    if (key === 'ENTER' || e.key === '6') {
         if (state.revealed) {
             nextRound();
         } else if (state.selected !== null) {
@@ -2717,7 +2717,17 @@
         }
     } else if (!state.revealed) {
         const maxOptions = state.gameType === 'call' ? 2 : 4;
-        const idx = key.charCodeAt(0) - 65;
+        let idx = -1;
+        
+        // Handle A-D keys
+        if (key >= 'A' && key <= 'D') {
+            idx = key.charCodeAt(0) - 65;
+        }
+        // Handle 1-4 keys
+        else if (e.key >= '1' && e.key <= '4') {
+            idx = parseInt(e.key) - 1;
+        }
+        
         if (idx >= 0 && idx < maxOptions) {
             selectFact(idx);
         }
