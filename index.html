@@ -2705,25 +2705,24 @@
 
         // KEYBOARD SUPPORT
         document.addEventListener('keydown', (e) => {
-            if (state.screen !== 'playing') return;
-            
-            const key = e.key.toUpperCase();
-            
-            if (key === 'ENTER') {
-                if (state.revealed) {
-                    nextRound();
-                } else if (state.selected !== null) {
-                    submitAnswer();
-                }
-            } else if (!state.revealed) {
-                const maxOptions = state.gameType === 'call' ? 2 : 4;
-                const idx = key.charCodeAt(0) - 65;
-                if (idx >= 0 && idx < maxOptions) {
-                    selectFact(idx);
-                }
-            }
-        });
-
+    if (state.screen !== 'playing') return;
+    
+    const key = e.key.toUpperCase();
+    
+    if (key === 'ENTER') {
+        if (state.revealed) {
+            nextRound();
+        } else if (state.selected !== null) {
+            submitAnswer();
+        }
+    } else if (!state.revealed) {
+        const maxOptions = state.gameType === 'call' ? 2 : 4;
+        const idx = key.charCodeAt(0) - 65;
+        if (idx >= 0 && idx < maxOptions) {
+            selectFact(idx);
+        }
+    }
+});
         // INITIALIZE
         const savedDarkMode = localStorage.getItem('darkMode') === 'true';
         if (savedDarkMode) {
