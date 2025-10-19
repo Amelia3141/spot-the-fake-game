@@ -2176,7 +2176,7 @@
         }
 
         function loadLeaderboard() {
-            db.ref('leaderboard/pending').orderByChild('approved').equalTo(1).limitToLast(100).on('value', (snapshot) => {
+            db.ref('leaderboard/pending').orderByChild('approved').equalTo(0).limitToLast(100).on('value', (snapshot) => {
                 const scores = [];
                 snapshot.forEach((child) => {
                     scores.push({ id: child.key, ...child.val() });
