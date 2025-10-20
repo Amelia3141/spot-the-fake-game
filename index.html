@@ -2181,21 +2181,11 @@
                 snapshot.forEach((child) => {
                     scores.push({ id: child.key, ...child.val() });
                 });
-                scores.sort((a, b) => {
-                    if (b.score !== a.score) {
-                        return b.score - a.score; // Higher score first
-                    }
-                    // Same score: sort by time (lower is better) for speedrun mode
-                    if (a.mode === 'speedrun' && b.mode === 'speedrun' && a.time && b.time) {
-                        return a.time - b.time;
-                    }
-                    return 0;
-                });
                 state.leaderboard = scores;
                 render();
             });
         }
-
+        
         function viewLeaderboard() {
             state.screen = 'leaderboard';
             render();
@@ -2668,6 +2658,15 @@
                 difficulties.forEach(diff => {
                     const filtered = state.leaderboard
                         .filter(s => s.mode === mode && s.difficulty === diff)
+                        .sort((a, b) => {
+                            if (b.score !== a.score) {
+                                return b.score - a.score;
+                            }
+                            if (mode === 'speedrun' && a.time && b.time) {
+                                return a.time - b.time;
+                            }
+                            return 0;
+                        })
                         .slice(0, 10);
                     
                     if (filtered.length > 0) {
