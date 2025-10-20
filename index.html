@@ -2181,7 +2181,8 @@
                 snapshot.forEach((child) => {
                     scores.push({ id: child.key, ...child.val() });
                 });
-                state.leaderboard = scores.reverse();
+                scores.sort((a, b) => b.score - a.score); // Higher score is better for all modes
+                state.leaderboard = scores;
             });
         }
 
